@@ -32,7 +32,6 @@ func (productsRouter *ProductsRouter) RegisterRoutes() {
 		authMiddlewares.AuthorizationWithEmailVerification,
 		authMiddlewares.AuthorizationWithAdminCheck,
 	)
-
 	authorizationWithEmailVerification := tools.MiddlewareChain(
 		authMiddlewares.Authorization,
 		authMiddlewares.AuthorizationWithEmailVerification,

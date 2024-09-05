@@ -5,11 +5,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/models"
-	"github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/database"
-	"github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/tools"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+
+	models "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/models"
+	database "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/database"
+	tools "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/tools"
 )
 
 type ReviewsRepository struct {
@@ -156,7 +157,7 @@ func (reviewsRepository *ReviewsRepository) GetReview(id uint, appendWith string
 	}
 
 	database := reviewsRepository.database
-	query := database.Model(&models.Review{})
+	query := database.Model(&models.Review{}).Where("id = ?", id)
 
 	validExtentions := getValidExtentions(appendWith)
 	for _, extention := range validExtentions {
@@ -164,7 +165,7 @@ func (reviewsRepository *ReviewsRepository) GetReview(id uint, appendWith string
 	}
 
 	var review models.Review
-	err := query.Where("id = ?", id).First(&review).Error
+	err := query.First(&review).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return http.StatusBadRequest, tools.Object{
@@ -196,7 +197,7 @@ func (reviewsRepository *ReviewsRepository) GetReviews(pageSize uint, page uint,
 	database.Model(&models.Review{}).Count(&totalRecords)
 	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
 
-	if page < 1 || page > uint(totalPages) {
+	if page < 1 {
 		return http.StatusBadRequest, tools.Object{
 			"error": "INVALID_PAGE",
 		}

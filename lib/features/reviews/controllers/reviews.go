@@ -19,7 +19,7 @@ func NewReviewsController() *ReviewsController {
 	}
 }
 
-func (reviewsController *ReviewsController) CreateReview(w http.ResponseWriter, r *http.Request)  {
+func (reviewsController *ReviewsController) CreateReview(w http.ResponseWriter, r *http.Request) {
 	var review models.Review
 	json.NewDecoder(r.Body).Decode(&review)
 
@@ -31,7 +31,7 @@ func (reviewsController *ReviewsController) CreateReview(w http.ResponseWriter, 
 	w.Write(reponse)
 }
 
-func (reviewsController *ReviewsController) UpdateReview(w http.ResponseWriter, r *http.Request)  {
+func (reviewsController *ReviewsController) UpdateReview(w http.ResponseWriter, r *http.Request) {
 	var review models.Review
 	json.NewDecoder(r.Body).Decode(&review)
 
@@ -50,7 +50,7 @@ func (reviewsController *ReviewsController) UpdateReview(w http.ResponseWriter, 
 	w.Write(reponse)
 }
 
-func (reviewsController *ReviewsController) DeleteReview(w http.ResponseWriter, r *http.Request)  {
+func (reviewsController *ReviewsController) DeleteReview(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	id, err := strconv.Atoi(idString)
 	if err != nil || id < 0 {
@@ -72,15 +72,15 @@ func (reviewsController *ReviewsController) GetReview(w http.ResponseWriter, r *
 		id = 0
 	}
 
-	appendWith := r.PathValue("append_with")
+	appendWith := r.URL.Query().Get("append_with")
 
 	reviewsRepository := reviewsController.reviewsRepository
 	status, result := reviewsRepository.GetReview(uint(id), appendWith)
 
 	if status == http.StatusOK {
-		user := result["review"].(models.User)
+		review := result["review"].(models.Review)
 		w.WriteHeader(status)
-		response, _ := json.Marshal(&user)
+		response, _ := json.Marshal(&review)
 		w.Write(response)
 		return
 	}

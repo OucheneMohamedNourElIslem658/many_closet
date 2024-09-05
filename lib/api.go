@@ -6,6 +6,7 @@ import (
 
 	authRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/auth/routers"
 	productsRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/products/routers"
+	reviewsRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/reviews/routers"
 	usersRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/users/routers"
 )
 
@@ -46,6 +47,10 @@ func (server *Server) RunServer() {
 	productsRouter := productsRouters.NewProductsRouter()
 	v1.Handle("/products/", http.StripPrefix("/products", productsRouter.Router))
 	productsRouter.RegisterRoutes()
+
+	reviewsRouter := reviewsRouters.NewReviesRouter()
+	v1.Handle("/reviews/", http.StripPrefix("/reviews", reviewsRouter.Router))
+	reviewsRouter.RegisterRoutes()
 
 	fmt.Printf("Listening and serving at %v\n", "http://"+server.address)
 	err := http.ListenAndServe(server.address, mainRouter)
