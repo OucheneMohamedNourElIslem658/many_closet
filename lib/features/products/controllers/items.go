@@ -20,8 +20,10 @@ func NewproductsController() *ProductsController {
 }
 
 func (productsController *ProductsController) GetCollections(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+
 	productsRepositorie := productsController.productsRepository
-	status, result := productsRepositorie.GetCollections()
+	status, result := productsRepositorie.GetCollections(name)
 
 	w.WriteHeader(status)
 	response, _ := json.Marshal(result)
@@ -230,6 +232,7 @@ func (productsController *ProductsController) GetItems(w http.ResponseWriter, r 
 
 	appendWith := query.Get("append_with")
 	orderBy := query.Get("order_by")
+	name := query.Get("name")
 
 	descString := query.Get("desc")
 	desc, err := strconv.ParseBool(descString)
@@ -264,6 +267,7 @@ func (productsController *ProductsController) GetItems(w http.ResponseWriter, r 
 		uint(collectionID),
 		uint(colorID),
 		uint(tailleID),
+		name,
 	)
 
 	w.WriteHeader(status)

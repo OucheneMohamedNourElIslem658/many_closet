@@ -127,11 +127,12 @@ func (productsRepository *ProductsRepository) DeleteCollection(id uint) (status 
 	}
 }
 
-func (productsRepository *ProductsRepository) GetCollections() (status int, result tools.Object) {
+func (productsRepository *ProductsRepository) GetCollections(name string) (status int, result tools.Object) {
 	database := productsRepository.database
 
 	var collections []models.Collection
-	err := database.Find(&collections).Error
+	err := database.Where("name like ?", "%"+name+"%").
+		Find(&collections).Error
 	if err != nil {
 		return http.StatusInternalServerError, tools.Object{
 			"error":   "INTERNAL_SERVER_ERROR",
@@ -144,43 +145,6 @@ func (productsRepository *ProductsRepository) GetCollections() (status int, resu
 		"collections": collections,
 	}
 }
-
-// func (productsRepository *ProductsRepository) GetCollection(id uint, appendWith string) (status int, result tools.Object) {
-// 	database := productsRepository.database
-
-// 	if id == 0 {
-// 		return http.StatusBadRequest, tools.Object{
-// 			"error": "INDEFINED_ID",
-// 		}
-// 	}
-
-// 	validExtentions := getValidExtentions(appendWith)
-
-// 	var item models.Item
-
-// 	query := database.Where("id = ?", id)
-
-// 	for _, extention := range validExtentions {
-// 		query.Preload(extention)
-// 	}
-
-// 	err := query.First(&item).Error
-// 	if err != nil {
-// 		if err == gorm.ErrRecordNotFound {
-// 			return http.StatusNotFound, tools.Object{
-// 				"error": "ITEM_NOT_FOUND",
-// 			}
-// 		}
-// 		return http.StatusInternalServerError, tools.Object{
-// 			"error":   "INTERNAL_SERVER_ERROR",
-// 			"message": err.Error(),
-// 		}
-// 	}
-
-// 	return http.StatusOK, tools.Object{
-// 		"item": item,
-// 	}
-// }
 
 func (productsRepository *ProductsRepository) CreateColor(name string) (status int, result tools.Object) {
 	if name == "" {
@@ -651,7 +615,7 @@ func (productsRepository *ProductsRepository) UpdateItem(item models.Item) (stat
 	}
 }
 
-func (productsRepository *ProductsRepository) GetItems(pageSize uint, page uint, appendWith string, orderBy string, desc bool, collectionID uint, colorID uint, tailleID uint) (status int, result tools.Object) {
+func (productsRepository *ProductsRepository) GetItems(pageSize uint, page uint, appendWith string, orderBy string, desc bool, collectionID uint, colorID uint, tailleID uint, name string) (status int, result tools.Object) {
 	database := productsRepository.database
 
 	if pageSize == 0 {
@@ -678,19 +642,21 @@ func (productsRepository *ProductsRepository) GetItems(pageSize uint, page uint,
 	query := database.Model(&models.Item{})
 
 	if collectionID != 0 {
-		query = query.Joins("JOIN item_collections ON item_collections.item_id = items.id").
+		query.Joins("JOIN item_collections ON item_collections.item_id = items.id").
 			Where("item_collections.collection_id = ?", collectionID)
 	}
 
 	if colorID != 0 {
-		query = query.Joins("JOIN item_colors ON item_colors.item_id = items.id").
-			Where("item_colors.color_id = ?", collectionID)
+		query.Joins("JOIN item_colors ON item_colors.item_id = items.id").
+			Where("item_colors.color_id = ?", colorID)
 	}
 
 	if tailleID != 0 {
-		query = query.Joins("JOIN item_tailles ON item_tailles.item_id = items.id").
-			Where("item_tailles.taille_id = ?", collectionID)
+		query.Joins("JOIN item_tailles ON item_tailles.item_id = items.id").
+			Where("item_tailles.taille_id = ?", tailleID)
 	}
+
+	query.Where("name like ?", "%"+name+"%")
 
 	var items []models.Item
 	query.Limit(int(pageSize)).Offset(int(offset))

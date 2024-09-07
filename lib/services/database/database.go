@@ -42,6 +42,7 @@ func migrateTables() error {
 		&models.Review{},
 		&models.Purchase{},
 		&models.Transaction{},
+		&models.Checkout{},
 		&models.Order{},
 	)
 	if err != nil {
