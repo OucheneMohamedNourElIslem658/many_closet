@@ -561,11 +561,11 @@ func (productsRepository *ProductsRepository) UpdateItem(item models.Item) (stat
 		existingItem.Rate = item.Rate
 	}
 
-	if item.Sold != nil {
+	if item.Sold != 0 {
 		existingItem.Sold = item.Sold
 	}
 
-	if item.Stock != nil {
+	if item.Stock != 0 {
 		existingItem.Stock = item.Stock
 	}
 

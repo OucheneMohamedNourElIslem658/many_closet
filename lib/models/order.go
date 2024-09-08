@@ -13,7 +13,8 @@ type Order struct {
 	UpdatedAt     time.Time      `json:"updated_at"`
 	DeletedAt     gorm.DeletedAt `gorm:"index" json:"deleted_at"`
 	Purchases     []Purchase     `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"purchases,omitempty"`
-	IsAccepted    *bool          `json:"is_accepted"`
+	IsAccepted    bool           `json:"is_accepted"`
+	IsPaid        bool           `json:"is_paid"`
 	TransactionID *uint          `json:"transaction_id"`
 	Transaction   *Transaction   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"transaction,omitempty"`
 	UserID        uint           `json:"user_id"`
@@ -72,11 +73,6 @@ type Checkout struct {
 func (order *Order) VaidateCreate() error {
 	if order.UserID == 0 {
 		return errors.New("USER_ID_INDEFINED")
-	}
-
-	if order.IsAccepted == nil {
-		defaultValue := false
-		order.IsAccepted = &defaultValue
 	}
 
 	if order.Purchases == nil || len(order.Purchases) == 0 {

@@ -17,6 +17,6 @@ func initAPI() Config {
 	godotenv.Load()
 	return Config{
 		SecretKey: os.Getenv("CHARGILY_SECRET_KEY"),
-		BaseURL:   "https://pay.chargily.net/test/api/v2/checkouts",
+		BaseURL:   "https://pay.chargily.net/test/api/v2",
 	}
 }

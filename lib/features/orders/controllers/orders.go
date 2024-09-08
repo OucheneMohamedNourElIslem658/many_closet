@@ -20,25 +20,6 @@ func NewOrdersController() *OrdersController {
 	}
 }
 
-func (ordersController *OrdersController) MakeOrder(w http.ResponseWriter, r *http.Request) {
-	var body struct {
-		Order      models.Order
-		SuccessURL string `json:"success_url"`
-	}
-	json.NewDecoder(r.Body).Decode(&body)
-
-	auth, _ := r.Context().Value("auth").(tools.Object)
-	id := uint(auth["id"].(float64))
-	body.Order.ID = id
-
-	ordersRepositorie := ordersController.ordersRepository
-	status, result := ordersRepositorie.MakeOrder(body.Order, body.SuccessURL)
-
-	w.WriteHeader(status)
-	response, _ := json.Marshal(result)
-	w.Write(response)
-}
-
 func (ordersController *OrdersController) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	var order models.Order
 	json.NewDecoder(r.Body).Decode(&order)
@@ -55,19 +36,30 @@ func (ordersController *OrdersController) CreateOrder(w http.ResponseWriter, r *
 	w.Write(response)
 }
 
-func (ordersController *OrdersController) UpdateOrder(w http.ResponseWriter, r *http.Request) {
-	var order models.Order
-	json.NewDecoder(r.Body).Decode(&order)
-
+func (ordersController *OrdersController) AcceptOrder(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	id, err := strconv.Atoi(idString)
 	if err != nil || id < 0 {
 		id = 0
 	}
-	order.ID = uint(id)
 
 	ordersRepositorie := ordersController.ordersRepository
-	status, result := ordersRepositorie.UpdateOrder(order)
+	status, result := ordersRepositorie.AcceptOrder(uint(id))
+
+	w.WriteHeader(status)
+	response, _ := json.Marshal(result)
+	w.Write(response)
+}
+
+func (ordersController *OrdersController) UnacceptOrder(w http.ResponseWriter, r *http.Request) {
+	idString := r.PathValue("id")
+	id, err := strconv.Atoi(idString)
+	if err != nil || id < 0 {
+		id = 0
+	}
+
+	ordersRepositorie := ordersController.ordersRepository
+	status, result := ordersRepositorie.UnacceptOrder(uint(id))
 
 	w.WriteHeader(status)
 	response, _ := json.Marshal(result)
@@ -113,6 +105,15 @@ func (ordersController *OrdersController) GetOrders(w http.ResponseWriter, r *ht
 		isAccepted = &isAcceptedBool
 	}
 
+	var isPaid *bool
+	isPaidString := query.Get("is_paid")
+	isPaidBool, err := strconv.ParseBool(isPaidString)
+	if err != nil {
+		isPaid = nil
+	} else {
+		isPaid = &isPaidBool
+	}
+
 	ordersRepository := ordersController.ordersRepository
 	status, result := ordersRepository.GetOrders(
 		uint(pageSize),
@@ -122,6 +123,7 @@ func (ordersController *OrdersController) GetOrders(w http.ResponseWriter, r *ht
 		desc,
 		uint(userID),
 		isAccepted,
+		isPaid,
 	)
 
 	w.WriteHeader(status)
@@ -167,6 +169,29 @@ func (ordersController *OrdersController) DeleteOrder(w http.ResponseWriter, r *
 	ordersRepository := ordersController.ordersRepository
 	status, result := ordersRepository.DeleteOrder(
 		uint(id),
+	)
+
+	w.WriteHeader(status)
+	response, _ := json.Marshal(result)
+	w.Write(response)
+}
+
+func (ordersController *OrdersController) SendPaymentURL(w http.ResponseWriter, r *http.Request) {
+	idString := r.PathValue("id")
+	id, err := strconv.Atoi(idString)
+	if err != nil || id < 0 {
+		id = 0
+	}
+
+	var body struct {
+		SuccessURL string `json:"success_url"`
+	}
+	json.NewDecoder(r.Body).Decode(&body)
+
+	ordersRepository := ordersController.ordersRepository
+	status, result := ordersRepository.SendPaymentURL(
+		uint(id),
+		body.SuccessURL,
 	)
 
 	w.WriteHeader(status)

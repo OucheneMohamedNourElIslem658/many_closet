@@ -32,10 +32,11 @@ func (ordersRouter *OrdersRouter) RegisterRoutes() {
 		authMiddlewares.AuthorizationWithEmailVerification,
 	)
 
-	router.HandleFunc("POST /make", authorizationWithEmailVerification(http.HandlerFunc(ordersController.MakeOrder)))
 	router.HandleFunc("GET /search", authorizationWithEmailVerification(http.HandlerFunc(ordersController.GetOrders)))
 	router.HandleFunc("GET /{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.GetOrder)))
 	router.HandleFunc("POST /create", authorizationWithEmailVerification(http.HandlerFunc(ordersController.CreateOrder)))
-	router.HandleFunc("PUT /update/{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.UpdateOrder)))
+	router.HandleFunc("PUT /accept/{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.AcceptOrder)))
+	router.HandleFunc("PUT /unaccept/{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.UnacceptOrder)))
 	router.HandleFunc("DELETE /delete/{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.DeleteOrder)))
+	router.HandleFunc("POST /sendPaymentURL/{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.SendPaymentURL)))
 }

@@ -1,9 +1,6 @@
 package orders
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
 	"math"
 	"net/http"
 
@@ -25,82 +22,6 @@ func NewOrdersRepository() *OrdersRepository {
 	return &OrdersRepository{
 		database: database.Instance,
 		chargily: chargily.Instance,
-	}
-}
-
-func (ordersRepository *OrdersRepository) MakeOrder(order models.Order, successURL string) (status int, responseBytesult tools.Object) {
-	if err := order.VaidateCreate(); err != nil {
-		return http.StatusBadRequest, tools.Object{
-			"error": err,
-		}
-	}
-
-	if successURL == "" {
-		return http.StatusBadRequest, tools.Object{
-			"error": "INDEFINED_SUCCESS_URL",
-		}
-	}
-
-	database := ordersRepository.database
-
-	orderPrice := 0
-	var orderCurrency string
-	for _, purchase := range order.Purchases {
-		err := database.Where("id = ?", purchase.ItemID).First(&purchase.Item).Error
-		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				return http.StatusBadRequest, tools.Object{
-					"error": "ITEM_NOT_FOUND",
-				}
-			}
-			return http.StatusInternalServerError, tools.Object{
-				"error":   "INTERNAL_SERVER_ERROR",
-				"message": err.Error(),
-			}
-		}
-
-		item := purchase.Item
-		itemPrice := (item.Price - *item.Sold) * purchase.Count
-		orderPrice += int(itemPrice)
-		orderCurrency = item.Currency
-	}
-
-	requestBody := tools.Object{
-		"amount":      orderPrice,
-		"currency":    orderCurrency,
-		"success_url": successURL,
-		"metadata":    order,
-	}
-	requestBytes, _ := json.Marshal(requestBody)
-	url := ordersRepository.chargily.BaseURL
-	secretKey := ordersRepository.chargily.SecretKey
-
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(requestBytes))
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %v", secretKey))
-	req.Header.Add("Content-Type", "application/json")
-
-	responseBytes, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return http.StatusInternalServerError, tools.Object{
-			"error":   "INTERNAL_SERVER_ERROR",
-			"message": err.Error(),
-		}
-	}
-	defer responseBytes.Body.Close()
-
-	var response tools.Object
-	json.NewDecoder(responseBytes.Body).Decode(&response)
-	if responseBytes.StatusCode == http.StatusOK {
-		return http.StatusOK, tools.Object{
-			"checkout_url": response["checkout_url"],
-		}
-	} else {
-		var err tools.Object
-		json.NewDecoder(responseBytes.Body).Decode(&err)
-		return http.StatusInternalServerError, tools.Object{
-			"error":   "INTERNAL_SERVER_ERROR",
-			"message": response["message"],
-		}
 	}
 }
 
@@ -130,7 +51,7 @@ func (ordersRepository *OrdersRepository) CreateOrder(order models.Order) (statu
 		}
 
 		item := order.Purchases[index].Item
-		itemStock := *(item.Stock)
+		itemStock := item.Stock
 		if itemStock < purchase.Count {
 			return http.StatusBadRequest, tools.Object{
 				"error":   "ITEMS_COUNT_OUT_OF_BOUND_FOUND",
@@ -153,18 +74,21 @@ func (ordersRepository *OrdersRepository) CreateOrder(order models.Order) (statu
 	}
 }
 
-func (ordersRepository *OrdersRepository) UpdateOrder(order models.Order) (status int, responseBytesult tools.Object) {
-	if order.ID == 0 {
+func (ordersRepository *OrdersRepository) AcceptOrder(id uint) (status int, responseBytesult tools.Object) {
+	if id == 0 {
 		return http.StatusBadRequest, tools.Object{
-			"error": "ORDER_ID_INDEFINED",
+			"error": "ID_UNDEFINED",
 		}
 	}
 
 	database := ordersRepository.database
-	var storedOrder models.Order
-	err := database.Where("id = ?", order.ID).
-		First(&storedOrder).
+	var order models.Order
+	err := database.Where("id = ?", id).
+		Preload("Purchases").
+		Preload("Purchases.Item").
+		First(&order).
 		Error
+
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return http.StatusBadRequest, tools.Object{
@@ -177,11 +101,28 @@ func (ordersRepository *OrdersRepository) UpdateOrder(order models.Order) (statu
 		}
 	}
 
-	if order.IsAccepted != nil {
-		storedOrder.IsAccepted = order.IsAccepted
+	if !order.IsAccepted {
+		for _, purchase := range order.Purchases {
+			item := purchase.Item
+			stock := item.Stock
+			stock -= purchase.Count
+			item.Stock = stock
+			err := database.Save(&item).Error
+			if err != nil {
+				return http.StatusInternalServerError, tools.Object{
+					"error":   "INTERNAL_SERVER_ERROR",
+					"message": err.Error(),
+				}
+			}
+		}
+		order.IsAccepted = true
+	} else {
+		return http.StatusBadRequest, tools.Object{
+			"error": "ORDER_ALREADY_ACCEPTED",
+		}
 	}
 
-	err = database.Save(&storedOrder).Error
+	err = database.Save(&order).Error
 	if err != nil {
 		return http.StatusInternalServerError, tools.Object{
 			"error":   "INTERNAL_SERVER_ERROR",
@@ -190,16 +131,77 @@ func (ordersRepository *OrdersRepository) UpdateOrder(order models.Order) (statu
 	}
 
 	return http.StatusOK, tools.Object{
-		"error": "ORDER_UPDATED",
+		"error": "ORDER_ACCEPTED",
 	}
 }
 
-func (ordersRepository *OrdersRepository) GetOrders(pageSize uint, page uint, appendWith string, orderBy string, desc bool, userID uint, isAccepted *bool) (status int, result tools.Object) {
+func (ordersRepository *OrdersRepository) UnacceptOrder(id uint) (status int, responseBytesult tools.Object) {
+	if id == 0 {
+		return http.StatusBadRequest, tools.Object{
+			"error": "ID_UNDEFINED",
+		}
+	}
+
+	database := ordersRepository.database
+	var order models.Order
+	err := database.Where("id = ?", id).
+		Preload("Purchases").
+		Preload("Purchases.Item").
+		First(&order).
+		Error
+
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return http.StatusBadRequest, tools.Object{
+				"error": "ORDER_NOT_FOUND",
+			}
+		}
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
+		}
+	}
+
+	if order.IsAccepted {
+		for _, purchase := range order.Purchases {
+			item := purchase.Item
+			stock := item.Stock
+			stock += purchase.Count
+			item.Stock = stock
+			err := database.Save(&item).Error
+			if err != nil {
+				return http.StatusInternalServerError, tools.Object{
+					"error":   "INTERNAL_SERVER_ERROR",
+					"message": err.Error(),
+				}
+			}
+		}
+		order.IsAccepted = false
+	} else {
+		return http.StatusBadRequest, tools.Object{
+			"error": "ORDER_ALREADY_UNACCEPTED",
+		}
+	}
+
+	err = database.Save(&order).Error
+	if err != nil {
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
+		}
+	}
+
+	return http.StatusOK, tools.Object{
+		"error": "ORDER_UNACCEPTED",
+	}
+}
+
+func (ordersRepository *OrdersRepository) GetOrders(pageSize uint, page uint, appendWith string, orderBy string, desc bool, userID uint, isAccepted *bool, isPaid *bool) (status int, result tools.Object) {
 	database := ordersRepository.database
 
 	if pageSize == 0 {
 		return http.StatusBadRequest, tools.Object{
-			"error": "INDEFINED_PAGE_SIZE",
+			"error": "UNDEFINED_PAGE_SIZE",
 		}
 	}
 
@@ -240,6 +242,10 @@ func (ordersRepository *OrdersRepository) GetOrders(pageSize uint, page uint, ap
 
 	if isAccepted != nil {
 		query.Where("is_accepted = ?", isAccepted)
+	}
+
+	if isPaid != nil {
+		query.Where("is_paid = ?", isPaid)
 	}
 
 	err := query.Find(&orders).Error
@@ -295,7 +301,7 @@ func (ordersRepository *OrdersRepository) GetOrder(id uint, appendWith string) (
 func (ordersRepository *OrdersRepository) DeleteOrder(id uint) (status int, result tools.Object) {
 	if id == 0 {
 		return http.StatusBadRequest, tools.Object{
-			"error": "INDEFINED_ID",
+			"error": "UNDEFINED_ID",
 		}
 	}
 
@@ -320,5 +326,56 @@ func (ordersRepository *OrdersRepository) DeleteOrder(id uint) (status int, resu
 
 	return http.StatusOK, tools.Object{
 		"message": "ORDER_DELETED",
+	}
+}
+
+func (ordersRepository *OrdersRepository) SendPaymentURL(id uint, successURL string) (status int, responseBytesult tools.Object) {
+	if id == 0 {
+		return http.StatusBadRequest, tools.Object{
+			"error": "UNDEFINED_ID",
+		}
+	}
+	if successURL == "" {
+		return http.StatusBadRequest, tools.Object{
+			"error": "UNDEFINED_SUCCESS_URL",
+		}
+	}
+
+	database := ordersRepository.database
+
+	var order models.Order
+	err := database.Where("id = ?", id).
+		Preload("Purchases").
+		Preload("Purchases.Item").
+		First(&order).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return http.StatusBadRequest, tools.Object{
+				"error": "ORDER_NOT_FOUND",
+			}
+		}
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
+		}
+	}
+
+	if !order.IsAccepted {
+		return http.StatusBadRequest, tools.Object{
+			"error": "ORDER_NOT_ACCEPTED_YET",
+		}
+	}
+
+	for _, purchase := range order.Purchases {
+		item := purchase.Item
+		status, result := chargily.CreateProduct(item)
+		if status != http.StatusOK {
+			return status, result
+		}
+	}
+
+	status, result := chargily.CreateCheckoutURL(order.ID, order.Purchases, successURL)
+	return status, tools.Object{
+		"checkout_url": result["checkout_url"],
 	}
 }
