@@ -24,7 +24,7 @@ type Item struct {
 	SKU         string         `json:"sku"`
 	Rate        *float64       `json:"rate"`
 	Collections []Collection   `gorm:"many2many:item_collections;" json:"collections,omitempty"`
-	Reviews     []Review       `json:"reviews,omitempty"`
+	Reviews     []Review       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"reviews,omitempty"`
 }
 
 type Color struct {

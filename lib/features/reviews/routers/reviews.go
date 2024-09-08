@@ -14,7 +14,7 @@ type ReviewsRouter struct {
 	authMiddlewares   *authMiddlewares.AuthMiddlewares
 }
 
-func NewReviesRouter() *ReviewsRouter {
+func NewReviewsRouter() *ReviewsRouter {
 	return &ReviewsRouter{
 		Router:            http.NewServeMux(),
 		reviewsController: reviewsControllers.NewReviewsController(),

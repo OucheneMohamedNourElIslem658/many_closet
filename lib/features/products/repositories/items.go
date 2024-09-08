@@ -3,7 +3,6 @@ package products
 import (
 	"math"
 	"net/http"
-	"strings"
 	"sync"
 
 	mysql "github.com/go-sql-driver/mysql"
@@ -634,8 +633,8 @@ func (productsRepository *ProductsRepository) GetItems(pageSize uint, page uint,
 		}
 	}
 
-	validExtentions := getValidExtentions(appendWith)
-	validFilters := getValidFilters(orderBy)
+	validExtentions := tools.GetValidExtentions(appendWith, "collections", "colors", "tailles")
+	validFilters := tools.GetValidFilters(orderBy, "name", "price", "stock", "rate", "creation_time")
 
 	offset := (page - 1) * pageSize
 
@@ -690,18 +689,16 @@ func (productsRepository *ProductsRepository) GetItems(pageSize uint, page uint,
 }
 
 func (productsRepository *ProductsRepository) GetItem(id uint, appendWith string) (status int, result tools.Object) {
-	database := productsRepository.database
-
-	if id == 0 {
+    if id == 0 {
 		return http.StatusBadRequest, tools.Object{
 			"error": "INDEFINED_ID",
 		}
 	}
 
-	validExtentions := getValidExtentions(appendWith)
+	validExtentions := tools.GetValidExtentions(appendWith, "collections", "colors", "tailles")
+	database := productsRepository.database
 
 	var item models.Item
-
 	query := database.Where("id = ?", id)
 
 	for _, extention := range validExtentions {
@@ -724,40 +721,4 @@ func (productsRepository *ProductsRepository) GetItem(id uint, appendWith string
 	return http.StatusOK, tools.Object{
 		"item": item,
 	}
-}
-
-func getValidExtentions(appendWith string) []string {
-	extentions := strings.Split(appendWith, ",")
-	validExtentions := make([]string, 0)
-	for _, extention := range extentions {
-		extention = strings.ToLower(extention)
-		isExtentionValid := extention == "collections" ||
-			extention == "colors" ||
-			extention == "tailles"
-		if isExtentionValid {
-			extention = strings.ToUpper(string(extention[0])) + extention[1:]
-			validExtentions = append(validExtentions, extention)
-		}
-	}
-	return validExtentions
-}
-
-func getValidFilters(orderBy string) []string {
-	filter := strings.Split(orderBy, ",")
-	validFilters := make([]string, 0)
-	for _, filter := range filter {
-		filter = strings.ToLower(filter)
-		isFilterValid := filter == "name" ||
-			filter == "price" ||
-			filter == "stock" ||
-			filter == "rate" ||
-			filter == "creation_time"
-		if isFilterValid {
-			if filter == "creation_time" {
-				filter = "created_at"
-			}
-			validFilters = append(validFilters, filter)
-		}
-	}
-	return validFilters
 }

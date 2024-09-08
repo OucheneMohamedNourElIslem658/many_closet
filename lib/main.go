@@ -1,6 +1,7 @@
 package main
 
 import (
+	chargily "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/chargily"
 	database "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/database"
 	email "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/email"
 )
@@ -8,6 +9,7 @@ import (
 func init() {
 	database.Init()
 	email.Init()
+	chargily.Init()
 }
 
 func main() {

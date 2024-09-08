@@ -3,7 +3,6 @@ package users
 import (
 	"math"
 	"net/http"
-	"strings"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -33,7 +32,7 @@ func (usersRepository *UsersRepository) GetUser(id uint, appendWith string) (sta
 	database := usersRepository.database
 	query := database.Model(&models.User{})
 
-	validExtentions := getValidExtentions(appendWith)
+	validExtentions := tools.GetValidExtentions(appendWith, "reviews", "orders")
 	for _, extention := range validExtentions {
 		query.Preload(extention)
 	}
@@ -198,7 +197,7 @@ func (usersRepository *UsersRepository) GetUsers(currentUserID uint, pageSize ui
 		}
 	}
 
-	validFilters := getValidFilters(orderBy)
+	validFilters := tools.GetValidFilters(orderBy, "full_name", "creation_time")
 
 	offset := (page - 1) * pageSize
 
@@ -229,36 +228,4 @@ func (usersRepository *UsersRepository) GetUsers(currentUserID uint, pageSize ui
 		"total_pages": totalPages,
 		"users":       users,
 	}
-}
-
-func getValidExtentions(appendWith string) []string {
-	extentions := strings.Split(appendWith, ",")
-	validExtentions := make([]string, 0)
-	for _, extention := range extentions {
-		extention = strings.ToLower(extention)
-		isExtentionValid := extention == "reviews" ||
-			extention == "orders"
-		if isExtentionValid {
-			extention = strings.ToUpper(string(extention[0])) + extention[1:]
-			validExtentions = append(validExtentions, extention)
-		}
-	}
-	return validExtentions
-}
-
-func getValidFilters(orderBy string) []string {
-	filter := strings.Split(orderBy, ",")
-	validFilters := make([]string, 0)
-	for _, filter := range filter {
-		filter = strings.ToLower(filter)
-		isFilterValid := filter == "full_name" ||
-			filter == "creation_time"
-		if isFilterValid {
-			if filter == "creation_time" {
-				filter = "created_at"
-			}
-			validFilters = append(validFilters, filter)
-		}
-	}
-	return validFilters
 }

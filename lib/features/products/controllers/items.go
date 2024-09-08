@@ -214,8 +214,6 @@ func (productsController *ProductsController) UpdateItem(w http.ResponseWriter, 
 }
 
 func (productsController *ProductsController) GetItems(w http.ResponseWriter, r *http.Request) {
-	productsRepositorie := productsController.productsRepository
-
 	query := r.URL.Query()
 
 	pageSizeString := query.Get("page_size")
@@ -258,7 +256,8 @@ func (productsController *ProductsController) GetItems(w http.ResponseWriter, r 
 		tailleID = 0
 	}
 
-	status, result := productsRepositorie.GetItems(
+	productsRepository := productsController.productsRepository
+	status, result := productsRepository.GetItems(
 		uint(pageSize),
 		uint(page),
 		appendWith,
