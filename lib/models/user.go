@@ -18,6 +18,8 @@ type User struct {
 	EmailVerified *bool          `json:"email_verified"`
 	Disabled      *bool          `json:"disabled"`
 	IsAdmin       bool           `gorm:"not null" json:"is_admin"`
+	ImageID       uint           `json:"image_id"`
+	Image         UserImage      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"image,omitempty"`
 	Reviews       []Review       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"reviews,omitempty"`
 	Orders        []Order        `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"orders,omitempty"`
 }

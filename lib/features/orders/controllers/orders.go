@@ -96,23 +96,7 @@ func (ordersController *OrdersController) GetOrders(w http.ResponseWriter, r *ht
 		userID = 0
 	}
 
-	var isAccepted *bool
-	isAcceptedString := query.Get("is_accepted")
-	isAcceptedBool, err := strconv.ParseBool(isAcceptedString)
-	if err != nil {
-		isAccepted = nil
-	} else {
-		isAccepted = &isAcceptedBool
-	}
-
-	var isPaid *bool
-	isPaidString := query.Get("is_paid")
-	isPaidBool, err := strconv.ParseBool(isPaidString)
-	if err != nil {
-		isPaid = nil
-	} else {
-		isPaid = &isPaidBool
-	}
+	orderStatus := query.Get("status")
 
 	ordersRepository := ordersController.ordersRepository
 	status, result := ordersRepository.GetOrders(
@@ -122,8 +106,7 @@ func (ordersController *OrdersController) GetOrders(w http.ResponseWriter, r *ht
 		orderBy,
 		desc,
 		uint(userID),
-		isAccepted,
-		isPaid,
+		orderStatus,
 	)
 
 	w.WriteHeader(status)
@@ -185,6 +168,7 @@ func (ordersController *OrdersController) SendPaymentURL(w http.ResponseWriter, 
 
 	var body struct {
 		SuccessURL string `json:"success_url"`
+		FailureURL string `json:"failure_url"`
 	}
 	json.NewDecoder(r.Body).Decode(&body)
 
@@ -192,7 +176,48 @@ func (ordersController *OrdersController) SendPaymentURL(w http.ResponseWriter, 
 	status, result := ordersRepository.SendPaymentURL(
 		uint(id),
 		body.SuccessURL,
+		body.FailureURL,
 	)
+
+	w.WriteHeader(status)
+	response, _ := json.Marshal(result)
+	w.Write(response)
+}
+
+func (ordersController *OrdersController) ExpirePaymentURL(w http.ResponseWriter, r *http.Request) {
+	idString := r.PathValue("id")
+	id, err := strconv.Atoi(idString)
+	if err != nil || id < 0 {
+		id = 0
+	}
+
+	ordersRepository := ordersController.ordersRepository
+	status, result := ordersRepository.ExpirePaymentURL(uint(id))
+
+	w.WriteHeader(status)
+	response, _ := json.Marshal(result)
+	w.Write(response)
+}
+
+func (ordersController *OrdersController) PaymentWebhook(w http.ResponseWriter, r *http.Request) {
+	type Metadata struct {
+		OrderID uint `json:"order_id"`
+	}
+	var checkout struct {
+		PaymentStatus string `json:"status"`
+		MetaData []Metadata `json:"metadata"`
+	}
+
+	json.NewDecoder(r.Body).Decode(&checkout)
+
+	idString := r.PathValue("id")
+	id, err := strconv.Atoi(idString)
+	if err != nil || id < 0 {
+		id = 0
+	}
+
+	ordersRepository := ordersController.ordersRepository
+	status, result := ordersRepository.PaymentWebhook(checkout.PaymentStatus, checkout.MetaData[0].OrderID)
 
 	w.WriteHeader(status)
 	response, _ := json.Marshal(result)

@@ -101,7 +101,7 @@ func (ordersRepository *OrdersRepository) AcceptOrder(id uint) (status int, resp
 		}
 	}
 
-	if !order.IsAccepted {
+	if order.Status == "pendingAcceptance" || order.Status == "rejected" {
 		for _, purchase := range order.Purchases {
 			item := purchase.Item
 			stock := item.Stock
@@ -115,7 +115,7 @@ func (ordersRepository *OrdersRepository) AcceptOrder(id uint) (status int, resp
 				}
 			}
 		}
-		order.IsAccepted = true
+		order.Status = "accepted"
 	} else {
 		return http.StatusBadRequest, tools.Object{
 			"error": "ORDER_ALREADY_ACCEPTED",
@@ -162,7 +162,13 @@ func (ordersRepository *OrdersRepository) UnacceptOrder(id uint) (status int, re
 		}
 	}
 
-	if order.IsAccepted {
+	if order.Status == "paid" {
+		return http.StatusBadRequest, tools.Object{
+			"error": "ORDER_ALREADY_PAID",
+		}
+	}
+
+	if order.Status == "pendingAcceptance" || order.Status == "accepted" {
 		for _, purchase := range order.Purchases {
 			item := purchase.Item
 			stock := item.Stock
@@ -176,7 +182,7 @@ func (ordersRepository *OrdersRepository) UnacceptOrder(id uint) (status int, re
 				}
 			}
 		}
-		order.IsAccepted = false
+		order.Status = "rejected"
 	} else {
 		return http.StatusBadRequest, tools.Object{
 			"error": "ORDER_ALREADY_UNACCEPTED",
@@ -196,7 +202,7 @@ func (ordersRepository *OrdersRepository) UnacceptOrder(id uint) (status int, re
 	}
 }
 
-func (ordersRepository *OrdersRepository) GetOrders(pageSize uint, page uint, appendWith string, orderBy string, desc bool, userID uint, isAccepted *bool, isPaid *bool) (status int, result tools.Object) {
+func (ordersRepository *OrdersRepository) GetOrders(pageSize uint, page uint, appendWith string, orderBy string, desc bool, userID uint, orderStatus string) (status int, result tools.Object) {
 	database := ordersRepository.database
 
 	if pageSize == 0 {
@@ -240,12 +246,8 @@ func (ordersRepository *OrdersRepository) GetOrders(pageSize uint, page uint, ap
 		query.Where("user_id = ?", userID)
 	}
 
-	if isAccepted != nil {
-		query.Where("is_accepted = ?", isAccepted)
-	}
-
-	if isPaid != nil {
-		query.Where("is_paid = ?", isPaid)
+	if orderStatus != "" {
+		query.Where("status = ?", orderStatus)
 	}
 
 	err := query.Find(&orders).Error
@@ -329,7 +331,7 @@ func (ordersRepository *OrdersRepository) DeleteOrder(id uint) (status int, resu
 	}
 }
 
-func (ordersRepository *OrdersRepository) SendPaymentURL(id uint, successURL string) (status int, responseBytesult tools.Object) {
+func (ordersRepository *OrdersRepository) SendPaymentURL(id uint, successURL string, failureURL string) (status int, responseBytesult tools.Object) {
 	if id == 0 {
 		return http.StatusBadRequest, tools.Object{
 			"error": "UNDEFINED_ID",
@@ -338,6 +340,11 @@ func (ordersRepository *OrdersRepository) SendPaymentURL(id uint, successURL str
 	if successURL == "" {
 		return http.StatusBadRequest, tools.Object{
 			"error": "UNDEFINED_SUCCESS_URL",
+		}
+	}
+	if failureURL == "" {
+		return http.StatusBadRequest, tools.Object{
+			"error": "UNDEFINED_FAILURE_URL",
 		}
 	}
 
@@ -360,22 +367,164 @@ func (ordersRepository *OrdersRepository) SendPaymentURL(id uint, successURL str
 		}
 	}
 
-	if !order.IsAccepted {
+	if order.Status == "rejected" || order.Status == "pendingAcceptance" {
 		return http.StatusBadRequest, tools.Object{
 			"error": "ORDER_NOT_ACCEPTED_YET",
 		}
 	}
 
-	for _, purchase := range order.Purchases {
-		item := purchase.Item
-		status, result := chargily.CreateProduct(item)
-		if status != http.StatusOK {
-			return status, result
+	if order.Status == "paid" {
+		return http.StatusBadRequest, tools.Object{
+			"error": "ORDER_ALREADY_PAID",
 		}
 	}
 
-	status, result := chargily.CreateCheckoutURL(order.ID, order.Purchases, successURL)
-	return status, tools.Object{
-		"checkout_url": result["checkout_url"],
+	if order.Status == "pendingPayment" {
+		return http.StatusBadRequest, tools.Object{
+			"error": "URL_ALREADY_SENT",
+		}
+	}
+	status, result := chargily.CreateCheckoutURL(&order, successURL, failureURL)
+	if status != http.StatusOK {
+		return status, result
+	}
+
+	err = database.Save(&order).Error
+	if err != nil {
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
+		}
+	}
+	return status, result
+}
+
+func (ordersRepository *OrdersRepository) ExpirePaymentURL(id uint) (status int, responseBytesult tools.Object) {
+	if id == 0 {
+		return http.StatusBadRequest, tools.Object{
+			"error": "UNDEFINED_ID",
+		}
+	}
+
+	database := ordersRepository.database
+
+	var order models.Order
+	err := database.Where("id = ?", id).
+		Preload("Purchases").
+		Preload("Purchases.Item").
+		First(&order).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return http.StatusBadRequest, tools.Object{
+				"error": "ORDER_NOT_FOUND",
+			}
+		}
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
+		}
+	}
+
+	if order.Status == "rejected" || order.Status == "pendingAcceptance" {
+		return http.StatusBadRequest, tools.Object{
+			"error": "ORDER_NOT_ACCEPTED_YET",
+		}
+	}
+
+	if order.Status == "accepted" {
+		return http.StatusBadRequest, tools.Object{
+			"error": "URL_NOT_SENT_YET",
+		}
+	}
+
+	if order.Status == "paid" {
+		return http.StatusBadRequest, tools.Object{
+			"error": "ORDER_ALREADY_PAID",
+		}
+	}
+
+	status, result := chargily.ExpireChekoutURL(*order.CheckoutID)
+	if status != http.StatusOK {
+		return status, result
+	}
+
+	order.Status = "accepted"
+	order.CheckoutID = nil
+	err = database.Save(&order).Error
+	if err != nil {
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
+		}
+	}
+	return status, result
+}
+
+func (ordersRepository *OrdersRepository) PaymentWebhook(paymentStatus string, orderID uint) (status int, responseBytesult tools.Object) {
+	if orderID == 0 {
+		return http.StatusBadRequest, tools.Object{
+			"error": "UNDEFINED_ORDER_ID",
+		}
+	}
+
+	if paymentStatus == "" {
+		return http.StatusBadRequest, tools.Object{
+			"error": "UNDEFINED_PAYMENT_STATUS",
+		}
+	}
+
+	database := ordersRepository.database
+
+	var order models.Order
+	err := database.Where("id = ?", orderID).
+		Preload("Purchases").
+		Preload("Purchases.Item").
+		First(&order).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return http.StatusBadRequest, tools.Object{
+				"error": "ORDER_NOT_FOUND",
+			}
+		}
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
+		}
+	}
+
+	if order.Status == "rejected" || order.Status == "pendingAcceptance" {
+		return http.StatusBadRequest, tools.Object{
+			"error": "ORDER_NOT_ACCEPTED_YET",
+		}
+	}
+
+	if order.Status == "accepted" {
+		return http.StatusBadRequest, tools.Object{
+			"error": "URL_NOT_SENT_YET",
+		}
+	}
+
+	if order.Status == "paid" {
+		return http.StatusBadRequest, tools.Object{
+			"error": "ORDER_ALREADY_PAID",
+		}
+	}
+
+	if paymentStatus == "paid" {
+		order.Status = "paid"
+		err = database.Save(&order).Error
+		if err != nil {
+			return http.StatusInternalServerError, tools.Object{
+				"error":   "INTERNAL_SERVER_ERROR",
+				"message": err.Error(),
+			}
+		}
+		return http.StatusOK,  tools.Object{
+			"message": "ORDER_PAID",
+		}
+	}
+
+	return http.StatusBadRequest,  tools.Object{
+		"message": "PAYMENT_NOT_DONE_YET",
 	}
 }

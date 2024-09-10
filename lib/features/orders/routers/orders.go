@@ -39,4 +39,6 @@ func (ordersRouter *OrdersRouter) RegisterRoutes() {
 	router.HandleFunc("PUT /unaccept/{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.UnacceptOrder)))
 	router.HandleFunc("DELETE /delete/{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.DeleteOrder)))
 	router.HandleFunc("POST /sendPaymentURL/{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.SendPaymentURL)))
+	router.HandleFunc("PUT /expirePaymentURL/{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.ExpirePaymentURL)))
+	router.HandleFunc("POST /paymentWebhook", authorizationWithEmailVerification(http.HandlerFunc(ordersController.PaymentWebhook)))
 }

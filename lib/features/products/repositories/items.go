@@ -434,78 +434,6 @@ func (productsRepository *ProductsRepository) CreateItem(item models.Item) (stat
 	}
 }
 
-func (productsRepository ProductsRepository) getValidCollections(InvalidCollections *[]models.Collection) {
-	database := productsRepository.database
-	collections := *InvalidCollections
-	if len(collections) != 0 {
-		var wg sync.WaitGroup
-		var mutex sync.Mutex
-		validCollections := make([]models.Collection, 0, len(collections))
-		wg.Add(len(collections))
-		for _, collection := range collections {
-			go func() {
-				defer wg.Done()
-				err := database.Where("id = ?", collection.ID).First(&models.Collection{}).Error
-				if err == nil {
-					mutex.Lock()
-					validCollections = append(validCollections, collection)
-					mutex.Unlock()
-				}
-			}()
-		}
-		wg.Wait()
-		*InvalidCollections = validCollections
-	}
-}
-
-func (productsRepository ProductsRepository) getValidColors(InvalidColors *[]models.Color) {
-	database := productsRepository.database
-	colors := *InvalidColors
-	if len(colors) != 0 {
-		var wg sync.WaitGroup
-		var mutex sync.Mutex
-		validColors := make([]models.Color, 0, len(colors))
-		wg.Add(len(colors))
-		for _, color := range colors {
-			go func() {
-				defer wg.Done()
-				err := database.Where("id = ?", color.ID).First(&models.Color{}).Error
-				if err == nil {
-					mutex.Lock()
-					validColors = append(validColors, color)
-					mutex.Unlock()
-				}
-			}()
-		}
-		wg.Wait()
-		*InvalidColors = validColors
-	}
-}
-
-func (productsRepository ProductsRepository) getValidTailles(InvalidTailles *[]models.Taille) {
-	database := productsRepository.database
-	tailles := *InvalidTailles
-	if len(tailles) != 0 {
-		var wg sync.WaitGroup
-		var mutex sync.Mutex
-		validTailles := make([]models.Taille, 0, len(tailles))
-		wg.Add(len(tailles))
-		for _, taille := range tailles {
-			go func() {
-				defer wg.Done()
-				err := database.Where("id = ?", taille.ID).First(&models.Taille{}).Error
-				if err == nil {
-					mutex.Lock()
-					validTailles = append(validTailles, taille)
-					mutex.Unlock()
-				}
-			}()
-		}
-		wg.Wait()
-		*InvalidTailles = validTailles
-	}
-}
-
 func (productsRepository *ProductsRepository) UpdateItem(item models.Item) (status int, result tools.Object) {
 	if item.ID == 0 {
 		return http.StatusBadRequest, tools.Object{
@@ -553,8 +481,8 @@ func (productsRepository *ProductsRepository) UpdateItem(item models.Item) (stat
 		existingItem.Currency = item.Currency
 	}
 
-	if item.Pics != nil {
-		existingItem.Pics = item.Pics
+	if item.Images != nil {
+		existingItem.Images = item.Images
 	}
 
 	if item.Rate != nil {
@@ -571,7 +499,7 @@ func (productsRepository *ProductsRepository) UpdateItem(item models.Item) (stat
 
 	var wg sync.WaitGroup
 
-	wg.Add(3)
+	wg.Add(4)
 
 	go func() {
 		defer wg.Done()
@@ -591,6 +519,13 @@ func (productsRepository *ProductsRepository) UpdateItem(item models.Item) (stat
 		defer wg.Done()
 		if item.Tailles != nil {
 			productsRepository.getValidTailles(&item.Tailles)
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		if item.Images != nil {
+			productsRepository.getValidItemImages(&item.Images)
 		}
 	}()
 
@@ -663,6 +598,7 @@ func (productsRepository *ProductsRepository) GetItems(pageSize uint, page uint,
 	for _, extention := range validExtentions {
 		query.Preload(extention)
 	}
+	query.Preload("Images")
 
 	for _, filter := range validFilters {
 		query.Order(clause.OrderByColumn{
@@ -704,6 +640,7 @@ func (productsRepository *ProductsRepository) GetItem(id uint, appendWith string
 	for _, extention := range validExtentions {
 		query.Preload(extention)
 	}
+	query.Preload("Images")
 
 	err := query.First(&item).Error
 	if err != nil {
@@ -720,5 +657,104 @@ func (productsRepository *ProductsRepository) GetItem(id uint, appendWith string
 
 	return http.StatusOK, tools.Object{
 		"item": item,
+	}
+}
+
+func (productsRepository ProductsRepository) getValidItemImages(invalidItemImages *[]models.ItemImage) {
+    database := productsRepository.database
+    itemImages := *invalidItemImages
+    if len(itemImages) != 0 {
+        var wg sync.WaitGroup
+        var mutex sync.Mutex
+        validItemImages := make([]models.ItemImage, 0, len(itemImages))
+        wg.Add(len(itemImages))
+        
+        for _, itemImage := range itemImages {
+            go func() {
+                defer wg.Done()
+                var foundItemImage models.ItemImage
+                err := database.Where("id = ?", itemImage.ID).First(&foundItemImage).Error
+                if err == nil {
+                    mutex.Lock()
+                    validItemImages = append(validItemImages, itemImage)
+                    mutex.Unlock()
+                }
+            }()
+        }
+        
+        wg.Wait()
+        *invalidItemImages = validItemImages
+    }
+}
+
+func (productsRepository ProductsRepository) getValidCollections(InvalidCollections *[]models.Collection) {
+	database := productsRepository.database
+	collections := *InvalidCollections
+	if len(collections) != 0 {
+		var wg sync.WaitGroup
+		var mutex sync.Mutex
+		validCollections := make([]models.Collection, 0, len(collections))
+		wg.Add(len(collections))
+		for _, collection := range collections {
+			go func() {
+				defer wg.Done()
+				err := database.Where("id = ?", collection.ID).First(&models.Collection{}).Error
+				if err == nil {
+					mutex.Lock()
+					validCollections = append(validCollections, collection)
+					mutex.Unlock()
+				}
+			}()
+		}
+		wg.Wait()
+		*InvalidCollections = validCollections
+	}
+}
+
+func (productsRepository ProductsRepository) getValidColors(InvalidColors *[]models.Color) {
+	database := productsRepository.database
+	colors := *InvalidColors
+	if len(colors) != 0 {
+		var wg sync.WaitGroup
+		var mutex sync.Mutex
+		validColors := make([]models.Color, 0, len(colors))
+		wg.Add(len(colors))
+		for _, color := range colors {
+			go func() {
+				defer wg.Done()
+				err := database.Where("id = ?", color.ID).First(&models.Color{}).Error
+				if err == nil {
+					mutex.Lock()
+					validColors = append(validColors, color)
+					mutex.Unlock()
+				}
+			}()
+		}
+		wg.Wait()
+		*InvalidColors = validColors
+	}
+}
+
+func (productsRepository ProductsRepository) getValidTailles(InvalidTailles *[]models.Taille) {
+	database := productsRepository.database
+	tailles := *InvalidTailles
+	if len(tailles) != 0 {
+		var wg sync.WaitGroup
+		var mutex sync.Mutex
+		validTailles := make([]models.Taille, 0, len(tailles))
+		wg.Add(len(tailles))
+		for _, taille := range tailles {
+			go func() {
+				defer wg.Done()
+				err := database.Where("id = ?", taille.ID).First(&models.Taille{}).Error
+				if err == nil {
+					mutex.Lock()
+					validTailles = append(validTailles, taille)
+					mutex.Unlock()
+				}
+			}()
+		}
+		wg.Wait()
+		*InvalidTailles = validTailles
 	}
 }
