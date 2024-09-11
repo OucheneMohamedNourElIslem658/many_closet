@@ -23,10 +23,15 @@ func Newcontroller() *AuthController {
 
 func (authcontroller *AuthController) RegisterWithEmailAndPassword(w http.ResponseWriter, r *http.Request) {
 	var user models.User
-	json.NewDecoder(r.Body).Decode(&user)
+	json.Unmarshal([]byte(r.FormValue("user")), &user)
+
+	var status int
+	var result tools.Object
+
+	profileImage, _, _ := r.FormFile("image")
 
 	authRepository := authcontroller.authRepository
-	status, result := authRepository.RegisterWithEmailAndPassword(user)
+	status, result = authRepository.RegisterWithEmailAndPassword(user, profileImage)
 
 	w.WriteHeader(status)
 	reponse, _ := json.Marshal(result)

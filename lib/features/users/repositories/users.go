@@ -2,13 +2,16 @@ package users
 
 import (
 	"math"
+	"mime/multipart"
 	"net/http"
+	"strings"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
 	models "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/models"
 	database "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/database"
+	filestorage "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/file_storage"
 	tools "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/tools"
 )
 
@@ -108,7 +111,7 @@ func (usersRepository *UsersRepository) UpdateUser(user models.User) (status int
 	database := usersRepository.database
 
 	var existingProfile models.User
-	err := database.Where("id = ?", user.ID).First(&existingProfile).Error
+	err := database.Where("id = ?", user.ID).Preload("Image").First(&existingProfile).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return http.StatusBadRequest, tools.Object{
@@ -147,6 +150,85 @@ func (usersRepository *UsersRepository) UpdateUser(user models.User) (status int
 	}
 }
 
+func (usersRepository *UsersRepository) UpdateProfileImage(id uint, profileImage multipart.File) (status int, result tools.Object) {
+	// Validate inputs:
+	if id == 0 {
+		return http.StatusBadRequest, tools.Object{
+			"error": "INDEFINED_ID",
+		}
+	}
+	if profileImage == nil {
+		return http.StatusBadRequest, tools.Object{
+			"error": "INDEFINED_IMAGE",
+		}
+	}
+
+	// Get current user profile and image:
+	database := usersRepository.database
+	var existingProfile models.User
+	err := database.Where("id = ?", id).Preload("Image").First(&existingProfile).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return http.StatusBadRequest, tools.Object{
+				"error": "USER_NOT_FOUND",
+			}
+		}
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
+		}
+	}
+
+	// Delete The old profile image:
+	if existingProfile.ImageID != nil {
+		err = database.Unscoped().Delete(existingProfile.Image).Error
+		if err != nil {
+			return http.StatusInternalServerError, tools.Object{
+				"error":   "INTERNAL_SERVER_ERROR",
+				"message": err.Error(),
+			}
+		}
+	}
+
+	// Create the new prfile image:
+	profileImageName := strings.Split(existingProfile.Email, "@")[0]
+	response, err := filestorage.UploadFile(
+		profileImage,
+		profileImageName,
+		"/images/users",
+	)
+	if err != nil {
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
+		}
+	}
+
+	userImage := models.Image{
+		URL:        response.Url,
+		ImageKitID: response.FileId,
+	}
+	if err := database.Create(&userImage).Error; err != nil {
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
+		}
+	}
+
+	// Update current user profile:
+	existingProfile.Image = &userImage
+	if err := database.Save(&existingProfile).Error; err != nil {
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
+		}
+	}
+
+	return http.StatusOK, tools.Object{
+		"message": "IMAGE_UPDATED",
+	}
+}
+
 func (usersRepository *UsersRepository) DeleteUser(id uint) (status int, result tools.Object) {
 	if id == 0 {
 		return http.StatusBadRequest, tools.Object{
@@ -156,20 +238,46 @@ func (usersRepository *UsersRepository) DeleteUser(id uint) (status int, result 
 
 	database := usersRepository.database
 
-	deleteResult := database.Unscoped().Where("id = ?", id).Delete(&models.User{})
-
-	err := deleteResult.Error
+	var user models.User
+	err := database.Where("id = ?", id).Preload("Image").First(&user).Error
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return http.StatusBadRequest, tools.Object{
+				"error": "USER_NOT_FOUND",
+			}
+		}
+
 		return http.StatusInternalServerError, tools.Object{
 			"error":   "INTERNAL_SERVER_ERROR",
 			"message": err.Error(),
 		}
 	}
 
-	affectedRows := deleteResult.RowsAffected
-	if affectedRows == 0 {
-		return http.StatusBadRequest, tools.Object{
-			"error": "USER_NOT_FOUND",
+	// // Delete image:
+	// if user.ImageID != nil && *user.ImageID != 0 {
+	// 	deleteResult := database.Unscoped().Where("id = ?", user.ImageID).Delete(&models.Image{})
+	// 	err = deleteResult.Error
+	// 	if err != nil {
+	// 		return http.StatusInternalServerError, tools.Object{
+	// 			"error":   "INTERNAL_SERVER_ERROR",
+	// 			"message": err.Error(),
+	// 		}
+	// 	}
+	// 	err = filestorage.DeleteFile(user.Image.ImageKitID)
+	// 	if err != nil {
+	// 		return http.StatusInternalServerError, tools.Object{
+	// 			"error":   "INTERNAL_SERVER_ERROR",
+	// 			"message": err.Error(),
+	// 		}
+	// 	}
+	// }
+
+	deleteResult := database.Unscoped().Where("id = ?", id).Delete(&user)
+	err = deleteResult.Error
+	if err != nil {
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
 		}
 	}
 

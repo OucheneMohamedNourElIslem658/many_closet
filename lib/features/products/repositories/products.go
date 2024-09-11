@@ -1,16 +1,19 @@
 package products
 
 import (
+	"fmt"
 	"math"
+	"mime/multipart"
 	"net/http"
 	"sync"
 
-	mysql "github.com/go-sql-driver/mysql"
-	gorm "gorm.io/gorm"
+	"github.com/go-sql-driver/mysql"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
 	models "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/models"
 	database "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/database"
+	filestorage "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/file_storage"
 	tools "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/tools"
 )
 
@@ -385,7 +388,7 @@ func (productsRepository *ProductsRepository) GetTailles() (status int, result t
 	}
 }
 
-func (productsRepository *ProductsRepository) CreateItem(item models.Item) (status int, result tools.Object) {
+func (productsRepository *ProductsRepository) CreateItem(item models.Item, images []multipart.File) (status int, result tools.Object) {
 	err := item.ValidateCreate()
 	if err != nil {
 		return http.StatusBadRequest, tools.Object{
@@ -394,6 +397,20 @@ func (productsRepository *ProductsRepository) CreateItem(item models.Item) (stat
 	}
 
 	database := productsRepository.database
+	var similarItem models.Item
+	err = database.Where("name = ?", item.Name).First(&similarItem).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
+		}
+	}
+
+	if err == nil {
+		return http.StatusBadRequest, tools.Object{
+			"error": "ITEM_ALREADY_EXISTS",
+		}
+	}
 
 	var wg sync.WaitGroup
 
@@ -416,13 +433,47 @@ func (productsRepository *ProductsRepository) CreateItem(item models.Item) (stat
 
 	wg.Wait()
 
+	// Upload images concurrently:
+	var mutex sync.Mutex
+	wg.Add(len(images))
+	errs := make(chan error, len(images))
+	itemImages := []models.ItemImage{}
+	for _, image := range images {
+		go func() {
+			defer wg.Done()
+			response, err := filestorage.UploadFile(image, item.Name, "/images/items")
+			if err != nil {
+				errs <- err
+				return
+			}
+			itemImage := models.ItemImage{
+				URL:        response.Url,
+				ImageKitID: response.FileId,
+			}
+			mutex.Lock()
+			itemImages = append(itemImages, itemImage)
+			mutex.Unlock()
+		}()
+	}
+	wg.Wait()
+	close(errs)
+
+	var errors []string
+	for i := 0; i < len(errs); i++ {
+		err := <-errs
+		errors = append(errors, err.Error())
+	}
+
+	if len(errors) > 0 {
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": errors,
+		}
+	}
+
+	item.Images = itemImages
 	err = database.Create(&item).Error
 	if err != nil {
-		if mysqlErr, ok := err.(*mysql.MySQLError); ok && mysqlErr.Number == 1062 {
-			return http.StatusBadRequest, tools.Object{
-				"error": "ITEM_ALREADY_EXISTS",
-			}
-		}
 		return http.StatusInternalServerError, tools.Object{
 			"error":   "INTERNAL_SERVER_ERROR",
 			"message": err.Error(),
@@ -499,8 +550,6 @@ func (productsRepository *ProductsRepository) UpdateItem(item models.Item) (stat
 
 	var wg sync.WaitGroup
 
-	wg.Add(4)
-
 	go func() {
 		defer wg.Done()
 		if item.Collections != nil {
@@ -519,13 +568,6 @@ func (productsRepository *ProductsRepository) UpdateItem(item models.Item) (stat
 		defer wg.Done()
 		if item.Tailles != nil {
 			productsRepository.getValidTailles(&item.Tailles)
-		}
-	}()
-
-	go func() {
-		defer wg.Done()
-		if item.Images != nil {
-			productsRepository.getValidItemImages(&item.Images)
 		}
 	}()
 
@@ -625,7 +667,7 @@ func (productsRepository *ProductsRepository) GetItems(pageSize uint, page uint,
 }
 
 func (productsRepository *ProductsRepository) GetItem(id uint, appendWith string) (status int, result tools.Object) {
-    if id == 0 {
+	if id == 0 {
 		return http.StatusBadRequest, tools.Object{
 			"error": "INDEFINED_ID",
 		}
@@ -660,32 +702,204 @@ func (productsRepository *ProductsRepository) GetItem(id uint, appendWith string
 	}
 }
 
-func (productsRepository ProductsRepository) getValidItemImages(invalidItemImages *[]models.ItemImage) {
-    database := productsRepository.database
-    itemImages := *invalidItemImages
-    if len(itemImages) != 0 {
-        var wg sync.WaitGroup
-        var mutex sync.Mutex
-        validItemImages := make([]models.ItemImage, 0, len(itemImages))
-        wg.Add(len(itemImages))
-        
-        for _, itemImage := range itemImages {
-            go func() {
-                defer wg.Done()
-                var foundItemImage models.ItemImage
-                err := database.Where("id = ?", itemImage.ID).First(&foundItemImage).Error
-                if err == nil {
-                    mutex.Lock()
-                    validItemImages = append(validItemImages, itemImage)
-                    mutex.Unlock()
-                }
-            }()
-        }
-        
-        wg.Wait()
-        *invalidItemImages = validItemImages
-    }
+func (productsRepository *ProductsRepository) DeleteItem(id uint) (status int, result tools.Object) {
+	if id == 0 {
+		return http.StatusBadRequest, tools.Object{
+			"error": "INDEFINED_ID",
+		}
+	}
+
+	database := productsRepository.database
+
+	var item models.Item
+	err := database.Where("id = ?", id).
+		Preload("Images").
+		First(&item).
+		Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return http.StatusNotFound, tools.Object{
+				"error": "ITEM_NOT_FOUND",
+			}
+		}
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
+		}
+	}
+
+	err = database.Unscoped().Where("id = ?", id).Delete(&item).Error
+	if err != nil {
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
+		}
+	}
+
+	return http.StatusOK, tools.Object{
+		"error": "ITEM_DELETED",
+	}
 }
+
+func (productsRepository *ProductsRepository) CreateItemImages(id uint, images []multipart.File) (status int, result tools.Object) {
+	if id == 0 {
+		return http.StatusBadRequest, tools.Object{
+			"error": "ID_INDEFINED",
+		}
+	}
+	if images == nil {
+		return http.StatusBadRequest, tools.Object{
+			"error": "IMAGES_INDEFINED",
+		}
+	}
+
+	database := productsRepository.database
+
+	var item models.Item
+	err := database.Where("id = ?", id).First(&item).Error
+	if err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return http.StatusBadRequest, tools.Object{
+				"error": "ITEM_NOT_FOUND",
+			}
+		}
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
+		}
+	}
+
+	// Upload images concurrently:
+	var wg sync.WaitGroup
+	var mutex sync.Mutex
+
+	wg.Add(len(images))
+	errs := make(chan error)
+	itemImages := []models.ItemImage{}
+	for _, image := range images {
+		go func() {
+			defer wg.Done()
+			response, err := filestorage.UploadFile(image, item.Name, "/images/items")
+			if err != nil {
+				errs <- err
+				return
+			}
+
+			itemImage := models.ItemImage{
+				ItemID:     item.ID,
+				URL:        response.Url,
+				ImageKitID: response.FileId,
+			}
+			err = database.Create(&itemImage).Error
+			if err != nil {
+				errs <- err
+				return
+			}
+
+			mutex.Lock()
+			itemImages = append(itemImages, itemImage)
+			mutex.Unlock()
+		}()
+	}
+	wg.Wait()
+	close(errs)
+
+	var errors []string
+	for i := 0; i < len(errs); i++ {
+		err := <-errs
+		errors = append(errors, err.Error())
+	}
+
+	return http.StatusOK, tools.Object{
+		"message": "IMAGES_ADDED",
+		"errors":  errors,
+	}
+}
+
+func (productsRepository *ProductsRepository) DeleteItemImages(images []models.ItemImage) (status int, result tools.Object) {
+	if len(images) == 0 {
+		return http.StatusBadRequest, tools.Object{
+			"error": "IMAGES_INDEFINED",
+		}
+	}
+
+	database := productsRepository.database
+
+	var imagesToDelete []models.ItemImage
+	var fetchErrors []string
+	var wg sync.WaitGroup
+	fetchErrorsChan := make(chan string, len(images))
+	imageChan := make(chan models.ItemImage, len(images))
+
+	wg.Add(len(images))
+	for _, image := range images {
+		go func() {
+			defer wg.Done()
+			var img models.ItemImage
+			err := database.First(&img, image.ID).Error
+			if err != nil {
+				fetchErrorsChan <- err.Error()
+				return
+			}
+			imageChan <- img
+		}()
+	}
+	wg.Wait()
+	close(fetchErrorsChan)
+	close(imageChan)
+
+	for errMsg := range fetchErrorsChan {
+		fetchErrors = append(fetchErrors, errMsg)
+	}
+
+	for img := range imageChan {
+		imagesToDelete = append(imagesToDelete, img)
+	}
+
+	if len(fetchErrors) > 0 {
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "FETCH_IMAGES_ERROR",
+			"message": fetchErrors,
+		}
+	}
+
+	var deleteErrors []string
+	deleteErrorsChan := make(chan string, len(imagesToDelete))
+	wg.Add(len(imagesToDelete))
+
+	for _, image := range imagesToDelete {
+		fmt.Println("Deleting image ID:", image.ID)
+
+		go func() {
+			defer wg.Done()
+
+			err := database.Unscoped().Delete(&image, image.ID).Error
+			if err != nil {
+				deleteErrorsChan <- err.Error()
+				return
+			}
+		}()
+	}
+
+	wg.Wait()
+	close(deleteErrorsChan)
+
+	for errMsg := range deleteErrorsChan {
+		deleteErrors = append(deleteErrors, errMsg)
+	}
+
+	if len(deleteErrors) > 0 {
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "DELETE_IMAGES_ERROR",
+			"message": deleteErrors,
+		}
+	}
+
+	return http.StatusOK, tools.Object{
+		"message": "IMAGES_DELETED",
+	}
+}
+
 
 func (productsRepository ProductsRepository) getValidCollections(InvalidCollections *[]models.Collection) {
 	database := productsRepository.database

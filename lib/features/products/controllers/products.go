@@ -2,6 +2,8 @@ package products
 
 import (
 	"encoding/json"
+	"fmt"
+	"mime/multipart"
 	"net/http"
 	"strconv"
 
@@ -185,10 +187,62 @@ func (productsController *ProductsController) DeleteTaille(w http.ResponseWriter
 
 func (productsController *ProductsController) CreateItem(w http.ResponseWriter, r *http.Request) {
 	var item models.Item
+	json.Unmarshal([]byte(r.FormValue("item")), &item)
+
+	// Receive files:
+	imagesHeaders := r.MultipartForm.File["images"]
+	var images []multipart.File
+	for _, imagesHeader := range imagesHeaders {
+		file, err := imagesHeader.Open()
+		if err != nil {
+			http.Error(w, "Unable to open file", http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+		images = append(images, file)
+	}
+
+	productsRepositorie := productsController.productsRepository
+	status, result := productsRepositorie.CreateItem(item, images)
+
+	w.WriteHeader(status)
+	response, _ := json.Marshal(result)
+	w.Write(response)
+}
+
+func (productsController *ProductsController) CreateItemImages(w http.ResponseWriter, r *http.Request) {
+	var id uint
+	json.Unmarshal([]byte(r.FormValue("id")), &id)
+
+	fmt.Println(id)
+
+	// Receive files:
+	imagesHeaders := r.MultipartForm.File["images"]
+	var images []multipart.File
+	for _, imagesHeader := range imagesHeaders {
+		file, err := imagesHeader.Open()
+		if err != nil {
+			http.Error(w, "Unable to open file", http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+		images = append(images, file)
+	}
+
+	productsRepositorie := productsController.productsRepository
+	status, result := productsRepositorie.CreateItemImages(id, images)
+
+	w.WriteHeader(status)
+	response, _ := json.Marshal(result)
+	w.Write(response)
+}
+
+func (productsController *ProductsController) DeleteItemImages(w http.ResponseWriter, r *http.Request) {
+	var item models.Item
 	json.NewDecoder(r.Body).Decode(&item)
 
 	productsRepositorie := productsController.productsRepository
-	status, result := productsRepositorie.CreateItem(item)
+	status, result := productsRepositorie.DeleteItemImages(item.Images)
 
 	w.WriteHeader(status)
 	response, _ := json.Marshal(result)
@@ -207,6 +261,20 @@ func (productsController *ProductsController) UpdateItem(w http.ResponseWriter, 
 
 	productsRepositorie := productsController.productsRepository
 	status, result := productsRepositorie.UpdateItem(item)
+
+	w.WriteHeader(status)
+	response, _ := json.Marshal(result)
+	w.Write(response)
+}
+
+func (productsController *ProductsController) DeleteItem(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil || id < 0 {
+		id = 0
+	}
+
+	productsRepositorie := productsController.productsRepository
+	status, result := productsRepositorie.DeleteItem(uint(id))
 
 	w.WriteHeader(status)
 	response, _ := json.Marshal(result)

@@ -2,7 +2,9 @@ package auth
 
 import (
 	"fmt"
+	"mime/multipart"
 	"net/http"
+	"strings"
 
 	gorm "gorm.io/gorm"
 
@@ -10,6 +12,7 @@ import (
 	models "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/models"
 	database "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/database"
 	email "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/email"
+	filestorage "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/file_storage"
 	tools "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/tools"
 )
 
@@ -23,7 +26,7 @@ func NewAuthRepository() *AuthRepository {
 	}
 }
 
-func (authRepo *AuthRepository) RegisterWithEmailAndPassword(user models.User) (status int, result tools.Object) {
+func (authRepo *AuthRepository) RegisterWithEmailAndPassword(user models.User, profileImage multipart.File) (status int, result tools.Object) {
 	// Validate inputs
 	if err := (&user).ValidateRegistration(); err != nil {
 		return http.StatusBadRequest, tools.Object{
@@ -52,6 +55,34 @@ func (authRepo *AuthRepository) RegisterWithEmailAndPassword(user models.User) (
 		return http.StatusInternalServerError, tools.Object{
 			"error": "PASSWORD_HASH_FAILED",
 		}
+	}
+
+	// Store profile image file:
+	if profileImage != nil {
+		profileImageName := strings.Split(user.Email, "@")[0]
+		response, err := filestorage.UploadFile(
+			profileImage,
+			profileImageName,
+			"/images/users",
+		)
+		if err != nil {
+			return http.StatusInternalServerError, tools.Object{
+				"error":   "INTERNAL_SERVER_ERROR",
+				"message": err.Error(),
+			}
+		}
+
+		userImage := models.Image{
+			URL: response.Url,
+			ImageKitID: response.FileId,
+		}
+		if err := database.Create(&userImage).Error; err != nil {
+			return http.StatusInternalServerError, tools.Object{
+				"error":   "INTERNAL_SERVER_ERROR",
+				"message": err.Error(),
+			}
+		}
+		user.ImageID = &userImage.ID
 	}
 
 	// Create User:

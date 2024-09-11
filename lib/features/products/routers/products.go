@@ -61,7 +61,10 @@ func (productsRouter *ProductsRouter) RegisterRoutes() {
 	itemsRouter := http.NewServeMux()
 	itemsRouter.HandleFunc("GET /search", authorizationWithEmailVerification(http.HandlerFunc(productsController.GetItems)))
 	itemsRouter.HandleFunc("GET /{id}", authorizationWithEmailVerification(http.HandlerFunc(productsController.GetItem)))
+	itemsRouter.HandleFunc("DELETE /delete/{id}", authorizationWithAdminCheck(http.HandlerFunc(productsController.DeleteItem)))
 	itemsRouter.HandleFunc("POST /create", authorizationWithAdminCheck(http.HandlerFunc(productsController.CreateItem)))
 	itemsRouter.HandleFunc("PUT /update/{id}", authorizationWithAdminCheck(http.HandlerFunc(productsController.UpdateItem)))
+	itemsRouter.HandleFunc("POST /images/create", authorizationWithEmailVerification(http.HandlerFunc(productsController.CreateItemImages)))
+	itemsRouter.HandleFunc("DELETE /images/delete", authorizationWithEmailVerification(http.HandlerFunc(productsController.DeleteItemImages)))
 	router.Handle("/items/", http.StripPrefix("/items", itemsRouter))
 }

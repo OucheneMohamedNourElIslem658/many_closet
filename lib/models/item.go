@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	filestorage "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/file_storage"
 	"gorm.io/gorm"
 )
 
@@ -13,7 +14,7 @@ type Item struct {
 	UpdatedAt       time.Time      `json:"updated_at"`
 	DeletedAt       gorm.DeletedAt `gorm:"index" json:"deleted_at"`
 	Name            string         `gorm:"unique;not null" json:"name"`
-	Images          []ItemImage    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"images,omitempty"`
+	Images          []ItemImage    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"images,omitempty"`
 	Price           uint           `json:"price"`
 	Currency        string         `json:"currency"`
 	Sold            uint           `json:"sold"`
@@ -26,6 +27,27 @@ type Item struct {
 	Rate            *float64       `json:"rate"`
 	Collections     []Collection   `gorm:"many2many:item_collections;" json:"collections,omitempty"`
 	Reviews         []Review       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"reviews,omitempty"`
+}
+
+type ItemImage struct {
+	ID         uint           `gorm:"primaryKey" json:"id"`
+	CreatedAt  time.Time      `json:"created_at"`
+	UpdatedAt  time.Time      `json:"updated_at"`
+	DeletedAt  gorm.DeletedAt `gorm:"index" json:"deleted_at"`
+	URL        string         `json:"url"`
+	ImageKitID string         `json:"image_kit_id"`
+	Item       *Item          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"item,omitempty"`
+	ItemID     uint           `json:"item_id"`
+}
+
+func (itemImage *ItemImage) BeforeDelete(tx *gorm.DB) error {
+	if itemImage != nil {
+		err := filestorage.DeleteFile(itemImage.ImageKitID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type Color struct {
@@ -124,11 +146,6 @@ func (item Item) ValidateCreate() error {
 			if collection.ID <= 0 {
 				return errors.New("INDEFINED_ID")
 			}
-		}
-	}
-	if len(item.Images) != 0 && item.Images != nil {
-		for _, image := range item.Images {
-			image.ValidateCreate()
 		}
 	}
 	if len(item.Collections) != 0 && item.Collections != nil {

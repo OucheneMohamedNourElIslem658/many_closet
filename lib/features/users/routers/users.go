@@ -42,9 +42,11 @@ func (usersRouter *UsersRouter) RegisterRoutes() {
 	router.Handle("GET /{id}", authorizationWithAdminCheck(http.HandlerFunc(usersController.GetUser)))
 	router.Handle("DELETE /delete/{id}", authorizationWithAdminCheck(http.HandlerFunc(usersController.DeleteUser)))
 	router.Handle("PUT /update/{id}", authorizationWithAdminCheck(http.HandlerFunc(usersController.UpdateUser)))
+	router.Handle("PUT /update/image/{id}", authorizationWithAdminCheck(http.HandlerFunc(usersController.UpdateUserImage)))
 
 	profileRouter := http.NewServeMux()
 	router.Handle("GET /profile", authorizationWithEmailVerification(http.HandlerFunc(usersController.GetProfile)))
-	profileRouter.Handle("PUT /{id}", authorizationWithEmailVerification(http.HandlerFunc(usersController.UpdateProfile)))
+	profileRouter.Handle("PUT /", authorizationWithEmailVerification(http.HandlerFunc(usersController.UpdateProfile)))
+	profileRouter.Handle("PUT /image", authorizationWithEmailVerification(http.HandlerFunc(usersController.UpdateProfileImage)))
 	router.Handle("/profile/", http.StripPrefix("/profile", profileRouter))
 }

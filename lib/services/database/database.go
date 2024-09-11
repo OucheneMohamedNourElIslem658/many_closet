@@ -31,8 +31,8 @@ func Init() {
 
 func migrateTables() error {
 	err := Instance.AutoMigrate(
+		&models.Image{},
 		&models.User{},
-		&models.UserImage{},
 		&models.Item{},
 		&models.ItemImage{},
 		&models.Color{},
