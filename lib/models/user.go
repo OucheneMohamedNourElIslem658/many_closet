@@ -44,14 +44,6 @@ func (image *Image) BeforeDelete(tx *gorm.DB) error {
 	return nil
 }
 
-func (user *User) BeforeDelete(tx *gorm.DB) error {
-	if user.ImageID != nil {
-		err := tx.Unscoped().Delete(user.Image, user.ImageID).Error
-		return err
-	}
-	return nil
-}
-
 func (user *User) ValidateRegistration() error {
 	if user.Email == "" {
 		return errors.New("EMAIL_UNDEFINED")

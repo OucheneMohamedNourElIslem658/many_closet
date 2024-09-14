@@ -24,7 +24,6 @@ type Item struct {
 	Tailles         []Taille       `gorm:"many2many:item_tailles;" json:"tailles,omitempty"`
 	Stock           uint           `json:"stock"`
 	SKU             string         `json:"sku"`
-	Rate            *float64       `json:"rate"`
 	Collections     []Collection   `gorm:"many2many:item_collections;" json:"collections,omitempty"`
 	Reviews         []Review       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"reviews,omitempty"`
 }

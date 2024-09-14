@@ -388,7 +388,7 @@ func (productsRepository *ProductsRepository) GetTailles() (status int, result t
 	}
 }
 
-func (productsRepository *ProductsRepository) CreateItem(item models.Item, images []multipart.File) (status int, result tools.Object) {
+func (productsRepository *ProductsRepository) CreateItem(item models.Item) (status int, result tools.Object) {
 	err := item.ValidateCreate()
 	if err != nil {
 		return http.StatusBadRequest, tools.Object{
@@ -433,45 +433,45 @@ func (productsRepository *ProductsRepository) CreateItem(item models.Item, image
 
 	wg.Wait()
 
-	// Upload images concurrently:
-	var mutex sync.Mutex
-	wg.Add(len(images))
-	errs := make(chan error, len(images))
-	itemImages := []models.ItemImage{}
-	for _, image := range images {
-		go func() {
-			defer wg.Done()
-			response, err := filestorage.UploadFile(image, item.Name, "/images/items")
-			if err != nil {
-				errs <- err
-				return
-			}
-			itemImage := models.ItemImage{
-				URL:        response.Url,
-				ImageKitID: response.FileId,
-			}
-			mutex.Lock()
-			itemImages = append(itemImages, itemImage)
-			mutex.Unlock()
-		}()
-	}
-	wg.Wait()
-	close(errs)
+	// // Upload images concurrently:
+	// var mutex sync.Mutex
+	// wg.Add(len(images))
+	// errs := make(chan error, len(images))
+	// itemImages := []models.ItemImage{}
+	// for _, image := range images {
+	// 	go func() {
+	// 		defer wg.Done()
+	// 		response, err := filestorage.UploadFile(image, item.Name, "/images/items")
+	// 		if err != nil {
+	// 			errs <- err
+	// 			return
+	// 		}
+	// 		itemImage := models.ItemImage{
+	// 			URL:        response.Url,
+	// 			ImageKitID: response.FileId,
+	// 		}
+	// 		mutex.Lock()
+	// 		itemImages = append(itemImages, itemImage)
+	// 		mutex.Unlock()
+	// 	}()
+	// }
+	// wg.Wait()
+	// close(errs)
 
-	var errors []string
-	for i := 0; i < len(errs); i++ {
-		err := <-errs
-		errors = append(errors, err.Error())
-	}
+	// var errors []string
+	// for i := 0; i < len(errs); i++ {
+	// 	err := <-errs
+	// 	errors = append(errors, err.Error())
+	// }
 
-	if len(errors) > 0 {
-		return http.StatusInternalServerError, tools.Object{
-			"error":   "INTERNAL_SERVER_ERROR",
-			"message": errors,
-		}
-	}
+	// if len(errors) > 0 {
+	// 	return http.StatusInternalServerError, tools.Object{
+	// 		"error":   "INTERNAL_SERVER_ERROR",
+	// 		"message": errors,
+	// 	}
+	// }
 
-	item.Images = itemImages
+	// item.Images = itemImages
 	err = database.Create(&item).Error
 	if err != nil {
 		return http.StatusInternalServerError, tools.Object{
@@ -536,10 +536,6 @@ func (productsRepository *ProductsRepository) UpdateItem(item models.Item) (stat
 		existingItem.Images = item.Images
 	}
 
-	if item.Rate != nil {
-		existingItem.Rate = item.Rate
-	}
-
 	if item.Sold != 0 {
 		existingItem.Sold = item.Sold
 	}
@@ -549,6 +545,8 @@ func (productsRepository *ProductsRepository) UpdateItem(item models.Item) (stat
 	}
 
 	var wg sync.WaitGroup
+
+	wg.Add(3)
 
 	go func() {
 		defer wg.Done()

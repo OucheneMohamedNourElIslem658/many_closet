@@ -3,20 +3,20 @@ package auth
 import (
 	"net/http"
 
-	authController "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/auth/controllers"
+	authControllers "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/auth/controllers"
 	authMiddlewares "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/auth/middlewares"
 )
 
 type AuthRouter struct {
 	Router          *http.ServeMux
-	authController  *authController.AuthController
+	authController  *authControllers.AuthController
 	authMiddlewares *authMiddlewares.AuthMiddlewares
 }
 
 func NewAuthRouter() *AuthRouter {
 	return &AuthRouter{
 		Router:          http.NewServeMux(),
-		authController:  authController.Newcontroller(),
+		authController:  authControllers.Newcontroller(),
 		authMiddlewares: authMiddlewares.NewAuthMiddlewares(),
 	}
 }

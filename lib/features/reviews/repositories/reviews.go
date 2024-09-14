@@ -32,7 +32,11 @@ func (reviewsRepository *ReviewsRepository) CreateReview(review models.Review) (
 	database := reviewsRepository.database
 
 	var userExists bool
-	err := database.Model(&models.User{}).Select("count(*) > 0").Where("id = ?", review.UserID).Scan(&userExists).Error
+	err := database.Model(&models.User{}).
+		Select("count(*) > 0").
+		Where("id = ?", review.UserID).
+		Scan(&userExists).
+		Error
 	if err != nil {
 		return http.StatusInternalServerError, tools.Object{
 			"error":   "INTERNAL_SERVER_ERROR",

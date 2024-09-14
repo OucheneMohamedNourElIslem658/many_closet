@@ -31,11 +31,6 @@ type Purchase struct {
 	Count     uint           `json:"count"`
 }
 
-type Discount struct {
-	Type  string `json:"type"`
-	Value int64  `json:"value"`
-}
-
 func (order *Order) VaidateCreate() error {
 	if order.UserID == 0 {
 		return errors.New("USER_ID_INDEFINED")

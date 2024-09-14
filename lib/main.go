@@ -1,6 +1,7 @@
 package main
 
 import (
+	hooks "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/hooks"
 	chargily "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/chargily"
 	database "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/database"
 	email "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/email"
@@ -12,6 +13,8 @@ func init() {
 	email.Init()
 	chargily.Init()
 	filestorage.Init()
+
+	hooks.RegisterHooks()
 }
 
 func main() {

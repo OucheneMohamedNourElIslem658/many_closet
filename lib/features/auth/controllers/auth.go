@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path/filepath"
 
+	// analyticsSockets "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/analytics/sockets"
 	authRepositories "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/auth/repositories"
 	models "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/models"
 	tools "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/tools"
@@ -32,6 +33,10 @@ func (authcontroller *AuthController) RegisterWithEmailAndPassword(w http.Respon
 
 	authRepository := authcontroller.authRepository
 	status, result = authRepository.RegisterWithEmailAndPassword(user, profileImage)
+
+	// if status == http.StatusOK {
+	// 	analyticsSockets.BrodacastToTotalRegisteredUsersSocket()
+	// }
 
 	w.WriteHeader(status)
 	reponse, _ := json.Marshal(result)

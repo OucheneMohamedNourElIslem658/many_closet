@@ -202,6 +202,7 @@ func (authRepo *AuthRepository) AuthorizationWithEmailVerification(emailVerified
 
 func (authRepo *AuthRepository) AuthorizationWithAdminCheck(isAdmin bool) (status int, result tools.Object) {
 	if !isAdmin {
+		fmt.Println("unhothorized")
 		return http.StatusUnauthorized, tools.Object{
 			"error": "UNAUTHORIZED",
 		}

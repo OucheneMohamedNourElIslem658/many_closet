@@ -187,23 +187,10 @@ func (productsController *ProductsController) DeleteTaille(w http.ResponseWriter
 
 func (productsController *ProductsController) CreateItem(w http.ResponseWriter, r *http.Request) {
 	var item models.Item
-	json.Unmarshal([]byte(r.FormValue("item")), &item)
-
-	// Receive files:
-	imagesHeaders := r.MultipartForm.File["images"]
-	var images []multipart.File
-	for _, imagesHeader := range imagesHeaders {
-		file, err := imagesHeader.Open()
-		if err != nil {
-			http.Error(w, "Unable to open file", http.StatusInternalServerError)
-			return
-		}
-		defer file.Close()
-		images = append(images, file)
-	}
+	json.NewDecoder(r.Body).Decode(&item)
 
 	productsRepositorie := productsController.productsRepository
-	status, result := productsRepositorie.CreateItem(item, images)
+	status, result := productsRepositorie.CreateItem(item)
 
 	w.WriteHeader(status)
 	response, _ := json.Marshal(result)

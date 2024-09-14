@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
+	analyticsRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/analytics/routers"
 	authRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/auth/routers"
-	ordersControllers "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/orders/routers"
+	ordersRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/orders/routers"
 	productsRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/products/routers"
 	reviewsRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/reviews/routers"
 	usersRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/users/routers"
@@ -53,11 +54,15 @@ func (server *Server) RunServer() {
 	v1.Handle("/reviews/", http.StripPrefix("/reviews", reviewsRouter.Router))
 	reviewsRouter.RegisterRoutes()
 
-	ordersRouter := ordersControllers.NewOrdersRouter()
+	ordersRouter := ordersRouters.NewOrdersRouter()
 	v1.Handle("/orders/", http.StripPrefix("/orders", ordersRouter.Router))
 	ordersRouter.RegisterRoutes()
 
-	fmt.Printf("Listening and serving at %v\n", "http://"+server.address)
+	analyticsRouter := analyticsRouters.NewAnalyticsRouter()
+	v1.Handle("/analytics/", http.StripPrefix("/analytics", analyticsRouter.Router))
+	analyticsRouter.RegisterRoutes()
+
+	fmt.Printf("Listening and serving at %v\n", "http://"+server.address+"/api/v1/")
 	err := http.ListenAndServe(server.address, mainRouter)
 	if err != nil {
 		panic(err)
