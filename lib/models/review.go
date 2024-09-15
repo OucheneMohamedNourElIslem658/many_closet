@@ -8,16 +8,17 @@ import (
 )
 
 type Review struct {
-	ID        uint           `gorm:"primaryKey" json:"id"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at"`
-	Comment   string         `json:"comment"`
-	Rate      *uint           `json:"rate"`
-	UserID    uint           `json:"user_id"`
-	User      *User          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"user,omitempty"`
-	ItemID    uint           `json:"item_id"`
-	Item      *Item          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"item,omitempty"`
+	ID                  uint                 `gorm:"primaryKey" json:"id"`
+	CreatedAt           time.Time            `json:"created_at"`
+	UpdatedAt           time.Time            `json:"updated_at"`
+	DeletedAt           gorm.DeletedAt       `gorm:"index" json:"deleted_at"`
+	Comment             string               `json:"comment"`
+	Rate                *uint                `json:"rate"`
+	UserID              uint                 `json:"user_id"`
+	User                *User                `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"user,omitempty"`
+	ItemID              uint                 `json:"item_id"`
+	Item                *Item                `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"item,omitempty"`
+	ReviewNotifications []ReviewNotification `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"review_notifications,omitempty"`
 }
 
 func (review *Review) ValidateCreate() error {

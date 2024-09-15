@@ -9,23 +9,24 @@ import (
 )
 
 type Item struct {
-	ID              uint           `gorm:"primaryKey" json:"id"`
-	CreatedAt       time.Time      `json:"created_at"`
-	UpdatedAt       time.Time      `json:"updated_at"`
-	DeletedAt       gorm.DeletedAt `gorm:"index" json:"deleted_at"`
-	Name            string         `gorm:"unique;not null" json:"name"`
-	Images          []ItemImage    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"images,omitempty"`
-	Price           uint           `json:"price"`
-	Currency        string         `json:"currency"`
-	Sold            uint           `json:"sold"`
-	Description     string         `json:"description"`
-	ChargilyPriceID string         `json:"chargily_price_id"`
-	Colors          []Color        `gorm:"many2many:item_colors;" json:"colors,omitempty"`
-	Tailles         []Taille       `gorm:"many2many:item_tailles;" json:"tailles,omitempty"`
-	Stock           uint           `json:"stock"`
-	SKU             string         `json:"sku"`
-	Collections     []Collection   `gorm:"many2many:item_collections;" json:"collections,omitempty"`
-	Reviews         []Review       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"reviews,omitempty"`
+	ID                uint               `gorm:"primaryKey" json:"id"`
+	CreatedAt         time.Time          `json:"created_at"`
+	UpdatedAt         time.Time          `json:"updated_at"`
+	DeletedAt         gorm.DeletedAt     `gorm:"index" json:"deleted_at"`
+	Name              string             `gorm:"unique;not null" json:"name"`
+	Images            []ItemImage        `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"images,omitempty"`
+	Price             uint               `json:"price"`
+	Currency          string             `json:"currency"`
+	Sold              uint               `json:"sold"`
+	Description       string             `json:"description"`
+	ChargilyPriceID   string             `json:"chargily_price_id"`
+	Colors            []Color            `gorm:"many2many:item_colors;" json:"colors,omitempty"`
+	Tailles           []Taille           `gorm:"many2many:item_tailles;" json:"tailles,omitempty"`
+	Stock             uint               `json:"stock"`
+	SKU               string             `json:"sku"`
+	Collections       []Collection       `gorm:"many2many:item_collections;" json:"collections,omitempty"`
+	Reviews           []Review           `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"reviews,omitempty"`
+	ItemNotifications []ItemNotification `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"item_notifications,omitempty"`
 }
 
 type ItemImage struct {

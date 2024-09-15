@@ -24,15 +24,11 @@ func Newcontroller() *AuthController {
 
 func (authcontroller *AuthController) RegisterWithEmailAndPassword(w http.ResponseWriter, r *http.Request) {
 	var user models.User
-	json.Unmarshal([]byte(r.FormValue("user")), &user)
+	json.NewDecoder(r.Body).Decode(&user)
 
-	var status int
-	var result tools.Object
-
-	profileImage, _, _ := r.FormFile("image")
 
 	authRepository := authcontroller.authRepository
-	status, result = authRepository.RegisterWithEmailAndPassword(user, profileImage)
+	status, result := authRepository.RegisterWithEmailAndPassword(user)
 
 	// if status == http.StatusOK {
 	// 	analyticsSockets.BrodacastToTotalRegisteredUsersSocket()

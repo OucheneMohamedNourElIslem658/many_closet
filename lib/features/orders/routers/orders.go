@@ -27,18 +27,26 @@ func (ordersRouter *OrdersRouter) RegisterRoutes() {
 	ordersController := ordersRouter.ordersController
 	authMiddlewares := ordersRouter.authMiddlewares
 
+
+
 	authorizationWithEmailVerification := tools.MiddlewareChain(
 		authMiddlewares.Authorization,
 		authMiddlewares.AuthorizationWithEmailVerification,
 	)
 
+	authorizationWithAdminCheck := tools.MiddlewareChain(
+		authMiddlewares.Authorization,
+		authMiddlewares.AuthorizationWithEmailVerification,
+		authMiddlewares.AuthorizationWithAdminCheck,
+	)
+
 	router.HandleFunc("GET /search", authorizationWithEmailVerification(http.HandlerFunc(ordersController.GetOrders)))
 	router.HandleFunc("GET /{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.GetOrder)))
 	router.HandleFunc("POST /create", authorizationWithEmailVerification(http.HandlerFunc(ordersController.CreateOrder)))
-	router.HandleFunc("PUT /accept/{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.AcceptOrder)))
-	router.HandleFunc("PUT /unaccept/{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.UnacceptOrder)))
+	router.HandleFunc("PUT /accept/{id}", authorizationWithAdminCheck(http.HandlerFunc(ordersController.AcceptOrder)))
+	router.HandleFunc("PUT /reject/{id}", authorizationWithAdminCheck(http.HandlerFunc(ordersController.RejectOrder)))
 	router.HandleFunc("DELETE /delete/{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.DeleteOrder)))
-	router.HandleFunc("POST /sendPaymentURL/{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.SendPaymentURL)))
-	router.HandleFunc("PUT /expirePaymentURL/{id}", authorizationWithEmailVerification(http.HandlerFunc(ordersController.ExpirePaymentURL)))
-	router.HandleFunc("POST /paymentWebhook", authorizationWithEmailVerification(http.HandlerFunc(ordersController.PaymentWebhook)))
+	router.HandleFunc("POST /sendPaymentURL/{id}", authorizationWithAdminCheck(http.HandlerFunc(ordersController.SendPaymentURL)))
+	router.HandleFunc("PUT /expirePaymentURL/{id}", authorizationWithAdminCheck(http.HandlerFunc(ordersController.ExpirePaymentURL)))
+	router.HandleFunc("POST /paymentWebhook", ordersController.PaymentWebhook)
 }

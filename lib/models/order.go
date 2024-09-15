@@ -8,15 +8,16 @@ import (
 )
 
 type Order struct {
-	ID         uint           `gorm:"primaryKey" json:"id"`
-	CreatedAt  time.Time      `json:"created_at"`
-	UpdatedAt  time.Time      `json:"updated_at"`
-	DeletedAt  gorm.DeletedAt `gorm:"index" json:"deleted_at"`
-	Purchases  []Purchase     `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"purchases,omitempty"`
-	Status     string         `gorm:"default:'pendingAcceptance'" json:"status"`
-	CheckoutID *string        `gorm:"type:varchar(36)" json:"checkout_id"`
-	UserID     uint           `json:"user_id"`
-	User       *User          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"user,omitempty"`
+	ID                 uint                `gorm:"primaryKey" json:"id"`
+	CreatedAt          time.Time           `json:"created_at"`
+	UpdatedAt          time.Time           `json:"updated_at"`
+	DeletedAt          gorm.DeletedAt      `gorm:"index" json:"deleted_at"`
+	Purchases          []Purchase          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"purchases,omitempty"`
+	Status             string              `gorm:"default:'pendingAcceptance'" json:"status"`
+	CheckoutID         *string             `gorm:"type:varchar(36)" json:"checkout_id"`
+	UserID             uint                `json:"user_id"`
+	User               *User               `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"user,omitempty"`
+	OrderNotifications []OrderNotification `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"order_notifications,omitempty"`
 }
 
 type Purchase struct {

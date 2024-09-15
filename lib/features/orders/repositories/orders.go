@@ -54,7 +54,7 @@ func (ordersRepository *OrdersRepository) CreateOrder(order models.Order) (statu
 		itemStock := item.Stock
 		if itemStock < purchase.Count {
 			return http.StatusBadRequest, tools.Object{
-				"error":   "ITEMS_COUNT_OUT_OF_BOUND_FOUND",
+				"error":   "ITEMS_COUNT_OUT_OF_BOUND",
 				"message": item.ID,
 			}
 		}
@@ -102,18 +102,16 @@ func (ordersRepository *OrdersRepository) AcceptOrder(id uint) (status int, resp
 	}
 
 	if order.Status == "pendingAcceptance" || order.Status == "rejected" {
-		for _, purchase := range order.Purchases {
+		for index, purchase := range order.Purchases {
 			item := purchase.Item
 			stock := item.Stock
-			stock -= purchase.Count
-			item.Stock = stock
-			err := database.Save(&item).Error
-			if err != nil {
-				return http.StatusInternalServerError, tools.Object{
-					"error":   "INTERNAL_SERVER_ERROR",
-					"message": err.Error(),
+			if purchase.Count > stock {
+				return http.StatusBadRequest, tools.Object{
+					"error": "ALL_ITEMS_SOLD",
 				}
 			}
+			stock -= purchase.Count
+			order.Purchases[index].Item.Stock = stock
 		}
 		order.Status = "accepted"
 	} else {
@@ -135,7 +133,7 @@ func (ordersRepository *OrdersRepository) AcceptOrder(id uint) (status int, resp
 	}
 }
 
-func (ordersRepository *OrdersRepository) UnacceptOrder(id uint) (status int, responseBytesult tools.Object) {
+func (ordersRepository *OrdersRepository) RejectOrder(id uint) (status int, responseBytesult tools.Object) {
 	if id == 0 {
 		return http.StatusBadRequest, tools.Object{
 			"error": "ID_UNDEFINED",
@@ -309,20 +307,36 @@ func (ordersRepository *OrdersRepository) DeleteOrder(id uint) (status int, resu
 
 	database := ordersRepository.database
 
-	deleteResult := database.Unscoped().Where("id = ?", id).Delete(&models.Order{})
-	err := deleteResult.Error
-	affectedRows := deleteResult.RowsAffected
-
+	var order models.Order
+	err := database.Where("id = ?", id).First(&order).Error
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return http.StatusBadRequest, tools.Object{
+				"error": "ORDER_NOT_FOUND",
+			}
+		}
 		return http.StatusInternalServerError, tools.Object{
 			"error":   "INTERNAL_SERVER_ERROR",
 			"message": err.Error(),
 		}
 	}
 
-	if affectedRows == 0 {
+	if order.Status == "paid" {
 		return http.StatusBadRequest, tools.Object{
-			"error": "ORDER_NOT_FOUND",
+			"error": "ORDER_ALREADY_PAID",
+		}
+	} else if order.Status == "pendingPayment" {
+		status, result := ordersRepository.ExpirePaymentURL(order.ID)
+		if status != http.StatusOK {
+			return status, result
+		}
+	}
+
+	err = database.Unscoped().Where("id = ?", id).Delete(&order).Error
+	if err != nil {
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": err.Error(),
 		}
 	}
 

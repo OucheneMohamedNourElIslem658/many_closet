@@ -51,7 +51,7 @@ func (ordersController *OrdersController) AcceptOrder(w http.ResponseWriter, r *
 	w.Write(response)
 }
 
-func (ordersController *OrdersController) UnacceptOrder(w http.ResponseWriter, r *http.Request) {
+func (ordersController *OrdersController) RejectOrder(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	id, err := strconv.Atoi(idString)
 	if err != nil || id < 0 {
@@ -59,7 +59,7 @@ func (ordersController *OrdersController) UnacceptOrder(w http.ResponseWriter, r
 	}
 
 	ordersRepositorie := ordersController.ordersRepository
-	status, result := ordersRepositorie.UnacceptOrder(uint(id))
+	status, result := ordersRepositorie.RejectOrder(uint(id))
 
 	w.WriteHeader(status)
 	response, _ := json.Marshal(result)

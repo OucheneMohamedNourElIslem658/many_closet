@@ -143,34 +143,6 @@ func (usersController *UsersController) UpdateUser(w http.ResponseWriter, r *htt
 	w.Write(response)
 }
 
-func (usersController *UsersController) UpdateProfileImage(w http.ResponseWriter, r *http.Request) {
-	profileImage, _, _ := r.FormFile("image")
-
-	auth, _ := r.Context().Value("auth").(tools.Object)
-	id := auth["id"].(float64)
-
-	usersRepository := usersController.usersRepository
-	status, result := usersRepository.UpdateProfileImage(uint(id), profileImage)
-
-	w.WriteHeader(status)
-	response, _ := json.Marshal(result)
-	w.Write(response)
-}
-
-func (usersController *UsersController) UpdateUserImage(w http.ResponseWriter, r *http.Request) {
-	var id uint
-	json.Unmarshal([]byte(r.FormValue("id")), &id)
-
-	profileImage, _, _ := r.FormFile("image")
-
-	usersRepository := usersController.usersRepository
-	status, result := usersRepository.UpdateProfileImage(id, profileImage)
-
-	w.WriteHeader(status)
-	response, _ := json.Marshal(result)
-	w.Write(response)
-}
-
 func (usersController *UsersController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	id, err := strconv.Atoi(idString)

@@ -17,9 +17,6 @@ func registerUserHooks() error {
 	// if err := AfterUpdateUser(database); err != nil {
 	// 	return err
 	// }
-	if err := beforeDeleteUser(database); err != nil {
-		return err
-	}
 	if err := afterDeleteUser(database); err != nil {
 		return err
 	}
@@ -43,17 +40,6 @@ func afterCreateUser(database *gorm.DB) error {
 // 		}
 // 	})
 // }
-
-func beforeDeleteUser(database *gorm.DB) error {
-	return database.Callback().Delete().Before("gorm:delete").Register("before_delete_user", func(d *gorm.DB) {
-		if user, ok := d.Statement.Dest.(*models.User); ok {
-			if user.ImageID != nil {
-				err := d.Unscoped().Delete(user.Image, user.ImageID).Error
-				d.AddError(err)
-			}
-		}
-	})
-}
 
 
 func afterDeleteUser(database *gorm.DB) error {
