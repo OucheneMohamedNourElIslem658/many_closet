@@ -26,7 +26,6 @@ type Item struct {
 	SKU               string             `json:"sku"`
 	Collections       []Collection       `gorm:"many2many:item_collections;" json:"collections,omitempty"`
 	Reviews           []Review           `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"reviews,omitempty"`
-	ItemNotifications []ItemNotification `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"item_notifications,omitempty"`
 }
 
 type ItemImage struct {

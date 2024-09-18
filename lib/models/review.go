@@ -18,7 +18,6 @@ type Review struct {
 	User                *User                `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"user,omitempty"`
 	ItemID              uint                 `json:"item_id"`
 	Item                *Item                `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"item,omitempty"`
-	ReviewNotifications []ReviewNotification `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"review_notifications,omitempty"`
 }
 
 func (review *Review) ValidateCreate() error {

@@ -34,7 +34,7 @@ func (reviewsRouter *ReviewsRouter) RegisterRoutes() {
 
 	router.HandleFunc("GET /{id}", authorizationWithEmailVerification(http.HandlerFunc(reviewsController.GetReview)))
 	router.HandleFunc("GET /search", authorizationWithEmailVerification(http.HandlerFunc(reviewsController.GetReviews)))
-	router.HandleFunc("GET /create", authorizationWithEmailVerification(http.HandlerFunc(reviewsController.CreateReview)))
+	router.HandleFunc("POST /create", authorizationWithEmailVerification(http.HandlerFunc(reviewsController.CreateReview)))
 	router.HandleFunc("DELETE /delete/{id}", authorizationWithEmailVerification(http.HandlerFunc(reviewsController.DeleteReview)))
 	router.HandleFunc("PUT /update/{id}", authorizationWithEmailVerification(http.HandlerFunc(reviewsController.UpdateReview)))
 }

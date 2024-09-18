@@ -6,6 +6,7 @@ import (
 
 	analyticsRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/analytics/routers"
 	authRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/auth/routers"
+	notificationsRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/notifications/routers"
 	ordersRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/orders/routers"
 	productsRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/products/routers"
 	reviewsRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/reviews/routers"
@@ -61,6 +62,10 @@ func (server *Server) RunServer() {
 	analyticsRouter := analyticsRouters.NewAnalyticsRouter()
 	v1.Handle("/analytics/", http.StripPrefix("/analytics", analyticsRouter.Router))
 	analyticsRouter.RegisterRoutes()
+
+	notificationsRouter := notificationsRouters.NewNotificationsRouter()
+	v1.Handle("/notifications/", http.StripPrefix("/notifications", notificationsRouter.Router))
+	notificationsRouter.RegisterRoutes()
 
 	fmt.Printf("Listening and serving at %v\n", "http://"+server.address+"/api/v1/")
 	err := http.ListenAndServe(server.address, mainRouter)

@@ -20,6 +20,7 @@ type User struct {
 	IsAdmin       bool           `gorm:"not null" json:"is_admin"`
 	Reviews       []Review       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"reviews,omitempty"`
 	Orders        []Order        `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"orders,omitempty"`
+	Notifications []Notification `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"notifications,omitempty"`
 }
 
 func (user *User) ValidateRegistration() error {

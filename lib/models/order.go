@@ -17,7 +17,6 @@ type Order struct {
 	CheckoutID         *string             `gorm:"type:varchar(36)" json:"checkout_id"`
 	UserID             uint                `json:"user_id"`
 	User               *User               `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"user,omitempty"`
-	OrderNotifications []OrderNotification `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"order_notifications,omitempty"`
 }
 
 type Purchase struct {

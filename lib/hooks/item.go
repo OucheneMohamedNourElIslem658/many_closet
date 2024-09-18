@@ -8,6 +8,7 @@ import (
 	database "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/database"
 )
 
+
 func registerItemHooks() error {
 	database := database.Instance
 
@@ -25,7 +26,8 @@ func registerItemHooks() error {
 
 func afterCreateItem(database *gorm.DB) error {
 	return database.Callback().Create().After("gorm:commit_or_rollback_transaction").Register("after_commit_item_create", func(d *gorm.DB) {
-		if _, ok := d.Statement.Dest.(*models.Item); ok {
+		if item, ok := d.Statement.Dest.(*models.Item); ok {
+			go notificationsRepository.CreateItemNotification(nil, item.ID, "item_creation")
 			go analyticsSockets.BroadcastToTotalProductsSocket(nil)
 			go analyticsSockets.BroadcastToProductsBySalesSocket(nil)
 		}

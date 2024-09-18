@@ -1,6 +1,8 @@
 package hooks
 
 import (
+	"fmt"
+
 	"gorm.io/gorm"
 
 	analyticsSockets "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/analytics/sockets"
@@ -10,7 +12,6 @@ import (
 
 func registerOrderHooks() error {
 	database := database.Instance
-
 	if err := afterCreateOrder(database); err != nil {
 		return err
 	}
@@ -25,7 +26,8 @@ func registerOrderHooks() error {
 
 func afterCreateOrder(database *gorm.DB) error {
 	return database.Callback().Create().After("gorm:commit_or_rollback_transaction").Register("after_commit_order", func(d *gorm.DB) {
-		if _, ok := d.Statement.Dest.(*models.Order); ok {
+		if order, ok := d.Statement.Dest.(*models.Order); ok {
+			notificationsRepository.CreateOrderNotification(nil, order.ID, "order_created")
 			go analyticsSockets.BroadcastToActiveUsersSocket(nil)
 			go analyticsSockets.BroadcastToTotalOrdersSocket(nil)
 			go analyticsSockets.BroadcastToOrderTrendsSocket(nil)
@@ -37,8 +39,13 @@ func afterCreateOrder(database *gorm.DB) error {
 func afterUpdateOrder(database *gorm.DB) error {
 	return database.Callback().Update().After("gorm:commit_or_rollback_transaction").Register("after_commit_order_update", func(d *gorm.DB) {
 		if order, ok := d.Statement.Dest.(*models.Order); ok {
+			if order.Status == "accepted" || order.Status == "rejected" || order.Status == "pendingAcceptance" {
+				notificationsRepository.CreateOrderNotification(&order.UserID, order.ID, fmt.Sprintf("order_%v", order.Status))
+			}
 			go analyticsSockets.BroadcastToOrdersByStatusSocket(nil)
 			if order.Status == "paid" {
+				err := notificationsRepository.CreateOrderNotification(nil, order.ID, "order_paid")
+				d.Error = err
 				go analyticsSockets.BroadcastToTotalRevenueSocket(nil)
 				go analyticsSockets.BroadcastToProductsBySalesSocket(nil)
 			}

@@ -25,7 +25,8 @@ func registerReviewHooks() error {
 
 func afterCreateReview(database *gorm.DB) error {
 	return database.Callback().Create().After("gorm:commit_or_rollback_transaction").Register("after_commit_review", func(d *gorm.DB) {
-		if _, ok := d.Statement.Dest.(*models.Review); ok {
+		if review, ok := d.Statement.Dest.(*models.Review); ok {
+			notificationsRepository.CreateReviewNotification(review.ID, "review_created")
 			go analyticsSockets.BroadcastToActiveUsersSocket(nil)
 		}
 	})

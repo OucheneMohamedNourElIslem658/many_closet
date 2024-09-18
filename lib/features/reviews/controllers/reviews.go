@@ -7,6 +7,7 @@ import (
 
 	reviewsRepository "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/reviews/repositories"
 	"github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/models"
+	"github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/tools"
 )
 
 type ReviewsController struct {
@@ -22,6 +23,10 @@ func NewReviewsController() *ReviewsController {
 func (reviewsController *ReviewsController) CreateReview(w http.ResponseWriter, r *http.Request) {
 	var review models.Review
 	json.NewDecoder(r.Body).Decode(&review)
+
+	auth, _ := r.Context().Value("auth").(tools.Object)
+	id := auth["id"].(float64)
+	review.UserID = uint(id)
 
 	reviewsRepository := reviewsController.reviewsRepository
 	status, result := reviewsRepository.CreateReview(review)

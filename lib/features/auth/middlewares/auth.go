@@ -25,6 +25,8 @@ func (authMiddlewares *AuthMiddlewares) Authorization(next http.Handler) http.Ha
 		authRepo := authMiddlewares.authRepo
 
 		status, result := authRepo.Authorization(authorization)
+
+
 		if status == http.StatusOK {
 			context := context.WithValue(r.Context(), "auth", result)
 			r = r.WithContext(context)

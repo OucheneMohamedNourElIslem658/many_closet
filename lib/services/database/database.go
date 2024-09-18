@@ -32,9 +32,12 @@ func Init() {
 func migrateTables() error {
 	err := Instance.AutoMigrate(
 		&models.User{},
+		&models.Notification{},
+		&models.OrderNotification{},
+		&models.ItemNotification{},
+		&models.ReviewNotification{},
 		&models.Item{},
 		&models.ItemImage{},
-		&models.ItemNotification{},
 		&models.Color{},
 		&models.ItemColor{},
 		&models.Taille{},
@@ -42,10 +45,8 @@ func migrateTables() error {
 		&models.Collection{},
 		&models.ItemCollection{},
 		&models.Review{},
-		&models.ReviewNotification{},
 		&models.Purchase{},
 		&models.Order{},
-		&models.OrderNotification{},
 	)
 	if err != nil {
 		return err
