@@ -49,12 +49,7 @@ func afterDeleteNotification(database *gorm.DB) error {
 
 func BroadcastTonotificationsSockets(notification *models.Notification)  {
 	if notification.ItemNotificationID != nil {
-		go notificationsSockets.BroadcastToItemsNotificationsSocket(nil, notification.UserID)
+		go notificationsSockets.BroadcastToNotificationsSocket(nil, notification.UserID)
 	}
-	if notification.OrderNotificationID != nil {
-		go notificationsSockets.BroadcastToOrdersNotificationsSocket(nil, notification.UserID)
-	}
-	if notification.ReviewNotificationID != nil {
-		go notificationsSockets.BroadcastToReviewsNotificationsSocket(nil, notification.UserID)
-	}
+	go notificationsSockets.BroadcastToNotificationsStatusSocket(nil, notification.UserID)
 }

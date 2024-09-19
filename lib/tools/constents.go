@@ -11,7 +11,7 @@ func GetValidExtentions(initialValues string, validValues ...string) []string {
 	validExtentions := make([]string, 0)
 	for _, extention := range extentions {
 		extention = strings.ToLower(extention)
-		isExtentionValid := contains(validValues, extention)
+		isExtentionValid := Contains(validValues, extention)
 		if isExtentionValid {
 			extention = strings.ToUpper(string(extention[0])) + extention[1:]
 			validExtentions = append(validExtentions, extention)
@@ -25,7 +25,7 @@ func GetValidFilters(initialValues string, validValues ...string) []string {
 	validFilters := make([]string, 0)
 	for _, filter := range filter {
 		filter = strings.ToLower(filter)
-		isFilterValid := contains(validValues, filter)
+		isFilterValid := Contains(validValues, filter)
 		if isFilterValid {
 			if filter == "creation_time" {
 				filter = "created_at"
@@ -36,7 +36,7 @@ func GetValidFilters(initialValues string, validValues ...string) []string {
 	return validFilters
 }
 
-func contains(slice []string, value string) bool {
+func Contains(slice []string, value string) bool {
 	for _, v := range slice {
 		if v == value {
 			return true

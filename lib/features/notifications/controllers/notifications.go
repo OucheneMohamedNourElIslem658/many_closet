@@ -21,16 +21,12 @@ func NewNotificationsController() *NotificationsController {
 	}
 }
 
-func (notificationsController *NotificationsController) GetOrderNotifications(w http.ResponseWriter, r *http.Request) {
-	notificationsSockets.Instance.OrdersNotificationsSocket.HandleRequest(w, r)
+func (notificationsController *NotificationsController) GetNotifications(w http.ResponseWriter, r *http.Request) {
+	notificationsSockets.Instance.NotificationsSocket.HandleRequest(w, r)
 }
 
-func (notificationsController *NotificationsController) GetItemNotifications(w http.ResponseWriter, r *http.Request) {
-	notificationsSockets.Instance.ItemsNotificationsSocket.HandleRequest(w, r)
-}
-
-func (notificationsController *NotificationsController) GetReviewNotifications(w http.ResponseWriter, r *http.Request) {
-	notificationsSockets.Instance.ReviewsNotificationsSocket.HandleRequest(w, r)
+func (notificationsController *NotificationsController) GetNotificationsStatus(w http.ResponseWriter, r *http.Request) {
+	notificationsSockets.Instance.NotificationsStatus.HandleRequest(w, r)
 }
 
 func (notificationsController *NotificationsController) UpdateNotification(w http.ResponseWriter, r *http.Request) {

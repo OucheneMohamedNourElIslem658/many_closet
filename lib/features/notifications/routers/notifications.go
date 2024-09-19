@@ -39,9 +39,8 @@ func (notificationsRouter *NotificationsRouter) RegisterRoutes() {
 	// )
 
 	socketsRouter := http.NewServeMux()
-	socketsRouter.HandleFunc("GET /orders", authorizationWithEmailVerification(http.HandlerFunc(notificationsController.GetOrderNotifications)))
-	socketsRouter.HandleFunc("GET /items", authorizationWithEmailVerification(http.HandlerFunc(notificationsController.GetItemNotifications)))
-	socketsRouter.HandleFunc("GET /reviews", authorizationWithEmailVerification(http.HandlerFunc(notificationsController.GetReviewNotifications)))
+	socketsRouter.HandleFunc("GET /notifications", authorizationWithEmailVerification(http.HandlerFunc(notificationsController.GetNotifications)))
+	socketsRouter.HandleFunc("GET /status", authorizationWithEmailVerification(http.HandlerFunc(notificationsController.GetNotificationsStatus)))
 	router.Handle("/sockets/", http.StripPrefix("/sockets", socketsRouter))
 
 	router.HandleFunc("PUT /update/{id}", authorizationWithEmailVerification(http.HandlerFunc(notificationsController.UpdateNotification)))

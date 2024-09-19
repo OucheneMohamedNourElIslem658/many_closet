@@ -39,7 +39,7 @@ func afterCreateOrder(database *gorm.DB) error {
 func afterUpdateOrder(database *gorm.DB) error {
 	return database.Callback().Update().After("gorm:commit_or_rollback_transaction").Register("after_commit_order_update", func(d *gorm.DB) {
 		if order, ok := d.Statement.Dest.(*models.Order); ok {
-			if order.Status == "accepted" || order.Status == "rejected" || order.Status == "pendingAcceptance" {
+			if order.Status == "accepted" || order.Status == "rejected" || order.Status == "pendingPayment" {
 				notificationsRepository.CreateOrderNotification(&order.UserID, order.ID, fmt.Sprintf("order_%v", order.Status))
 			}
 			go analyticsSockets.BroadcastToOrdersByStatusSocket(nil)

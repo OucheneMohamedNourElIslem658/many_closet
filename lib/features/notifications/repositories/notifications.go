@@ -29,6 +29,7 @@ func (repo *NotificationsRepository) CreateOrderNotification(userID *uint, order
 	notification := &models.Notification{
 		Title: "Order Update",
 		UserID: *userID,
+		About: "orders",
 		OrderNotification: &models.OrderNotification{
 			OrderID:   orderID,
 			EventType: eventType,
@@ -56,6 +57,7 @@ func (repo *NotificationsRepository) sendNotificationToAllAdmins(orderID uint, e
 			notification := &models.Notification{
 				Title: "Order Update",
 				UserID: adminID,
+				About: "orders",
 				OrderNotification: &models.OrderNotification{
 					OrderID:   orderID,
 					EventType: eventType,
@@ -96,6 +98,7 @@ func (repo *NotificationsRepository) CreateItemNotification(userIDs []uint, item
 			notification := &models.Notification{
 				Title: "Item Update",
 				UserID: userID,
+				About: "items",
 				ItemNotification: &models.ItemNotification{
 					ItemID: itemID,
 					Event:  event,
@@ -138,6 +141,7 @@ func (repo *NotificationsRepository) sendNotificationToAllUsers(itemID uint, eve
 			notification := &models.Notification{
 				Title: "Item Update",
 				UserID: userID,
+				About: "items",
 				ItemNotification: &models.ItemNotification{
 					ItemID: itemID,
 					Event:  event,
@@ -184,6 +188,7 @@ func (repo *NotificationsRepository) sendReviewNotificationToAllAdmins(reviewID 
 			notification := &models.Notification{
 				Title: "Order Update",
 				UserID: adminID,
+				About: "reviews",
 				ReviewNotification: &models.ReviewNotification{
 					ReviewID:   reviewID,
 					Event: eventType,
@@ -274,7 +279,7 @@ func (repo *NotificationsRepository) DeleteNotification(notificationID uint, use
 	}
 }
 
-func (repo *NotificationsRepository) GetOrderNotifications(userID uint, pageSize uint, page uint, appendMetadata bool) (int, tools.Object) {
+func (repo *NotificationsRepository) GetNotifications(userID uint, pageSize uint, page uint, appendWith string) (int, tools.Object) {
 	if pageSize <= 0 {
 		return http.StatusBadRequest, tools.Object{
 			"error":   "INVALID_PAGE_SIZE",
@@ -290,7 +295,7 @@ func (repo *NotificationsRepository) GetOrderNotifications(userID uint, pageSize
 	}
 
 	var totalNotifications int64
-	countQuery := repo.database.Model(&models.Notification{}).Where("user_id = ? and order_notification_id IS NOT NULL", userID).Count(&totalNotifications)
+	countQuery := repo.database.Model(&models.Notification{}).Where("user_id = ?", userID).Count(&totalNotifications)
 	if countQuery.Error != nil {
 		return http.StatusInternalServerError, tools.Object{
 			"error":   "INTERNAL_SERVER_ERROR",
@@ -300,117 +305,23 @@ func (repo *NotificationsRepository) GetOrderNotifications(userID uint, pageSize
 	totalPages := (totalNotifications + int64(pageSize) - 1) / int64(pageSize)
 
 	var notifications []models.Notification
-	query := repo.database.Where("user_id = ? and order_notification_id IS NOT NULL", userID)
+	query := repo.database.Where("user_id = ?", userID)
 
-	if appendMetadata {
-		query.Preload("OrderNotification.Order")
-	}
+	extentions := tools.GetValidExtentions(appendWith, "review", "item", "order")
 
-	query.Order("created_at desc").
-		Limit(int(pageSize)).
-		Offset(int((page - 1) * pageSize)).
-		Find(&notifications)
-
-	if query.Error != nil {
-		return http.StatusInternalServerError, tools.Object{
-			"error":   "INTERNAL_SERVER_ERROR",
-			"message": query.Error.Error(),
-		}
-	}
-
-	return http.StatusOK, tools.Object{
-		"page_size": pageSize,
-		"page": page,
-		"total_pages": totalPages,
-		"notifications": notifications,
-	}
-}
-
-func (repo *NotificationsRepository) GetItemNotifications(userID uint, pageSize uint, page uint, appendMetadata bool) (int, tools.Object) {
-	if pageSize <= 0 {
-		return http.StatusBadRequest, tools.Object{
-			"error":   "INVALID_PAGE_SIZE",
-			"message": "Page size must be greater than zero.",
-		}
-	}
-
-	if page <= 0 {
-		return http.StatusBadRequest, tools.Object{
-			"error":   "INVALID_PAGE_NUMBER",
-			"message": "Page number must be greater than zero.",
-		}
-	}
-
-	var totalNotifications int64
-	countQuery := repo.database.Model(&models.Notification{}).Where("user_id = ? and item_notification_id <> null", userID).Count(&totalNotifications)
-	if countQuery.Error != nil {
-		return http.StatusInternalServerError, tools.Object{
-			"error":   "INTERNAL_SERVER_ERROR",
-			"message": countQuery.Error.Error(),
-		}
-	}
-	totalPages := (totalNotifications + int64(pageSize) - 1) / int64(pageSize)
-
-	var notifications []models.Notification
-	query := repo.database.Model(&models.Notification{}).
-	    Where("user_id = ? and item_notification_id IS NOT NULL", userID)
-
-	if appendMetadata {
-		query.Preload("ItemNotification.Item").Preload("ItemNotification.Item.Images")
-	}
-
-	query.Order("created_at desc").
-		Limit(int(pageSize)).
-		Offset(int((page - 1) * pageSize)).
-		Find(&notifications)
-
-	if query.Error != nil {
-		return http.StatusInternalServerError, tools.Object{
-			"error":   "INTERNAL_SERVER_ERROR",
-			"message": query.Error.Error(),
-		}
-	}
-
-	return http.StatusOK, tools.Object{
-		"page_size": pageSize,
-		"page": page,
-		"total_pages": totalPages,
-		"notifications": notifications,
-	}
-}
-
-func (repo *NotificationsRepository) GetReviewNotifications(userID uint, pageSize uint, page uint, appendMetadata bool) (int, tools.Object) {
-	if pageSize <= 0 {
-		return http.StatusBadRequest, tools.Object{
-			"error":   "INVALID_PAGE_SIZE",
-			"message": "Page size must be greater than zero.",
-		}
-	}
-
-	if page <= 0 {
-		return http.StatusBadRequest, tools.Object{
-			"error":   "INVALID_PAGE_NUMBER",
-			"message": "Page number must be greater than zero.",
-		}
-	}
-
-	var totalNotifications int64
-	countQuery := repo.database.Model(&models.Notification{}).Where("user_id = ? and review_notification_id IS NOT NULL", userID).Count(&totalNotifications)
-	if countQuery.Error != nil {
-		return http.StatusInternalServerError, tools.Object{
-			"error":   "INTERNAL_SERVER_ERROR",
-			"message": countQuery.Error.Error(),
-		}
-	}
-	totalPages := (totalNotifications + int64(pageSize) - 1) / int64(pageSize)
-
-	var notifications []models.Notification
-	query := repo.database.Where("user_id = ? and review_notification_id IS NOT NULL", userID)
-
-	if appendMetadata {
+	if tools.Contains(extentions, "Review") {
 		query.Preload("ReviewNotification.Review").Preload("ReviewNotification.Review.User")
 	}
 
+	if tools.Contains(extentions, "Item") {
+		query.Preload("ItemNotification.Item").Preload("ItemNotification.Item.Images")
+	}
+
+	if tools.Contains(extentions, "Order") {
+		query.Preload("OrderNotification.Order")
+	}
+	
+
 	query.Order("created_at desc").
 		Limit(int(pageSize)).
 		Offset(int((page - 1) * pageSize)).
@@ -428,5 +339,34 @@ func (repo *NotificationsRepository) GetReviewNotifications(userID uint, pageSiz
 		"page": page,
 		"total_pages": totalPages,
 		"notifications": notifications,
+	}
+}
+
+func (repo *NotificationsRepository) GetSeenNotificationsCount(userID uint) (int, tools.Object) {
+	var totalNotifications int64
+	var seenNotifications int64
+
+	totalCountQuery := repo.database.Model(&models.Notification{}).Where("user_id = ?", userID).Count(&totalNotifications)
+	if totalCountQuery.Error != nil {
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": totalCountQuery.Error.Error(),
+		}
+	}
+
+	seenCountQuery := repo.database.Model(&models.Notification{}).Where("user_id = ? AND seen = ?", userID, true).Count(&seenNotifications)
+	if seenCountQuery.Error != nil {
+		return http.StatusInternalServerError, tools.Object{
+			"error":   "INTERNAL_SERVER_ERROR",
+			"message": seenCountQuery.Error.Error(),
+		}
+	}
+
+	unseenNotifications := totalNotifications - seenNotifications
+
+	return http.StatusOK, tools.Object{
+		"total_notifications": totalNotifications,
+		"seen_notifications":  seenNotifications,
+		"unseen_notifications": unseenNotifications,
 	}
 }

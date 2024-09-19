@@ -14,6 +14,7 @@ type Notification struct {
 	Title       string         `json:"title"`
 	Description string         `json:"description"`
 	Seen        bool           `json:"seen"`
+	About       string         `json:"about"`
 	UserID      uint           `json:"user_id"`
 	User        *User          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"user,omitempty"`
 
