@@ -9,11 +9,13 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/olahol/melody v1.2.1
 	golang.org/x/crypto v0.26.0
+	golang.org/x/oauth2 v0.23.0
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.11
 )
 
 require (
+	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/creasty/defaults v1.6.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
