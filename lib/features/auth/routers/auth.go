@@ -33,4 +33,6 @@ func (authRouter *AuthRouter) RegisterRoutes() {
 	router.HandleFunc("POST /sendPasswordResetLink", authController.SendPasswordResetLink)
 	router.HandleFunc("GET /serveResetPasswordForm/{idToken}", authController.ServeResetPasswordForm)
 	router.HandleFunc("POST /resetPassword/{idToken}", authController.ResetPassword)
+	router.HandleFunc("GET /oauth/{provider}", authController.OAuth)
+	router.HandleFunc("GET /oauth/{provider}/callback", authController.OAuthCallback)
 }

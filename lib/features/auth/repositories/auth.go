@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -8,6 +10,7 @@ import (
 
 	authUtils "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/auth/utils"
 	models "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/models"
+	customoauth "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/custom_oauth"
 	database "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/database"
 	email "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/services/email"
 	tools "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/tools"
@@ -15,11 +18,13 @@ import (
 
 type AuthRepository struct {
 	database *gorm.DB
+	providers customoauth.Providers
 }
 
 func NewAuthRepository() *AuthRepository {
 	return &AuthRepository{
 		database: database.Instance,
+		providers: customoauth.Instance,
 	}
 }
 
@@ -100,7 +105,7 @@ func (authRepo *AuthRepository) LoginWithEmailAndPassword(user models.User) (sta
 		}
 	}
 
-	// Check email verification
+	// Check enabled
 	if disabled := storedUser.Disabled != nil && *storedUser.Disabled; disabled {
 		return http.StatusBadRequest, tools.Object{
 			"error": "USER_DISABLED",
@@ -312,5 +317,172 @@ func (authRepo *AuthRepository) SendPasswordResetLink(toEmail string, url string
 
 	return http.StatusOK, tools.Object{
 		"message": "RESET_PASSWORD_LINK_SENT",
+	}
+}
+
+func (authRepo *AuthRepository) OAuth(provider string, successURL string, failureURL string) (status int, result tools.Object) {
+	ok := customoauth.IsSupportedProvider(provider)
+	if !ok {
+		return http.StatusBadRequest, tools.Object{
+			"error": "PROVIDER_NOT_SUPPORTED",
+		}
+	}
+	if successURL == "" {
+		return http.StatusBadRequest, tools.Object{
+			"error": "SUCCESS_URL_INDEFINED",
+		}
+	}
+	if failureURL == "" {
+		return http.StatusBadRequest, tools.Object{
+			"error": "FAILURE_URL_INDEFINED",
+		}
+	}
+
+	providers := authRepo.providers
+	oauthConfig := providers[provider].Config
+	return http.StatusOK, tools.Object{
+		"oauthConfig": oauthConfig,
+	}
+}
+
+func (authRepo *AuthRepository) OAuthCallback(provider string, code string, isAdmin bool, context context.Context) (status int, result tools.Object) {
+	ok := customoauth.IsSupportedProvider(provider)
+	if !ok {
+		return http.StatusBadRequest, tools.Object{
+			"error": "PROVIDER_NOT_SUPPORTED",
+		}
+	}
+
+	if code == "" {
+		return http.StatusBadRequest, tools.Object{
+			"error": "CODE_INDEFINED",
+		}
+	}
+
+	authProvider := authRepo.providers[provider]
+
+	oauthConfig := authProvider.Config
+	token, err := oauthConfig.Exchange(context, code)
+	if err != nil {
+		return http.StatusOK, tools.Object{
+			"error": err.Error(),
+		}
+	}
+
+	client := oauthConfig.Client(context, token)
+	response, err := client.Get(authProvider.UserInfoURL)
+	if err != nil {
+		return http.StatusInternalServerError, tools.Object{
+			"error": err.Error(),
+		}
+	}
+	defer response.Body.Close()
+
+	userData := map[string]interface{}{}
+	if err := json.NewDecoder(response.Body).Decode(&userData); err != nil {
+		return http.StatusInternalServerError, tools.Object{
+			"error": err.Error(),
+		}
+	}
+
+	emailVerified := true
+	disabled := false
+
+	name, ok := userData["name"].(string)
+	if !ok {
+		name = userData["displayName"].(string)
+	}
+	
+	email, ok := userData["email"].(string)
+	if !ok {
+		email, ok = userData["mail"].(string)
+		if !ok {
+			response, err = client.Get(authProvider.EmailInfoURL)
+			if err != nil {
+				fmt.Println(err.Error())
+				return http.StatusInternalServerError, tools.Object{
+					"error": err.Error(),
+				}
+			}
+			defer response.Body.Close()
+
+			var emails []map[string]interface{}
+			if err := json.NewDecoder(response.Body).Decode(&emails); err != nil {
+				return http.StatusInternalServerError, tools.Object{
+					"error": err.Error(),
+				}
+			}
+
+			for _, emailData := range emails {
+				primary, ok := emailData["primary"].(bool)
+				verified, okVerified := emailData["verified"].(bool)
+				if ok && okVerified && primary && verified {
+					email = emailData["email"].(string)
+					break
+				}
+			}
+		}
+	}
+
+	user := models.User{
+		Email: email,
+		FullName: name,
+		EmailVerified: &emailVerified,
+		IsAdmin: isAdmin,
+		Disabled: &disabled,
+	}
+
+	var database = authRepo.database
+
+	var existingUser models.User
+	err = database.Where("email = ?", user.Email).First(&existingUser).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			err = database.Create(&user).Error
+			if err != nil {
+				return http.StatusInternalServerError, tools.Object{
+					"error": err.Error(),
+				}
+			}
+			existingUser = user
+		} else {
+			return http.StatusInternalServerError, tools.Object{
+				"error": err.Error(),
+			}
+		}
+	}
+
+	if existingUser.Email != user.Email || existingUser.FullName != user.FullName {
+		existingUser.Email = user.Email
+		existingUser.FullName = user.FullName
+		err = database.Save(&existingUser).Error
+		if err != nil {
+			return http.StatusInternalServerError, tools.Object{
+				"error": err.Error(),
+			}
+		}
+	}
+
+	if disabled := existingUser.Disabled != nil && *existingUser.Disabled; disabled {
+		return http.StatusBadRequest, tools.Object{
+			"error": "USER_DISABLED",
+		}
+	}
+
+	idToken, err := authUtils.CreateIdToken(
+		existingUser.ID,
+		existingUser.Email,
+		*existingUser.EmailVerified,
+		existingUser.IsAdmin,
+		*existingUser.Disabled,
+	)
+	if err != nil {
+		return http.StatusInternalServerError, tools.Object{
+			"error": "GENERATING_IDTOKEN_FAILED",
+		}
+	}
+
+	return http.StatusOK, tools.Object{
+		"id_token": idToken,
 	}
 }
