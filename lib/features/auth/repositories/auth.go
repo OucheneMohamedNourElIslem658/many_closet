@@ -388,48 +388,49 @@ func (authRepo *AuthRepository) OAuthCallback(provider string, code string, isAd
 	emailVerified := true
 	disabled := false
 
-	name, ok := userData["name"].(string)
-	if !ok {
-		name = userData["displayName"].(string)
-	}
-	
-	email, ok := userData["email"].(string)
-	if !ok {
-		email, ok = userData["mail"].(string)
-		if !ok {
-			response, err = client.Get(authProvider.EmailInfoURL)
-			if err != nil {
-				fmt.Println(err.Error())
-				return http.StatusInternalServerError, tools.Object{
-					"error": err.Error(),
-				}
-			}
-			defer response.Body.Close()
-
-			var emails []map[string]interface{}
-			if err := json.NewDecoder(response.Body).Decode(&emails); err != nil {
-				return http.StatusInternalServerError, tools.Object{
-					"error": err.Error(),
-				}
-			}
-
-			for _, emailData := range emails {
-				primary, ok := emailData["primary"].(bool)
-				verified, okVerified := emailData["verified"].(bool)
-				if ok && okVerified && primary && verified {
-					email = emailData["email"].(string)
-					break
-				}
-			}
-		}
-	}
-
 	user := models.User{
-		Email: email,
-		FullName: name,
 		EmailVerified: &emailVerified,
 		IsAdmin: isAdmin,
 		Disabled: &disabled,
+	}
+
+	switch provider {
+	case "google":
+		user.FullName = userData["name"].(string)
+		user.Email = userData["email"].(string)
+	case "facebook":
+		user.FullName = userData["name"].(string)
+		user.Email = userData["email"].(string)
+	case "microsoft":
+		user.FullName = userData["displayName"].(string)
+		user.Email = userData["mail"].(string)
+	case "github":
+		user.FullName = userData["name"].(string)
+		// Get user Email from github
+		response, err = client.Get(authProvider.EmailInfoURL)
+		if err != nil {
+			fmt.Println(err.Error())
+			return http.StatusInternalServerError, tools.Object{
+				"error": err.Error(),
+			}
+		}
+		defer response.Body.Close()
+
+		var emails []map[string]interface{}
+		if err := json.NewDecoder(response.Body).Decode(&emails); err != nil {
+			return http.StatusInternalServerError, tools.Object{
+				"error": err.Error(),
+			}
+		}
+
+		for _, emailData := range emails {
+			primary, ok := emailData["primary"].(bool)
+			verified, okVerified := emailData["verified"].(bool)
+			if ok && okVerified && primary && verified {
+				user.Email = emailData["email"].(string)
+				break
+			}
+		}
 	}
 
 	var database = authRepo.database

@@ -11,6 +11,7 @@ import (
 	productsRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/products/routers"
 	reviewsRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/reviews/routers"
 	usersRouters "github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/features/users/routers"
+	"github.com/OucheneMohamedNourElIslem658/many_closet_api/lib/tools"
 )
 
 type Server struct {
@@ -67,8 +68,10 @@ func (server *Server) RunServer() {
 	v1.Handle("/notifications/", http.StripPrefix("/notifications", notificationsRouter.Router))
 	notificationsRouter.RegisterRoutes()
 
+	logger := tools.Logger(mainRouter)
+
 	fmt.Printf("Listening and serving at %v\n", "http://"+server.address+"/api/v1/")
-	err := http.ListenAndServe(server.address, mainRouter)
+	err := http.ListenAndServe(server.address, logger)
 	if err != nil {
 		panic(err)
 	}
