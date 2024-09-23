@@ -21,7 +21,7 @@
     - Google.
     - Facebook.
     - Microsoft.
-    - Github (definitly not for users 😉)
+    - Github (definitly not for users 😉).
   - products: CRUDing collections and items with detailed search and pignation.
   - reviews: CRUDing reviews with detailed search and pignation.
   - users: RUDing users with detailed search and pignation with support for admin actions (enabling and disabling users ...ext).
