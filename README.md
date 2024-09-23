@@ -49,7 +49,7 @@
     - FACEBOOK_CLIENT_SECRET.
     - MICROSOFT_CLIENT_ID.
     - MICROSOFT_CLIENT_SECRET.
-  - This API covers some unpopular topics in golang you can take it a refrence or tutorial of you face such topics:
+  - This API covers some unpopular topics in golang you can take it a refrence or tutorial when you face such topics:
     - using Golang:1.22.0's `http/net`'s new features to build complete API.
     - using `gorm.io`'s hooks with `melody` to provide complex realtime updates.
 
