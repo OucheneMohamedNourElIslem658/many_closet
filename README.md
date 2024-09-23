@@ -9,13 +9,19 @@
   - golang.org/x/crypto v0.26.0.
   - gorm.io/driver/mysql v1.5.7.
   - gorm.io/gorm v1.25.11 ==> golang ORM liberary.
+  - golang.org/x/oauth2 v0.23.0 ==> oauth2 liberary
 - Services:
   - mySQL.
   - imageKit: files storage service.
   - chargily: online payment service.
   - email.
+  - oauth providers (Google, Facebook, Microsoft, Github)
 - Features:
-  - auth: email and password login and registration with email verification and password reset.
+  - auth: email and password login and registration with email verification and password reset and support for open authentification such as:
+    - Google.
+    - Facebook.
+    - Microsoft.
+    - Github (definitly not for users 😉)
   - products: CRUDing collections and items with detailed search and pignation.
   - reviews: CRUDing reviews with detailed search and pignation.
   - users: RUDing users with detailed search and pignation with support for admin actions (enabling and disabling users ...ext).
@@ -35,3 +41,16 @@
     - IMAGEKIT_PUBLIC_KEY.
     - IMAGEKIT_PRIVATE_KEY.
     - IMAGEKIT_ENDPOINT_URL.
+    - GOOGLE_CLIENT_ID.
+    - GOOGLE_CLIENT_SECRET.
+    - GITHUB_CLIENT_ID.
+    - GITHUB_CLIENT_SECRET.
+    - FACEBOOK_CLIENT_ID.
+    - FACEBOOK_CLIENT_SECRET.
+    - MICROSOFT_CLIENT_ID.
+    - MICROSOFT_CLIENT_SECRET.
+  - This API covers some unpopular topics in golang you can take it a refrence or tutorial of you face such topics:
+    - using Golang:1.22.0's `http/net`'s new features to build complete API.
+    - using `gorm.io`'s hooks with `melody` to provide complex realtime updates.
+
+Enjoy it 😊
