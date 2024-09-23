@@ -15,7 +15,7 @@
   - imageKit: files storage service.
   - chargily: online payment service.
   - email.
-  - oauth providers (Google, Facebook, Microsoft, Github)
+  - oauth providers (Google, Facebook, Microsoft, Github).
 - Features:
   - auth: email and password login and registration with email verification and password reset and support for open authentification such as:
     - Google.
