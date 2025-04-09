@@ -1,47 +1,51 @@
 import { Box, Button, styled } from '@mui/material';
 import Images from '../../../commun/utils/images'
 
-const LandingSectioContentAlignment = styled('div')({
+const LandingSectionContentAlignment = styled('div')(({theme}) => ({
     display: 'grid',
     gridTemplateColumns: '1fr 1fr 1fr',
     maxWidth: 1200,
     margin: "0 auto",
     gap: 20,
-    marginBottom: 50
-})
+    marginBottom: 50,
+    padding: '0 20px',
+    [theme.breakpoints.down('md')]: {
+        maxWidth: '600px',
+    },
+}))
 
 const ShopButton = styled(Button)({
     paddingLeft: '50px',
     paddingRight: '50px',
 })
 
-const TopImg = styled('img')({
-    backgroundColor: '#E0E0E0',
-    borderRadius: 10,
-    width: '100%',
-    paddingTop: 10,
-})
-
-const BottomImg = styled('img')({
-    translate: '0 10px',
-})
-
-const ImgBg = styled(Box) ({
+const ImgBg = styled(Box) (({theme}) => ({
     backgroundColor: '#E0E0E0',
     gridRow: 'span 5',
     paddingTop: 100,
-    position: 'relative',
     borderRadius: 10,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'end',
     alignItems: 'center',
-    width: '100%',
-});
-
-const Img = styled('img') ({
     overflow: 'hidden',
-})
+    width: '100%',
+    '&.side-img': {
+        [theme.breakpoints.down('md')]: {
+            display: 'none',
+        }
+    },
+    '&.top-bottom-pic': {
+        gridRow: 'span 1', 
+        paddingTop: 10,
+        [theme.breakpoints.down('md')]: {
+            gridColumn: 'span 3',
+        }
+    },
+    '&.bottom-pic': {
+        backgroundColor: '#F39D90'
+    },
+}));
 
 const Heading = styled('h1')({
     fontSize: 50,
@@ -55,22 +59,27 @@ const Paragraph = styled('p')(({theme}) => ({
     fontFamily: theme.typography.fontFamily
 }));
 
-const Content = styled('div')({
+const Content = styled('div')(({theme}) => ({
     gridRow: 'span 3',
     textAlign: 'center',
-});
+    [theme.breakpoints.down('md')]: {
+        gridColumn: 'span 3',
+    }
+}));
 
 const LandingSection = () => {
     return ( 
-        <LandingSectioContentAlignment>
-            <ImgBg component='div'>
-                <Img src={Images.LandingSectionLeftPic} alt=""/>
+        <LandingSectionContentAlignment>
+            <ImgBg className='side-img'>
+                <img src={Images.LandingSectionLeftPic} alt=""/>
             </ImgBg>
 
-            <TopImg src={Images.LandingSectionTopPic} alt=""/>
+            <ImgBg className='top-bottom-pic'>
+                <img src={Images.LandingSectionTopPic} alt="" />
+            </ImgBg>
 
-            <ImgBg component='div'>
-                <Img src={Images.LandingSectionRightPic} alt="" />
+            <ImgBg className='side-img'>
+                <img src={Images.LandingSectionRightPic} alt="" />
             </ImgBg>
             
             <Content className="content">
@@ -85,8 +94,10 @@ const LandingSection = () => {
                 </ShopButton>
             </Content>
 
-            <BottomImg src={Images.LandingSectionBottomPic} alt=""/>
-        </LandingSectioContentAlignment>
+            <ImgBg className='top-bottom-pic bottom-pic'>
+                <img src={Images.LandingSectionTopPic} alt="" />
+            </ImgBg>
+        </LandingSectionContentAlignment>
     );
 }
  

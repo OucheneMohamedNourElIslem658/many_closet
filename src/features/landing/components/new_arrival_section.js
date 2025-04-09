@@ -9,6 +9,7 @@ const Content = styled('div')({
     alignItems: 'center',
     textAlign: 'center',
     margin: '0 20px',
+    marginBottom: 50,
 })
 
 const ContentHeader = styled('div')({

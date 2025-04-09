@@ -2,12 +2,16 @@ import { styled } from '@mui/material';
 import Button from '@mui/material/Button';
 import {Link} from 'react-router-dom';
 
-const CustomAppBar = styled('div')({
+const CustomAppBar = styled('div')(({theme}) => ({
     display: 'flex',
     alignItems: 'center',
     maxWidth: 1200,
     margin: '40px auto',
-})
+    padding: '0 20px',
+    [theme.breakpoints.down('md')]: {
+        justifyContent: 'space-between',
+    }
+}))
 
 const NavigationList = styled('ul')(({theme}) => ({
     display: 'flex',
@@ -18,6 +22,9 @@ const NavigationList = styled('ul')(({theme}) => ({
     marginRight: 50,
     textDecoration: 'none',
     fontFamily: theme.typography.fontFamily,
+    [theme.breakpoints.down('md')]: {
+        display: 'none',
+    },
 }))
 
 const Logo = styled('h1')({

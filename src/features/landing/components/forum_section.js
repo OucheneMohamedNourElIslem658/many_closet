@@ -5,15 +5,23 @@ const Content = styled('div')({
     display: 'flex',
     alignItems: 'center',
     maxWidth: 1200,
-    margin: '0 auto'
+    margin: '0 auto',
+    padding: '0 20px',
+    position: 'relative'
 })
 
-const ForumForm = styled('div')({
+const ForumForm = styled('div')(({theme}) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    textAlign: "center"
-})
+    textAlign: "center",
+    [theme.breakpoints.down('md')]: {
+        position: 'absolute',
+        marginLeft: '50%',
+        width: '90%',
+        transform: 'translate(-55%, 0)',
+    }
+}))
 
 const Title = styled('h1')({
     marginBottom: 15,
@@ -32,8 +40,9 @@ const MailField = styled(TextField)(({theme}) => ({
     marginBottom: 25,
     boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.05)',
     width: '100%',
+    maxWidth: 500,
     borderRadius: 12,
-    
+    backgroundColor: 'white',
     '& .MuiOutlinedInput-root': {
         '& fieldset': {
             border: 'none',
@@ -46,6 +55,14 @@ const MailField = styled(TextField)(({theme}) => ({
 
 }))
 
+const RightPic = styled('img')(({theme}) => ({
+    width: 320,
+    alignSelf: 'end',
+    [theme.breakpoints.down('md')]: {
+        display: 'none'
+    }
+}))
+
 const ForumSection = () => {
     return (
         <Content>
@@ -56,7 +73,7 @@ const ForumSection = () => {
                 <MailField placeholder="michael@ymail.com" disabled></MailField>
                 <Button variant='contained'>Subscribe Now</Button>
             </ForumForm>
-            <img src={images.ForumRightPic} alt="" />
+            <RightPic src={images.ForumRightPic} alt="" />
         </Content>
     );
 }
