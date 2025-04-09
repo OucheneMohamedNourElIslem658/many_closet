@@ -1,13 +1,20 @@
 import { styled } from "@mui/material";
 
-const ItemContentAlignment = styled('li')({
+const ItemContentAlignment = styled('li')(({theme}) => ({
     width: 250,
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.05)',
     padding: 10,
     borderRadius: 10,
-})
+    gridColumn:  'span 2',
+    [theme.breakpoints.down('md')]: {
+        gridColumn: 'span 3',
+    },
+    [theme.breakpoints.down('sm')]: {
+        gridColumn: 'span 6'
+    }
+}))
 
 const ItemImage = styled('div')({
     height: '150px',
@@ -19,22 +26,27 @@ const ItemImage = styled('div')({
     marginBottom: 10,
 })
 
-const ItemName = styled('h3')({
+const ItemName = styled('p')(({theme}) => ({
     whiteSpace: 'nowrap',
-    marginBottom: 3,
-    textAlign: 'start'
-})
+    textAlign: 'start',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 20,
+    alignSelf: 'end'
+}))
 
-const ItemPrice = styled('h3')({
-    justifySelf: 'end'
-})
+const ItemPrice = styled('p')(({theme}) => ({
+    justifySelf: 'end',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 22,
+}))
 
 const ItemDescription = styled('p')(({theme}) => ({
     gridColumn: 'span 2',
-    fontSize: 13,
+    fontSize: 12,
     color: theme.palette.text.secondary,
     marginBottom: 10,
-    textAlign: 'start'
+    textAlign: 'start',
+    fontFamily: theme.typography.fontFamily,
 }))
 
 const OffmarketTag = styled('div')(({theme}) =>({
@@ -46,8 +58,9 @@ const OffmarketTag = styled('div')(({theme}) =>({
 }))
 
 const OffmarketContent = styled('p')(({theme}) => ({
-    fontSize: 13,
-    color: theme.palette.error.main
+    fontSize: 12,
+    color: theme.palette.error.main,
+    fontFamily: theme.typography.fontFamily
 }))
 
 const NewArrivalItem = (props) => {

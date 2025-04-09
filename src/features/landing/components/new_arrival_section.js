@@ -1,10 +1,44 @@
-import { useTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import NewArrivalItem from './new_arrivale_item';
 import images from '../../../commun/utils/images';
+import { Button } from '@mui/material';
+
+const Content = styled('div')({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
+    margin: '0 20px',
+})
+
+const ContentHeader = styled('div')({
+    maxWidth: 600,
+})
+
+const Title = styled('h1')({
+    marginBottom: 10
+})
+
+const Desc = styled('p')(({ theme }) => ({
+    color: theme.palette.text.secondary,
+    marginBottom: 50,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 16
+}))
+
+const Items = styled('ul')({
+    display: 'grid',
+    gridTemplateColumns: 'repeat(6, 1fr)',
+    gap: 20,
+    flexWrap: 'wrap',
+    marginBottom: 70,
+})
+
+const ViewAllButton = styled(Button)({
+    padding: '13px 100px'
+})
 
 const NewArrivalSection = () => {
-    const theme = useTheme();
-
     const items = [
         {
             id: 1,
@@ -81,41 +115,20 @@ const NewArrivalSection = () => {
     ]
 
     return ( 
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-        }}>
-            <div style={{
-                maxWidth: 600,
-            }}>
-                <h1 style={{
-                    marginBottom: 20
-                }}>
-                    New Arrival
-                </h1>
-                <p style={{
-                    color: theme.palette.text.secondary,
-                    marginBottom: 50
-                }}>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque duis ultrices sollicitudin aliquam sem. Scelerisque duis ultrices sollicitudin 
-                </p>
-            </div>
-            <ul style={{
-                display: 'flex',
-                gap: 20,
-                flexWrap: 'wrap',
-                maxWidth: 1000,
-                // margin:  '0 auto',
-            }}>
+        <Content>
+            <ContentHeader>
+                <Title>New Arrival</Title>
+                <Desc>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque duis ultrices sollicitudin aliquam sem. Scelerisque duis ultrices sollicitudin </Desc>
+            </ContentHeader>
+            <Items>
                 {
                     items.map((item) => {
                         return <NewArrivalItem item={item}/>
                     })
                 }
-            </ul>
-        </div>
+            </Items>
+            <ViewAllButton variant='contained'>View All</ViewAllButton>
+        </Content>
     );
 }
  

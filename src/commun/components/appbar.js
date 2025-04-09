@@ -20,10 +20,14 @@ const NavigationList = styled('ul')(({theme}) => ({
     fontFamily: theme.typography.fontFamily,
 }))
 
+const Logo = styled('h1')({
+    whiteSpace: 'nowrap'
+})
+
 const AppBar = () => {
     return (
         <CustomAppBar>
-            <h1>Many Closet</h1>
+            <Logo>Many Closet</Logo>
             <NavigationList>
                 <Link to="/">Home</Link>
                 <Link to="/shop">Shop</Link>

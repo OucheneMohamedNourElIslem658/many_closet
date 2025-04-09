@@ -48,11 +48,12 @@ const Heading = styled('h1')({
     marginBottom: 20,
 });
 
-const Paragraph = styled('p')({
-    fontSize: 20,
+const Paragraph = styled('p')(({theme}) => ({
+    fontSize: 18,
     color: '#7C7C7C',
     marginBottom: 20,
-});
+    fontFamily: theme.typography.fontFamily
+}));
 
 const Content = styled('div')({
     gridRow: 'span 3',
