@@ -1,8 +1,8 @@
 import { styled } from '@mui/material';
 import Button from '@mui/material/Button';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-const CustomAppBar = styled('div')(({theme}) => ({
+const CustomAppBar = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     maxWidth: 1200,
@@ -11,9 +11,9 @@ const CustomAppBar = styled('div')(({theme}) => ({
     [theme.breakpoints.down('md')]: {
         justifyContent: 'space-between',
     }
-}))
+}));
 
-const NavigationList = styled('ul')(({theme}) => ({
+const NavigationList = styled('ul')(({ theme }) => ({
     display: 'flex',
     listStyleType: 'none',
     gap: 50,
@@ -25,22 +25,52 @@ const NavigationList = styled('ul')(({theme}) => ({
     [theme.breakpoints.down('md')]: {
         display: 'none',
     },
-}))
+}));
 
 const Logo = styled('h1')({
-    whiteSpace: 'nowrap'
-})
+    whiteSpace: 'nowrap',
+});
+
+const StyledLink = styled(Link)(({ theme }) => ({
+    position: 'relative',
+    color: theme.palette.text.primary,
+    textDecoration: 'none',
+    paddingBottom: '4px',
+    '&::after': {
+        content: '""',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        width: '0%',
+        height: '0.7px',
+        backgroundColor: theme.palette.primary.main,
+        transition: 'width 0.3s ease-in-out',
+    },
+    '&:hover::after': {
+        width: '100%',
+    },
+}));
 
 const AppBar = () => {
     return (
         <CustomAppBar>
             <Logo>Many Closet</Logo>
             <NavigationList>
-                <Link to="/">Home</Link>
-                <Link to="/shop">Shop</Link>
-                <Link to="/new">New</Link>
-                <Link to="/reviews">Reviews</Link>
-                <Link to="/contact">Contact</Link>
+                <li>
+                    <StyledLink to="/">Home</StyledLink>
+                </li>
+                <li>
+                    <StyledLink to="/shop">Shop</StyledLink>
+                </li>
+                <li>
+                    <StyledLink to="/new">New</StyledLink>
+                </li>
+                <li>
+                    <StyledLink to="/reviews">Reviews</StyledLink>
+                </li>
+                <li>
+                    <StyledLink to="/contact">Contact</StyledLink>
+                </li>
             </NavigationList>
             <Button variant="contained" color="primary">
                 Sign In
@@ -48,5 +78,5 @@ const AppBar = () => {
         </CustomAppBar>
     );
 }
- 
+
 export default AppBar;

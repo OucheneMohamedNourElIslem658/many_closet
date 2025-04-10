@@ -65,13 +65,13 @@ const RightPic = styled('img')(({theme}) => ({
 
 const ForumSection = () => {
     return (
-        <Content>
+        <Content id="contact">
             <img src={images.ForumLeftPic} alt="" />
             <ForumForm>
-                <Title>Subscribe To Our Newsletter</Title>
+                <Title>Say Something To Our Us</Title>
                 <Desc>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque duis ultrices sollicitudin aliquam sem. Scelerisque duis ultrices sollicitudin </Desc>
                 <MailField placeholder="michael@ymail.com" disabled></MailField>
-                <Button variant='contained'>Subscribe Now</Button>
+                <Button variant='contained'>Send Mail Now</Button>
             </ForumForm>
             <RightPic src={images.ForumRightPic} alt="" />
         </Content>

@@ -4,6 +4,7 @@ import AppBar from './commun/components/appbar';
 import LandingPage from './features/landing/landing';
 import theme from './commun/utils/theme';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import ShopPage from './features/shop/shop';
 
 function App() {
   return (
@@ -14,6 +15,9 @@ function App() {
         <AppBar />
         <div className="content">
           <Switch>
+            <Route path="/shop">
+              <ShopPage />
+            </Route>
             <Route path="/">
               <LandingPage />
             </Route>
