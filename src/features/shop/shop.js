@@ -4,7 +4,7 @@ import ProductsList from "./components/products_list";
 
 const ContentAlignment = styled('div')(({ theme }) => ({
     display: 'grid',
-    gridTemplateColumns: '3fr 7fr',
+    gridTemplateColumns: '1fr 3fr',
     maxWidth: 1200,
     margin: '40px auto',
     padding: '0 20px',

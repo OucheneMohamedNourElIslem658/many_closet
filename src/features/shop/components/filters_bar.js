@@ -1,4 +1,6 @@
+import { CloseOutlined, CloseRounded } from "@mui/icons-material";
 import { Button, IconButton, styled } from "@mui/material";
+import { useState } from "react";
 
 const FiltersList = styled('ul')(({ theme }) => ({
     display: 'flex',
@@ -44,12 +46,40 @@ const FiltersTitle = styled('h2')({
 })
 
 const SizeButton = styled(Button)({
-})
-
-const ColorButton = styled(IconButton)({
     width: 30,
     height: 30,
+    borderRadius: 5,
+    fontSize: 12,
+    padding: 0,
+    textTransform: 'none',
+    '&.selected': {
+        backgroundColor: '#000',
+        color: '#fff',
+        '&:hover': {
+            backgroundColor: '#000',
+            color: '#fff',
+        },
+    },
 })
+
+const ColorButton = styled(IconButton)(({ theme }) => ({
+    width: 30,
+    height: 30,
+    border: `1px solid ${theme.palette.secondary.main}`,
+    '&.selected': {
+        backgroundColor: '#000',
+        color: '#fff',
+        backgroundClip: 'content-box',
+        padding: 3,
+        border: `1px solid ${theme.palette.primary.main}`,
+        '&:hover': {
+            backgroundColor: '#000',
+            color: '#fff',
+        },
+    },
+
+    transition: 'padding 0.1s ease-in-out',
+}))
 
 const PriceItem = styled('label')(({ theme }) => ({
     display: 'flex',
@@ -68,27 +98,6 @@ const PriceItem = styled('label')(({ theme }) => ({
         backgroundColor: theme.palette.primary.main,
     },
     '& input:focus': {
-        backgroundColor: theme.palette.primary.main,
-    },
-    '& input:disabled': {
-        backgroundColor: theme.palette.primary.main,
-    },
-    '& input:disabled:hover': {
-        backgroundColor: theme.palette.primary.main,
-    },
-    '& input:disabled:focus': {
-        backgroundColor: theme.palette.primary.main,
-    },
-    '& input:disabled:checked': {
-        backgroundColor: theme.palette.primary.main,
-    },
-    '& input:disabled:checked:hover': {
-        backgroundColor: theme.palette.primary.main,
-    },
-    '& input:disabled:checked:focus': {
-        backgroundColor: theme.palette.primary.main,
-    },
-    '& input:disabled:checked:focus-visible': {
         backgroundColor: theme.palette.primary.main,
     },
 }));
@@ -112,10 +121,49 @@ const CustomCheckBox = styled('input')(({ theme }) => ({
 }))
 
 const FiltersSideBar = () => {
-    const sizes = ['All', 'S', 'M', 'L', 'XL', 'XXL'];
+    const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
     const colors = ['red', 'yellow', 'green', 'blue', 'black', 'white', 'grey', 'purple', 'pink', 'orange'];
     const prices = ['0DA-50DA', '50DA-100DA', '100DA-150DA', '150DA-200DA', '200DA+'];
     const tages = ['new', 'sale', 'popular', 'featured'];
+
+    const [filterColors, setFilterColors] = useState([]);
+    const [filterSizes, setFilterSizes] = useState([]);
+    // const [filterPrice, setFilterPrice] = useState('');
+    const [filterTags, setFilterTags] = useState([]);
+
+    function setColors(color) {
+        setFilterColors((prevTags) => {
+            if (prevTags.includes(color)) {
+                return prevTags.filter((t) => t !== color);
+            } else {
+                return [...prevTags, color];
+            }
+        });
+    }
+
+    function setSizes(size) {
+        setFilterSizes((prevTags) => {
+            if (prevTags.includes(size)) {
+                return prevTags.filter((t) => t !== size);
+            } else {
+                return [...prevTags, size];
+            }
+        });
+    }
+
+    // function setPrice(price) {
+    //     setFilterPrice(price);
+    // }
+
+    function setTag(tag) {
+        setFilterTags((prevTags) => {
+            if (prevTags.includes(tag)) {
+                return prevTags.filter((t) => t !== tag);
+            } else {
+                return [...prevTags, tag];
+            }
+        });
+    }
 
     return ( 
         <div>
@@ -128,7 +176,11 @@ const FiltersSideBar = () => {
                             {
                                 sizes.map((size, index) => (
                                     <li key={index}>
-                                        <SizeButton variant="outlined">{size}</SizeButton>
+                                        {
+                                            filterSizes.includes(size) ?
+                                                <SizeButton variant="outlined" className="selected" onClick={() => setSizes(size)}>{size}</SizeButton> :
+                                                <SizeButton variant="outlined" onClick={() => setSizes(size)}>{size}</SizeButton>
+                                        }
                                     </li>
                                 ))
                             }
@@ -140,7 +192,11 @@ const FiltersSideBar = () => {
                             {
                                 colors.map((color, index) => (
                                     <li key={index}>
-                                        <ColorButton style={{ backgroundColor: color }}></ColorButton>
+                                        {
+                                            filterColors.includes(color) ?
+                                                <ColorButton variant="outlined" className="selected" onClick={() => setColors(color)} style={{ backgroundColor: color }}></ColorButton> :
+                                                <ColorButton variant="outlined" onClick={() => setColors(color)} style={{ backgroundColor: color }}></ColorButton>
+                                        }
                                     </li>
                                 ))
                             }
@@ -167,7 +223,11 @@ const FiltersSideBar = () => {
                             {
                                 tages.map((tag, index) => (
                                     <li key={index}>
-                                        <Button variant="outlined">{tag}</Button>
+                                        {
+                                            filterTags.includes(tag) ?
+                                                <SizeButton variant="outlined" className="selected" onClick={() => setTag(tag)}>{tag}</SizeButton> :
+                                                <SizeButton variant="outlined" onClick={() => setTag(tag)}>{tag}</SizeButton>
+                                        }
                                     </li>
                                 ))
                             }

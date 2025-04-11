@@ -1,29 +1,66 @@
-import { styled } from "@mui/material";
+import { ArrowBackIosRounded, ArrowForwardIosRounded } from "@mui/icons-material";
+import { Pagination, PaginationItem, styled } from "@mui/material";
 
 const ContentAlignment = styled('ul')(({ theme }) => ({
     display: 'grid',
     gridTemplateColumns: '1fr 1fr 1fr',
-    padding: '0 20px',
     justifySelf: 'start',
+    width: '100%',
+    marginBottom: 40,
     [theme.breakpoints.down('md')]: {
         gridTemplateColumns: '1fr',
     },
 }))
 
-const Product = styled('div')(({ theme }) => ({
+const Product = styled('li')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'start',
     textAlign: 'center',
     padding: 10,
     margin: 10,
+    listStyleType: 'none',
+}))
+
+const ProductImage = styled('div')(({ theme }) => ({
+    width: '100%', 
+    height: '400px' ,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
     backgroundColor: theme.palette.background.paper,
     backgroundSize: 'contain', 
     backgroundPosition: 'center', 
-    width: '200px', 
-    height: '200px' ,
+    marginBottom: 10,
 }))
+
+const ProductColors = styled('ul')(({ theme }) => ({
+    display: 'flex',
+    listStyleType: 'none',
+    justifyContent: 'center',
+    padding: 0,
+    margin: 0,
+    gap: 5,
+    marginTop: 10,
+    marginBottom: 10,
+    '& li': {
+        width: 20,
+        height: 20,
+        borderRadius: '50%',
+        border: `1px solid ${theme.palette.primary.main}`,
+        backgroundClip: 'content-box',
+        padding: 3,
+    }
+}))
+
+const ProductPrice = styled('p')(({ theme }) => ({
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.text.primary,
+}))
+
+const PaginationController = styled(Pagination)({
+    justifyItems: 'center',
+})
 
 const ProductsList = () => {
     const products = [
@@ -120,26 +157,29 @@ const ProductsList = () => {
     ]
 
     return ( 
-        <ContentAlignment>
-            {
-                products.map((product, index) => (
-                    <li key={index}>
-                        <Product style={{ 
-                            backgroundImage: `url(${product.picURL})`, 
-                        }}></Product>
-                        <h2>{product.title}</h2>
-                        <p>{product.price}</p>
-                        <ul>
-                            {
-                                product.colors.map((color, index) => (
-                                    <li key={index} style={{ backgroundColor: color.hex, width: '20px', height: '20px' }}></li>
-                                ))
-                            }
-                        </ul>
-                    </li>
-                ))
-            }
-        </ContentAlignment>
+        <div>
+            <ContentAlignment>
+                {
+                    products.map((product, index) => (
+                        <Product key={index}>
+                            <ProductImage style={{ 
+                                backgroundImage: `url(${product.picURL})`, 
+                            }}></ProductImage>
+                            <h3>{product.title}</h3>
+                            <ProductPrice>{product.price}</ProductPrice>
+                            <ProductColors>
+                                {
+                                    product.colors.map((color, index) => (
+                                        <li key={index} style={{ backgroundColor: color.hex}}></li>
+                                    ))
+                                }
+                            </ProductColors>
+                        </Product>
+                    ))
+                }
+            </ContentAlignment>
+            <PaginationController count={10} size="small"/>
+        </div>
     );
 }
  
