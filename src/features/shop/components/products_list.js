@@ -1,5 +1,4 @@
-import { ArrowBackIosRounded, ArrowForwardIosRounded } from "@mui/icons-material";
-import { Pagination, PaginationItem, styled } from "@mui/material";
+import { Pagination, styled } from "@mui/material";
 
 const ContentAlignment = styled('ul')(({ theme }) => ({
     display: 'grid',
@@ -26,8 +25,6 @@ const Product = styled('li')(({ theme }) => ({
 const ProductImage = styled('div')(({ theme }) => ({
     width: '100%', 
     height: '400px' ,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
     backgroundColor: theme.palette.background.paper,
     backgroundSize: 'contain', 
     backgroundPosition: 'center', 

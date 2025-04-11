@@ -5,6 +5,7 @@ import LandingPage from './features/landing/landing';
 import theme from './commun/utils/theme';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import ShopPage from './features/shop/shop';
+import ProductPage from './features/product/product';
 
 function App() {
   return (
@@ -17,6 +18,9 @@ function App() {
           <Switch>
             <Route path="/shop">
               <ShopPage />
+            </Route>
+            <Route path='/product'>
+              <ProductPage/>
             </Route>
             <Route path="/">
               <LandingPage />
