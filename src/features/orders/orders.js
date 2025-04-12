@@ -3,6 +3,7 @@ import { IconButton, Pagination, styled, Table, TableCell, TableHead, TableRow }
 import theme from "../../commun/utils/theme";
 import OrdersDrawer from "./components/order_drawer";
 import { useState } from "react";
+import SearchField from "../../commun/components/search_field";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -11,7 +12,8 @@ const ContentContainer = styled('div')(({ theme }) => ({
     textAlign: 'center',
     maxWidth: '1200px',
     justifySelf: 'center',
-    width: '100%',
+    margin: '0 auto',
+    padding: '0 20px'
 }))
 
 const Title = styled('h1')(({ theme }) => ({
@@ -49,6 +51,26 @@ const PaginationController = styled(Pagination)(({ theme }) => ({
     marginTop: 40,
 }))
 
+const SearchController = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 20
+})
+
+const OrdersTable = styled(Table)({
+    minWidth: 650,
+    width: '100%'
+})
+
+const TableScroller = styled('div')({
+    width: '100%', 
+    overflow: 'scroll',
+    scrollbarWidth: 'none',
+    '&::-webkit-scrollbar': {
+        display: 'none',
+    },
+})
 
 const OrdersPage = () => {
     const orders = [
@@ -57,18 +79,27 @@ const OrdersPage = () => {
             price: 200,
             timeAgo: '2 days ago',
             status: 'delivered',
+            itemsNames: [
+                "T-shirt", "Jeans", "Sneakers"
+            ]
         },
         {
-            id: 11225855599,
+            id: 11225855600,
             price: 100,
             timeAgo: '5 days ago',
             status: 'delivered',
+            itemsNames: [
+                "Jacket", "Scarf"
+            ]
         },
         {
-            id: 11225855599,
+            id: 11225855601,
             price: 300,
             timeAgo: '1 week ago',
             status: 'delivered',
+            itemsNames: [
+                "Dress", "Heels", "Handbag"
+            ]
         },
     ]
 
@@ -80,38 +111,46 @@ const OrdersPage = () => {
                 <Title>Orders</Title>
                 <SubTitle>Here you can view your past orders.</SubTitle>
             </div>
-            <RefreshButton>
-                <RefreshRounded/>
-            </RefreshButton>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHeaderTitles>Product Number</TableHeaderTitles>
-                        <TableHeaderTitles>Price</TableHeaderTitles>
-                        <TableHeaderTitles>Time</TableHeaderTitles>
-                        <TableHeaderTitles>Status</TableHeaderTitles>
-                        <TableCell/>
-                    </TableRow>
-                </TableHeader>
-                {
-                    orders.map((order) => (
-                        <TableRow key={order.id} onClick={() => setOpen(true)} style={{cursor: 'pointer'}}>
-                            <TableCell>{order.id}</TableCell>
-                            <TableCell>{order.price}</TableCell>
-                            <TableCell>{order.timeAgo}</TableCell>
-                            <TableCell>{order.status}</TableCell>
-                            <TableCell>
-                                <IconButton>
-                                    <EditRounded style={{color: '#5B86E5'}}/>
-                                </IconButton>
-                                <IconButton>
-                                    <DeleteRounded style={{color: theme.palette.error.main}}/>
-                                </IconButton>
-                            </TableCell>
+            <SearchController>
+                <SearchField/>
+                <RefreshButton>
+                    <RefreshRounded/>
+                </RefreshButton>
+            </SearchController>
+            <TableScroller>
+                <OrdersTable>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHeaderTitles>Product</TableHeaderTitles>
+                            <TableHeaderTitles>Price</TableHeaderTitles>
+                            <TableHeaderTitles>Time</TableHeaderTitles>
+                            <TableHeaderTitles>Status</TableHeaderTitles>
+                            <TableCell/>
                         </TableRow>
-                    ))
-                }
-            </Table>
+                    </TableHeader>
+                    {
+                        orders.map((order) => (
+                            <TableRow key={order.id} onClick={() => setOpen(true)} style={{cursor: 'pointer'}}>
+                                <TableCell>
+                                    <p style={{fontSize: '16px', fontWeight: 600}}>{order.itemsNames.join(', ')}</p>
+                                    <p>N° {order.id}</p>
+                                </TableCell>
+                                <TableCell>{order.price}</TableCell>
+                                <TableCell>{order.timeAgo}</TableCell>
+                                <TableCell>{order.status}</TableCell>
+                                <TableCell>
+                                    <IconButton>
+                                        <EditRounded style={{color: '#5B86E5'}}/>
+                                    </IconButton>
+                                    <IconButton>
+                                        <DeleteRounded style={{color: theme.palette.error.main}}/>
+                                    </IconButton>
+                                </TableCell>
+                            </TableRow>
+                        ))
+                    }
+                </OrdersTable>
+            </TableScroller>
             <OrdersDrawer 
                 open={open}
                 onClose={() => setOpen(false)}

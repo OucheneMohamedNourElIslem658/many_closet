@@ -1,8 +1,9 @@
-import { Box, Button, Drawer, styled } from "@mui/material";
+import { Box, Button, Drawer, IconButton, styled } from "@mui/material";
 import FiltersSideBar from "./components/filters_bar";
 import ProductsList from "./components/products_list";
 import { useState } from "react";
 import { FilterListRounded } from "@mui/icons-material";
+import SearchField from "../../commun/components/search_field";
 
 const ContentAlignment = styled('div')(({ theme }) => ({
     display: 'grid',
@@ -36,8 +37,9 @@ const HeaderSubTitle = styled('p')(({ theme }) => ({
     marginBottom: 10,
 }))
 
-const DrawerButton = styled(Button)(({ theme }) => ({
+const DrawerButton = styled(IconButton)(({ theme }) => ({
     display: 'none',
+    color: 'black',
     [theme.breakpoints.down('md')]: {
         display: 'flex',
         justifySelf: 'start',
@@ -56,30 +58,40 @@ const FiltersSizeBarContainer = styled('div')(({ theme }) => ({
     },
 }))
 
+const Title = styled('h1')(({theme}) => ({
+    fontSize: 35,
+    fontWeight: 100,
+    color: theme.palette.text.primary,
+    marginBottom: 8
+}))
+
 const ShopPage = () => {
     const [open, setOpen] = useState(false);
 
     return ( 
         <div>
             <ContentAlignment>
-            <Header>
-                <h1>Fashion</h1>
-                <HeaderSubTitle>Welcome to our shop</HeaderSubTitle>
-            </Header>
-            <FiltersSizeBarContainer>
-                <FiltersSideBar/>
-            </FiltersSizeBarContainer>
-            <DrawerButton 
-                variant="outlined"
-                style={{gridColumn: 'span 2'}} 
-                onClick={() => setOpen(!open)}
-                startIcon={<FilterListRounded/>}
-            >
-                Filters
-            </DrawerButton>
-
-            <ProductsList/>
-        </ContentAlignment>
+                <Header>
+                    <Title>Fashion</Title>
+                    <HeaderSubTitle>Welcome to our shop</HeaderSubTitle>
+                </Header>
+                <FiltersSizeBarContainer>
+                    <FiltersSideBar/>
+                </FiltersSizeBarContainer>
+                <div>
+                    <div style={{display: 'flex', marginBottom: 20, gap:  10, width: '100%'}}>
+                        <SearchField style={{justifySelf: 'flex-end'}}/>
+                        <DrawerButton 
+                            variant="outlined"
+                            style={{gridColumn: 'span 2'}} 
+                            onClick={() => setOpen(!open)}
+                        >
+                            <FilterListRounded/>
+                        </DrawerButton>
+                    </div>
+                    <ProductsList/>
+                </div>
+            </ContentAlignment>
             <CustomDrawer
                 anchor='left'
                 open={open}
