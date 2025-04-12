@@ -2,6 +2,7 @@ import { AddRounded, RemoveRounded, ShoppingBagOutlined, StarBorderRounded, Star
 import { Box, Button, IconButton, styled } from "@mui/material";
 import Selector from "../../commun/components/option_selector";
 import { useState } from "react";
+import OrdersDrawer from "../orders/components/order_drawer";
 
 const Picture = styled('div')(({ theme }) => ({
     backgroundSize: 'cover',
@@ -9,9 +10,12 @@ const Picture = styled('div')(({ theme }) => ({
     width: '58px',
     height: '77px',
     marginBottom: '20px',
-    border: `1px solid ${theme.palette.primary.main}`,
     backgroundClip: 'content-box',
     padding: '10px',
+    border: `1px solid transparent`,
+    '&.selected': {
+        border: `1px solid ${theme.palette.primary.main}`,
+    },
 }))
 
 const MainPicture = styled('div')(({ theme }) => ({
@@ -20,9 +24,9 @@ const MainPicture = styled('div')(({ theme }) => ({
     overflow: 'hidden',
     backgroundSize: 'contain',
     backgroundPosition: 'center',
-    maxWidth: 500,
     [theme.breakpoints.down('md')]: {
-        height: 430
+        height: 430,
+        maxWidth: 350
     }
 }))
 
@@ -119,7 +123,7 @@ const PicturesAlignment = styled('div')(({ theme }) => ({
     gap: '20px',
     [theme.breakpoints.down('md')]: {
         flexDirection: 'column-reverse',
-        justifySelf: 'center',
+        justifySelf: 'start',
         marginBottom: '10px',
     }
 }))
@@ -127,14 +131,13 @@ const PicturesAlignment = styled('div')(({ theme }) => ({
 const ProductPageContainer = styled('div')(({ theme }) => ({
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: '50px',
+    gap: '10px',
     maxWidth: '1200px',
     margin: '0 auto',
     padding: '0 20px',
     marginBottom: '50px',
     [theme.breakpoints.down('md')]: {
         gridTemplateColumns: '1fr',
-        gap: '0',
         margin: '0 20px',
         marginBottom: '50px',
         maxWidth: '500px',
@@ -156,6 +159,7 @@ const SidePicturesList = styled('ul')(({ theme }) => ({
     overflow: 'scroll',
     height: 670,
     scrollbarWidth: 'none',
+    maxWidth: 430,
     '&::-webkit-scrollbar': {
         display: 'none',
     },
@@ -193,7 +197,6 @@ const ProductPage = () => {
         picsURLs: [
             'https://plus.unsplash.com/premium_photo-1675186049366-64a655f8f537?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
             'https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-            'https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
             'https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
             'https://plus.unsplash.com/premium_photo-1675186049222-0b5018db6ce9?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
             'https://images.unsplash.com/photo-1509319117193-57bab727e09d?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
@@ -222,6 +225,7 @@ const ProductPage = () => {
     const [counter, setCounter] = useState(product.orderedQuantity); 
     const [selectedImage, setSelectedImage] = useState(product.picsURLs[0]);
     const [isFavourite, setIsFavourite] = useState(product.isFavourite);
+    const [open, setOpen] = useState(false);
 
     function incCounter() {
         if (counter < 10) {
@@ -234,7 +238,6 @@ const ProductPage = () => {
             setCounter(counter - 1);
         }
     }
-    
 
     return ( 
         <ProductPageContainer>
@@ -243,7 +246,10 @@ const ProductPage = () => {
                     {
                         product.picsURLs.map((picURL, index) => (
                             <li key={index} onClick={() => setSelectedImage(picURL)}>
-                                <Picture style={{backgroundImage: `url(${picURL})`}}></Picture>
+                                <Picture
+                                    style={{backgroundImage: `url(${picURL})`}}
+                                    className={selectedImage === picURL ? 'selected' : ''}>
+                                </Picture>
                             </li>
                         ))
                     }
@@ -314,9 +320,16 @@ const ProductPage = () => {
                             </QuantityIncButton>
                         </QuantityController>
                     </div>
-                    <AddToCartButton variant="outlined">Add to cart</AddToCartButton>
+                    <AddToCartButton
+                        variant="outlined"
+                        onClick={() => setOpen(true)}
+                    >Add to cart</AddToCartButton>
                 </QuantityContainer>
             </InfoContainer>
+            <OrdersDrawer
+                open={open} 
+                onClose={() => setOpen(false)} 
+            />
         </ProductPageContainer>
     );
 }
