@@ -6,7 +6,11 @@ const ContentAlignment = styled('ul')(({ theme }) => ({
     justifySelf: 'start',
     width: '100%',
     marginBottom: 40,
+    gap: 20,
     [theme.breakpoints.down('md')]: {
+        gridTemplateColumns: '1fr 1fr',
+    },
+    [theme.breakpoints.down('sm')]: {
         gridTemplateColumns: '1fr',
     },
 }))
@@ -17,9 +21,8 @@ const Product = styled('li')(({ theme }) => ({
     justifyContent: 'center',
     alignItems: 'start',
     textAlign: 'center',
-    padding: 10,
-    margin: 10,
     listStyleType: 'none',
+    maxWidth: 300,
 }))
 
 const ProductImage = styled('div')(({ theme }) => ({

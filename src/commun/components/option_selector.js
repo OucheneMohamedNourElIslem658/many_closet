@@ -51,19 +51,21 @@ const ColorButton = styled(IconButton)(({ theme }) => ({
     transition: 'padding 0.1s ease-in-out',
 }))
 
-const Selector = ({title, options, isColor}) => {
+const Selector = ({title, options, isColor, type = 'multi'}) => {
     const [filterOptions, setFilterOptions] = useState([]);
-
-    function setOptions(option) {
-        setFilterOptions((prevTags) => {
-            if (prevTags.includes(option)) {
-                return prevTags.filter((t) => t !== option);
-            } else {
-                return [...prevTags, option];
-            }
-        });
-        console.log(filterOptions);
-        
+    
+    function handleOptionSelection(option) {
+        if (type === 'single') {
+            setFilterOptions([option]);
+        } else if (type === 'multi') {
+            setFilterOptions((prevTags) => {
+                if (prevTags.includes(option)) {
+                    return prevTags.filter((t) => t !== option);
+                } else {
+                    return [...prevTags, option];
+                }
+            });
+        }
     }
 
     return (
@@ -75,9 +77,9 @@ const Selector = ({title, options, isColor}) => {
                         <li key={index}>
                             {
                                 isColor ? (
-                                    <ColorButton style={{backgroundColor: isColor ? option : 'default'}} option={option} onClick={() => setOptions(option)} className={filterOptions.includes(option) ? 'selected' : ''}/>
+                                    <ColorButton style={{backgroundColor: isColor ? option : 'default'}} option={option} onClick={() => handleOptionSelection(option)} className={filterOptions.includes(option) ? 'selected' : ''}/>
                                 ) : (
-                                    <OptionButton variant="outlined" onClick={() => setOptions(option)} className={filterOptions.includes(option) ? 'selected' : ''}>
+                                    <OptionButton variant="outlined" onClick={() => handleOptionSelection(option)} className={filterOptions.includes(option) ? 'selected' : ''}>
                                         {option}
                                     </OptionButton>
                                 )

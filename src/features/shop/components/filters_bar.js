@@ -56,7 +56,7 @@ const CustomCheckBox = styled('input')(({ theme }) => ({
     border: `1px solid ${theme.palette.primary.main}`,
     backgroundColor: theme.palette.background.paper,
     '&:checked': {
-        backgroundColor: theme.palette.primary.main,
+        accentColor: theme.palette.primary.main,
         border: `1px solid ${theme.palette.primary.main}`,
     },
     '&:hover': {

@@ -1,6 +1,7 @@
-import { AddRounded, RemoveRounded, ShoppingBagOutlined, StarBorderRounded } from "@mui/icons-material";
-import { Button, IconButton, styled } from "@mui/material";
+import { AddRounded, RemoveRounded, ShoppingBagOutlined, StarBorderRounded, StarRounded } from "@mui/icons-material";
+import { Box, Button, IconButton, styled } from "@mui/material";
 import Selector from "../../commun/components/option_selector";
+import { useState } from "react";
 
 const Picture = styled('div')(({ theme }) => ({
     backgroundSize: 'cover',
@@ -15,9 +16,14 @@ const Picture = styled('div')(({ theme }) => ({
 
 const MainPicture = styled('div')(({ theme }) => ({
     height: '650px',
-    width: '490px',
+    flexGrow: 1,
+    overflow: 'hidden',
     backgroundSize: 'contain',
     backgroundPosition: 'center',
+    maxWidth: 500,
+    [theme.breakpoints.down('md')]: {
+        height: 430
+    }
 }))
 
 const Name = styled('h1')(({ theme }) => ({
@@ -25,6 +31,7 @@ const Name = styled('h1')(({ theme }) => ({
     fontWeight: '100',
     marginBottom: '10px',
     color: theme.palette.primary.main,
+    marginRight: '20px'
 }))
 
 const AvailablityTag = styled('div')(({ theme }) => ({
@@ -35,6 +42,7 @@ const AvailablityTag = styled('div')(({ theme }) => ({
     fontSize: '11px',
     fontFamily: theme.typography.fontFamily,
     justifySelf: 'start',
+    whiteSpace: 'nowrap',
 }))
 
 const Price = styled('p')(({ theme }) => ({
@@ -55,7 +63,7 @@ const Description = styled('p')(({ theme }) => ({
 const OrdersContainer = styled('p')(({ theme }) => ({
     fontSize: '14px',
     fontWeight: '100',
-    marginBottom: '10px',
+    marginBottom: '20px',
     color: theme.palette.secondary.main,
     fontFamily: theme.typography.fontFamily,
     display: 'flex',
@@ -68,7 +76,6 @@ const TagsList = styled('ul')(({theme}) => ({
     whiteSpace: 'wrap',
     listStyleType: 'none',
     padding: '0',
-    margin: '0',
     gap: '10px',
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.secondary.main,
@@ -110,32 +117,59 @@ const AddToCartButton = styled(Button)(({ theme }) => ({
 const PicturesAlignment = styled('div')(({ theme }) => ({
     display: 'flex',
     gap: '20px',
+    [theme.breakpoints.down('md')]: {
+        flexDirection: 'column-reverse',
+        justifySelf: 'center',
+        marginBottom: '10px',
+    }
 }))
 
 const ProductPageContainer = styled('div')(({ theme }) => ({
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: '20px',
+    gap: '50px',
     maxWidth: '1200px',
     margin: '0 auto',
+    padding: '0 20px',
+    marginBottom: '50px',
+    [theme.breakpoints.down('md')]: {
+        gridTemplateColumns: '1fr',
+        gap: '0',
+        margin: '0 20px',
+        marginBottom: '50px',
+        maxWidth: '500px',
+        justifySelf: 'center',
+    },
 }))
 
 const InfoContainer = styled('div')(({ theme }) => ({
     justifySelf: 'start',
     display: 'flex',
     flexDirection: 'column',
+    maxWidth: '500px',
 }))
 
 const SidePicturesList = styled('ul')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     listStyleType: 'none',
+    overflow: 'scroll',
+    height: 670,
+    scrollbarWidth: 'none',
+    '&::-webkit-scrollbar': {
+        display: 'none',
+    },
+    [theme.breakpoints.down('md')]: {
+        flexDirection: 'row',
+        gap: 15,
+        height: 'auto',
+    }
 }))
 
 const TitleContainer = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
-    gap: '20px',
+    gap: '10px',
     width: '100%',
 }))
 
@@ -185,19 +219,36 @@ const ProductPage = () => {
         isFavourite: false,
     }
 
+    const [counter, setCounter] = useState(product.orderedQuantity); 
+    const [selectedImage, setSelectedImage] = useState(product.picsURLs[0]);
+    const [isFavourite, setIsFavourite] = useState(product.isFavourite);
+
+    function incCounter() {
+        if (counter < 10) {
+            setCounter(counter + 1);
+        }
+    }
+
+    function decCounter() {
+        if (counter > 0) {
+            setCounter(counter - 1);
+        }
+    }
+    
+
     return ( 
         <ProductPageContainer>
             <PicturesAlignment>
                 <SidePicturesList>
                     {
                         product.picsURLs.map((picURL, index) => (
-                            <li key={index}>
+                            <li key={index} onClick={() => setSelectedImage(picURL)}>
                                 <Picture style={{backgroundImage: `url(${picURL})`}}></Picture>
                             </li>
                         ))
                     }
                 </SidePicturesList>
-                <MainPicture style={{backgroundImage: `url(${product.picsURLs[0]})`}}></MainPicture>
+                <MainPicture style={{backgroundImage: `url(${selectedImage})`}}></MainPicture>
             </PicturesAlignment>
             <InfoContainer>
                 <TitleContainer>
@@ -211,14 +262,25 @@ const ProductPage = () => {
                     <ShoppingBagOutlined style={{color: 'black'}}/>
                     <p>{product.ordersCount} 24 people ordered this product</p>
                     <Spacer/>
-                    <FavButton><StarBorderRounded style={{height: 20, width: 20}}/></FavButton>
+                    <FavButton onClick={() => setIsFavourite(!isFavourite)}>
+                        {
+                            isFavourite ? 
+                            <StarRounded style={{size: 8, color: 'orange'}}/> : 
+                            <StarBorderRounded style={{size: 8, color: 'grey'}}/>
+                        }
+                    </FavButton>
                 </OrdersContainer>
-                <Selector title="Size" options={product.sizes}/>
+                <Selector 
+                    title="Size" 
+                    options={product.sizes}
+                    type="single"
+                />
                 <Selector 
                     title="Colors" 
                     options={product.colors.map(color => color.name)} 
                     isColor={true}
                     intialSelection={product.colors[0]}
+                    type="single"
                 />
                 <div>
                     <p>Tags</p>
@@ -236,11 +298,18 @@ const ProductPage = () => {
                     <div>
                         <p>Quantity</p>
                         <QuantityController>
-                            <QuantityDecButton>
+                            <QuantityDecButton onClick={decCounter}>
                                 <RemoveRounded/>
                             </QuantityDecButton>
-                            <p>{product.orderedQuantity}</p>
-                            <QuantityIncButton>
+                            <Box 
+                                width={20} 
+                                display="flex" 
+                                justifyContent="center" 
+                                alignItems="center"
+                            >
+                                {counter}
+                            </Box>
+                            <QuantityIncButton onClick={incCounter}>
                                 <AddRounded/>
                             </QuantityIncButton>
                         </QuantityController>
