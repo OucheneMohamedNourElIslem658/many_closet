@@ -1,5 +1,5 @@
 import { CloseRounded } from "@mui/icons-material";
-import { Box, Button, Divider, Drawer, IconButton, styled } from "@mui/material";
+import { Box, Button, Drawer, IconButton, styled } from "@mui/material";
 
 const CloseButton = styled(IconButton)(({ theme }) => ({
     position: 'absolute',
@@ -76,12 +76,15 @@ const PaymentContainer = styled('div')(({ theme }) => ({
     marginTop: 20,
 }))
 
-// const CustomDivider = styled('div')(({ theme }) => ({
-//     display: 'block',
-//     width: '100%',
-//     height: 1,
-//     backgroundColor: theme.palette.secondary.main,
-// }))
+const PriceInfo = styled('div')(({ theme }) => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: '5px 0',
+    fontSize: 18,
+    fontWeight: 400,
+}))
 
 const OrdersDrawer = ({open, onClose}) => {
     const order = {
@@ -152,8 +155,14 @@ const OrdersDrawer = ({open, onClose}) => {
                     }
                 </ItemsList>
                 <PaymentContainer>
-                    <p>Shipping cost : <span>200DA</span></p>
-                    <p>Total cost : <span>2200DA</span></p>
+                    <PriceInfo>
+                        <p>Shipping cost:</p>
+                        <p>200DA</p>
+                    </PriceInfo>
+                    <PriceInfo>
+                        <p>Total:</p>
+                        <p>2200DA</p>
+                    </PriceInfo>
                     <Button variant="contained">Make The Order</Button>
                 </PaymentContainer>
             </Box>

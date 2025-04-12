@@ -6,6 +6,7 @@ import theme from './commun/utils/theme';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import ShopPage from './features/shop/shop';
 import ProductPage from './features/product/product';
+import OrdersPage from './features/orders/orders';
 
 function App() {
   return (
@@ -21,6 +22,9 @@ function App() {
             </Route>
             <Route path='/product'>
               <ProductPage/>
+            </Route>
+            <Route path='/orders'>
+              <OrdersPage/>
             </Route>
             <Route path="/">
               <LandingPage />

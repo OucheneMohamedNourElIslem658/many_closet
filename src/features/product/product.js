@@ -131,7 +131,7 @@ const PicturesAlignment = styled('div')(({ theme }) => ({
 const ProductPageContainer = styled('div')(({ theme }) => ({
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: '10px',
+    gap: '50px',
     maxWidth: '1200px',
     margin: '0 auto',
     padding: '0 20px',
@@ -141,6 +141,7 @@ const ProductPageContainer = styled('div')(({ theme }) => ({
         margin: '0 20px',
         marginBottom: '50px',
         maxWidth: '500px',
+        gap: '10px',
         justifySelf: 'center',
     },
 }))
