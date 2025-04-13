@@ -2,7 +2,7 @@ import { Box, Button, Drawer, IconButton, styled } from "@mui/material";
 import FiltersSideBar from "./components/filters_bar";
 import ProductsList from "./components/products_list";
 import { useState } from "react";
-import { FilterListRounded } from "@mui/icons-material";
+import { FilterListRounded, RefreshRounded } from "@mui/icons-material";
 import SearchField from "../../commun/components/search_field";
 
 const ContentAlignment = styled('div')(({ theme }) => ({
@@ -65,6 +65,13 @@ const Title = styled('h1')(({theme}) => ({
     marginBottom: 8
 }))
 
+const SearchContainer = styled('div')(({ theme }) => ({
+    display: 'flex', 
+    marginBottom: 20, 
+    width: '100%', 
+    justifyContent: 'space-between',
+}))
+
 const ShopPage = () => {
     const [open, setOpen] = useState(false);
 
@@ -79,16 +86,21 @@ const ShopPage = () => {
                     <FiltersSideBar/>
                 </FiltersSizeBarContainer>
                 <div>
-                    <div style={{display: 'flex', marginBottom: 20, gap:  10, width: '100%'}}>
-                        <SearchField style={{justifySelf: 'flex-end'}}/>
-                        <DrawerButton 
-                            variant="outlined"
-                            style={{gridColumn: 'span 2'}} 
-                            onClick={() => setOpen(!open)}
-                        >
-                            <FilterListRounded/>
-                        </DrawerButton>
-                    </div>
+                    <SearchContainer>
+                        <div style={{display: 'flex', gap: 10}}>
+                            <SearchField style={{justifySelf: 'flex-end'}}/>
+                            <DrawerButton 
+                                variant="outlined"
+                                style={{gridColumn: 'span 2'}} 
+                                onClick={() => setOpen(!open)}
+                            >
+                                <FilterListRounded/>
+                            </DrawerButton>
+                        </div>
+                        <IconButton>
+                            <RefreshRounded style={{color: 'black'}}/>
+                        </IconButton>
+                    </SearchContainer>
                     <ProductsList/>
                 </div>
             </ContentAlignment>

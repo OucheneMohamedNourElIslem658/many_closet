@@ -1,11 +1,12 @@
 import { CloseRounded } from "@mui/icons-material";
-import { Box, Button, Drawer, IconButton, styled } from "@mui/material";
+import { Box, Drawer, IconButton, styled } from "@mui/material";
+import OrderForm from "./order_form";
 
-const CloseButton = styled(IconButton)(({ theme }) => ({
+const CloseButton = styled(IconButton)({
     position: 'absolute',
     top: 5,
     right: 5,
-}))
+})
 
 const Title = styled('h1')(({ theme }) => ({
     fontSize: 35,
@@ -27,18 +28,17 @@ const ItemsCost = styled('p')(({ theme }) => ({
 const OrderItem = styled('li')(({ theme }) => ({
     display: 'flex',
     gap: 10,
-    alignItems: 'center',
     padding: '20px 0',
     borderBottom: `1px solid ${theme.palette.grey[300]}`,
     listStyleType: 'none',
 }))
 
-const ItemImage = styled('div')(({ theme }) => ({
+const ItemImage = styled('div')({
     width: 150,
     height: 200,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-}))
+})
 
 const ItemName = styled('h2')(({ theme }) => ({
     fontSize: 20,
@@ -144,10 +144,10 @@ const OrdersDrawer = ({open, onClose}) => {
                             <OrderItem key={index}>
                                 <ItemImage style={{backgroundImage: `url(${item.picURL})`}}/>
                                 <div>
+                                    <h1 style={{fontSize: 40}}>{item.quantity}</h1>
                                     <ItemName>{item.name}</ItemName>
                                     <ItemInfo>Color: {item.color}</ItemInfo>
                                     <ItemInfo>Size: {item.size}</ItemInfo>
-                                    <ItemPrice>Quantity: {item.quantity}</ItemPrice>
                                     <ItemPrice>Price: {item.price}DA</ItemPrice>
                                 </div>
                             </OrderItem>
@@ -163,7 +163,7 @@ const OrdersDrawer = ({open, onClose}) => {
                         <p>Total:</p>
                         <p>2200DA</p>
                     </PriceInfo>
-                    <Button variant="contained">Make The Order</Button>
+                    <OrderForm/>
                 </PaymentContainer>
             </Box>
         </Drawer>

@@ -1,6 +1,6 @@
 import { styled } from '@mui/material';
-import Button from '@mui/material/Button';
 import { Link } from 'react-router-dom';
+import SignInDialog from '../../features/landing/components/sign_in_dialog';
 
 const CustomAppBar = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -72,9 +72,7 @@ const AppBar = () => {
                     <StyledLink to="/contact">Contact</StyledLink>
                 </li>
             </NavigationList>
-            <Button variant="contained" color="primary">
-                Sign In
-            </Button>
+            <SignInDialog/>
         </CustomAppBar>
     );
 }

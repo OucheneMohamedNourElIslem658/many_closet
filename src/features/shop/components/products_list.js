@@ -8,10 +8,8 @@ const ContentAlignment = styled('ul')(({ theme }) => ({
     marginBottom: 40,
     gap: 20,
     [theme.breakpoints.down('md')]: {
-        gridTemplateColumns: '1fr 1fr',
-    },
-    [theme.breakpoints.down('sm')]: {
-        gridTemplateColumns: '1fr',
+        display: 'flex',
+        flexWrap: 'wrap'
     },
 }))
 
@@ -23,6 +21,9 @@ const Product = styled('li')(({ theme }) => ({
     textAlign: 'center',
     listStyleType: 'none',
     maxWidth: 300,
+    [theme.breakpoints.down('md')]: {
+        width: 300
+    }
 }))
 
 const ProductImage = styled('div')(({ theme }) => ({

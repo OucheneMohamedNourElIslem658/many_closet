@@ -3,6 +3,7 @@ import { Box, Button, IconButton, styled } from "@mui/material";
 import Selector from "../../commun/components/option_selector";
 import { useState } from "react";
 import OrdersDrawer from "../orders/components/order_drawer";
+import ConfirmationDialog from "../../commun/components/confirmation_dialog";
 
 const Picture = styled('div')(({ theme }) => ({
     backgroundSize: 'cover',
@@ -321,10 +322,15 @@ const ProductPage = () => {
                             </QuantityIncButton>
                         </QuantityController>
                     </div>
-                    <AddToCartButton
-                        variant="outlined"
-                        onClick={() => setOpen(true)}
-                    >Add to cart</AddToCartButton>
+                    <ConfirmationDialog
+                        button={<AddToCartButton
+                            variant="outlined"
+                            onClick={() => setOpen(true)}
+                        >Add to cart</AddToCartButton>}
+                        title="Add to cart"
+                        description={`Are you sure you want to add ${counter} of this product to your cart?`}
+                        onConfirm={() => {}}
+                    />
                 </QuantityContainer>
             </InfoContainer>
             <OrdersDrawer

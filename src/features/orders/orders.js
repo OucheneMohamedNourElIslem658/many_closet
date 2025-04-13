@@ -1,9 +1,10 @@
-import { DeleteRounded, EditRounded, RefreshRounded } from "@mui/icons-material";
+import { DeleteRounded, RefreshRounded } from "@mui/icons-material";
 import { IconButton, Pagination, styled, Table, TableCell, TableHead, TableRow } from "@mui/material";
 import theme from "../../commun/utils/theme";
 import OrdersDrawer from "./components/order_drawer";
 import { useState } from "react";
 import SearchField from "../../commun/components/search_field";
+import ConfirmationDialog from "../../commun/components/confirmation_dialog";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -130,8 +131,8 @@ const OrdersPage = () => {
                     </TableHeader>
                     {
                         orders.map((order) => (
-                            <TableRow key={order.id} onClick={() => setOpen(true)} style={{cursor: 'pointer'}}>
-                                <TableCell>
+                            <TableRow key={order.id} style={{cursor: 'pointer'}}>
+                                <TableCell onClick={() => setOpen(true)}>
                                     <p style={{fontSize: '16px', fontWeight: 600}}>{order.itemsNames.join(', ')}</p>
                                     <p>N° {order.id}</p>
                                 </TableCell>
@@ -139,12 +140,14 @@ const OrdersPage = () => {
                                 <TableCell>{order.timeAgo}</TableCell>
                                 <TableCell>{order.status}</TableCell>
                                 <TableCell>
-                                    <IconButton>
-                                        <EditRounded style={{color: '#5B86E5'}}/>
-                                    </IconButton>
-                                    <IconButton>
-                                        <DeleteRounded style={{color: theme.palette.error.main}}/>
-                                    </IconButton>
+                                    <ConfirmationDialog
+                                        button={<IconButton>
+                                            <DeleteRounded style={{color: theme.palette.error.main}}/>
+                                        </IconButton>}
+                                        onConfirm={() => {}}
+                                        title="Delete Order"
+                                        description="Are you sure you want to delete this order?"
+                                    />
                                 </TableCell>
                             </TableRow>
                         ))
