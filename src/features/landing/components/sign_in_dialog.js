@@ -1,6 +1,7 @@
 import { FacebookRounded, Google } from "@mui/icons-material";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import { Fragment, useState } from "react";
+import { loginWithFacebook, loginWithGoogle } from "../../../services/auth";
 
 export default function SignInDialog() {
   const [open, setOpen] = useState(false);
@@ -45,14 +46,14 @@ export default function SignInDialog() {
             style={{marginBottom: 10}}
             fullWidth
             variant="outlined"
-            onClick={() => alert('Sign in with Google')}
+            onClick={() => loginWithGoogle()}
             startIcon={<Google/>}>  
             Sign in with Google
           </Button>
           <Button
             fullWidth
             variant="outlined"
-            onClick={() => alert('Sign in with Google')}
+            onClick={() => loginWithFacebook()}
             startIcon={<FacebookRounded/>}>  
             Sign in with Facebook
           </Button>

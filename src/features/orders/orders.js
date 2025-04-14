@@ -5,6 +5,7 @@ import OrdersDrawer from "./components/order_drawer";
 import { useState } from "react";
 import SearchField from "../../commun/components/search_field";
 import ConfirmationDialog from "../../commun/components/confirmation_dialog";
+import { getUser } from "../../services/auth";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',

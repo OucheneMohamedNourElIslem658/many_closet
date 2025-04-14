@@ -1,6 +1,10 @@
-import { styled } from '@mui/material';
+import { Avatar, Box, Button, IconButton, Popper, styled } from '@mui/material';
 import { Link } from 'react-router-dom';
 import SignInDialog from '../../features/landing/components/sign_in_dialog';
+import { getUser, logoutUser } from '../../services/auth';
+import { useEffect, useState } from 'react';
+import { AccountCircle, LogoutRounded } from '@mui/icons-material';
+import AccountMenu from './account_menu';
 
 const CustomAppBar = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -52,6 +56,20 @@ const StyledLink = styled(Link)(({ theme }) => ({
 }));
 
 const AppBar = () => {
+
+    const [currentUser, setUser] = useState(null);
+
+    useEffect(() => {
+        const getCurrentUser = async () => {
+            const userData = await getUser();
+            console.log(userData);
+            
+            setUser(userData);
+        };
+
+        getCurrentUser();
+    }, [])
+
     return (
         <CustomAppBar>
             <Logo>Many Closet</Logo>
@@ -72,9 +90,44 @@ const AppBar = () => {
                     <StyledLink to="/contact">Contact</StyledLink>
                 </li>
             </NavigationList>
-            <SignInDialog/>
+            {
+                currentUser ? (
+                    <AccountMenu currentUser={currentUser}/>
+                ) : (
+                    <SignInDialog />
+                )
+            }
         </CustomAppBar>
     );
 }
+
+const ProfilePopup = ({userName}) => {
+    const [anchorEl, setAnchorEl] = useState(null);
+  
+    const handleClick = (event) => {
+      setAnchorEl(anchorEl ? null : event.currentTarget);
+    };
+  
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popper' : undefined;
+  
+    return (
+      <div>
+        <Box onClick={(e) => handleClick(e)}>
+            <Avatar style={{backgroundColor: 'black'}}>
+                {userName[0]}
+            </Avatar>
+        </Box>
+        <Popper id={id} open={open} anchorEl={anchorEl}>
+          <Box sx={{ border: 1, p: 1, bgcolor: 'background.paper', padding: 0, borderRadius: 5}}>
+            <IconButton>
+                <LogoutRounded/>
+                <p style={{fontSize: 20 , color: 'black', marginLeft: 10}}>Logout</p>
+            </IconButton>
+          </Box>
+        </Popper>
+      </div>
+    );
+  }
 
 export default AppBar;

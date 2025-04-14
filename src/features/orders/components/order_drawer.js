@@ -73,7 +73,13 @@ const PaymentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: 10,
-    marginTop: 20,
+    position: 'sticky',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 20,
+    backgroundColor: theme.palette.background.paper,
+    borderTop: `1px solid ${theme.palette.grey[300]}`,
 }))
 
 const PriceInfo = styled('div')(({ theme }) => ({
@@ -113,14 +119,14 @@ const OrdersDrawer = ({open, onClose}) => {
                 size: '42',
                 picURL: 'https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
             },
-            {
-                name: 'Blue Jeans',
-                price: 150,
-                quantity: 1,
-                color: 'blue',
-                size: '32',
-                picURL: 'https://plus.unsplash.com/premium_photo-1675186049222-0b5018db6ce9?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-            }
+            // {
+            //     name: 'Blue Jeans',
+            //     price: 150,
+            //     quantity: 1,
+            //     color: 'blue',
+            //     size: '32',
+            //     picURL: 'https://plus.unsplash.com/premium_photo-1675186049222-0b5018db6ce9?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
+            // }
         ],
     }
 
