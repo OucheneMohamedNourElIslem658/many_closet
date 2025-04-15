@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import ShopPage from './features/shop/shop';
 import ProductPage from './features/product/product';
 import OrdersPage from './features/orders/orders';
+import AuthSuccess from './features/landing/components/auth_success';
 
 function App() {
   return (
@@ -17,6 +18,9 @@ function App() {
         <AppBar />
         <div className="content">
           <Switch>
+            <Route path="/auth/success">
+              <AuthSuccess/>
+            </Route>
             <Route path="/shop">
               <ShopPage />
             </Route>

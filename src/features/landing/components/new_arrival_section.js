@@ -66,7 +66,7 @@ const NewArrivalSection = () => {
             status: 'off market'
         },
         {
-            id: 1,
+            id: 4,
             name: 'Shiny Dress',
             price: '$200',
             description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque du...',
@@ -74,7 +74,7 @@ const NewArrivalSection = () => {
             status: 'off market'
         },
         {
-            id: 2,
+            id: 5,
             name: 'Casual Shirt',
             price: '$50',
             description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque du...',
@@ -82,7 +82,7 @@ const NewArrivalSection = () => {
             status: 'available'
         },
         {
-            id: 3,
+            id: 6,
             name: 'Elegant Skirt',
             price: '$120',
             description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque du...',
@@ -90,7 +90,7 @@ const NewArrivalSection = () => {
             status: 'off market'
         },
         {
-            id: 1,
+            id: 7,
             name: 'Shiny Dress',
             price: '$200',
             description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque du...',
@@ -98,7 +98,7 @@ const NewArrivalSection = () => {
             status: 'off market'
         },
         {
-            id: 2,
+            id: 8,
             name: 'Casual Shirt',
             price: '$50',
             description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque du...',
@@ -106,7 +106,7 @@ const NewArrivalSection = () => {
             status: 'available'
         },
         {
-            id: 3,
+            id: 10,
             name: 'Elegant Skirt',
             price: '$120',
             description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque du...',
@@ -124,7 +124,7 @@ const NewArrivalSection = () => {
             <Items>
                 {
                     items.map((item) => {
-                        return <NewArrivalItem item={item}/>
+                        return <NewArrivalItem key={item.id} item={item}/>
                     })
                 }
             </Items>

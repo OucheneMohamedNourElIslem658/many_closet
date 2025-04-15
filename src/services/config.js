@@ -1,5 +1,5 @@
 // src/appwrite.js
-import { Account, Client } from 'appwrite'
+import { Account, Client, Databases } from 'appwrite'
 
 const client = new Client()
 client
@@ -8,5 +8,8 @@ client
 
 const account = new Account(client)
 
-export { account }
+const databases = new Databases(client)
+const databaseID = '67fd5541001594d976c4'
+
+export { account, databases, databaseID }
 
