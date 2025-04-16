@@ -1,5 +1,7 @@
 import { styled } from "@mui/material";
 import Selector from "../../../commun/components/option_selector";
+import { PromiseBuilder } from "../../../commun/components/promise_builder";
+import { getFilters } from "../../../services/product";
 
 const FiltersList = styled('ul')(({ theme }) => ({
     display: 'flex',
@@ -69,37 +71,47 @@ const CustomCheckBox = styled('input')(({ theme }) => ({
     },
 }))
 
-const FiltersSideBar = () => {
-    const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
-    const colors = ['red', 'yellow', 'green', 'blue', 'black', 'white', 'grey', 'purple', 'pink', 'orange'];
-    const prices = ['0DA-50DA', '50DA-100DA', '100DA-150DA', '150DA-200DA', '200DA+'];
-    const tages = ['new', 'sale', 'popular', 'featured'];
+function formatePriceFilter(price) {
+    if (price.max === Infinity) {
+        return `${price.min}DA+`;
+    } else {
+        return `${price.min}DA-${price.max}DA`;
+    }
+}
 
+const FiltersSideBar = () => {
     return ( 
         <div>
-            <FiltersTitle>Filters</FiltersTitle>
-            <FiltersList>
-                <li>
-                    <Selector title="Sizes" options={sizes} />
-                    <Selector title="Colors" options={colors} isColor={true}/>
+            <PromiseBuilder
+                promise={getFilters}
+                builder={(data) => (
                     <div>
-                        <p>Prices</p>
-                        <PricesList>
-                            {
-                                prices.map((price, index) => (
-                                    <li key={index}>
-                                        <PriceItem>
-                                            <CustomCheckBox type="checkbox" />
-                                            {price}
-                                        </PriceItem>
-                                    </li>
-                                ))
-                            }
-                        </PricesList>
+                        <FiltersTitle>Filters</FiltersTitle>
+                        <FiltersList>
+                            <li>
+                                <Selector title="Sizes" options={data.sizes} />
+                                <Selector title="Colors" options={data.colors} isColor={true}/>
+                                <div>
+                                    <p>Prices</p>
+                                    <PricesList>
+                                        {
+                                            data.prices.map((price, index) => (
+                                                <li key={index}>
+                                                    <PriceItem>
+                                                        <CustomCheckBox type="checkbox" />
+                                                        {formatePriceFilter(price)}
+                                                    </PriceItem>
+                                                </li>
+                                            ))
+                                        }
+                                    </PricesList>
+                                </div>
+                                <Selector title="Tags" options={data.categories} />
+                            </li>
+                        </FiltersList>
                     </div>
-                    <Selector title="Tags" options={tages} />
-                </li>
-            </FiltersList>
+                )}
+            />
         </div>
     );
 }

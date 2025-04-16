@@ -4,6 +4,7 @@ import ProductsList from "./components/products_list";
 import { useState } from "react";
 import { FilterListRounded, RefreshRounded } from "@mui/icons-material";
 import SearchField from "../../commun/components/search_field";
+import { getProducts } from "../../services/product";
 
 const ContentAlignment = styled('div')(({ theme }) => ({
     display: 'grid',
@@ -97,7 +98,11 @@ const ShopPage = () => {
                                 <FilterListRounded/>
                             </DrawerButton>
                         </div>
-                        <IconButton>
+                        <IconButton onClick={async () => {
+                            const docs = await getProducts()
+                            console.log(docs);
+                            
+                        }}>
                             <RefreshRounded style={{color: 'black'}}/>
                         </IconButton>
                     </SearchContainer>

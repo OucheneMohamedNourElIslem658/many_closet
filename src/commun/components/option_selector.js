@@ -77,7 +77,7 @@ const Selector = ({title, options, isColor, type = 'multi'}) => {
                         <li key={index}>
                             {
                                 isColor ? (
-                                    <ColorButton style={{backgroundColor: isColor ? option : 'default'}} option={option} onClick={() => handleOptionSelection(option)} className={filterOptions.includes(option) ? 'selected' : ''}/>
+                                    <ColorButton style={{backgroundColor: isColor ? option.name : 'default'}} option={option} onClick={() => handleOptionSelection(option)} className={filterOptions.includes(option) ? 'selected' : ''}/>
                                 ) : (
                                     <OptionButton variant="outlined" onClick={() => handleOptionSelection(option)} className={filterOptions.includes(option) ? 'selected' : ''}>
                                         {option}
