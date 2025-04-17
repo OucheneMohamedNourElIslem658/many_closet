@@ -1,4 +1,4 @@
-import { Button, IconButton, styled } from "@mui/material";
+import { Button, IconButton, Skeleton, styled } from "@mui/material";
 import { useState } from "react";
 
 const FiltersWithWrapedItems = styled('ul')(({ theme }) => ({
@@ -51,21 +51,20 @@ const ColorButton = styled(IconButton)(({ theme }) => ({
     transition: 'padding 0.1s ease-in-out',
 }))
 
-const Selector = ({title, options, isColor, type = 'multi'}) => {
+const Selector = ({ title, options, isColor, type = 'multi', isLoading = false, onOptionSelected = () => {} }) => {
     const [filterOptions, setFilterOptions] = useState([]);
     
     function handleOptionSelection(option) {
+        let updatedOptions;
         if (type === 'single') {
-            setFilterOptions([option]);
+            updatedOptions = [option];
         } else if (type === 'multi') {
-            setFilterOptions((prevTags) => {
-                if (prevTags.includes(option)) {
-                    return prevTags.filter((t) => t !== option);
-                } else {
-                    return [...prevTags, option];
-                }
-            });
+            updatedOptions = filterOptions.includes(option)
+                ? filterOptions.filter((t) => t !== option)
+                : [...filterOptions, option];
         }
+        setFilterOptions(updatedOptions);
+        onOptionSelected(updatedOptions);
     }
 
     return (
@@ -73,23 +72,45 @@ const Selector = ({title, options, isColor, type = 'multi'}) => {
             <p>{title}</p>
             <FiltersWithWrapedItems>
                 {
-                    options.map((option, index) => (
-                        <li key={index}>
-                            {
-                                isColor ? (
-                                    <ColorButton style={{backgroundColor: isColor ? option.name : 'default'}} option={option} onClick={() => handleOptionSelection(option)} className={filterOptions.includes(option) ? 'selected' : ''}/>
-                                ) : (
-                                    <OptionButton variant="outlined" onClick={() => handleOptionSelection(option)} className={filterOptions.includes(option) ? 'selected' : ''}>
-                                        {option}
-                                    </OptionButton>
-                                )
-                            }
-                        </li>
-                    ))
+                    isLoading ? (
+                        Array.from({ length: 7 }).map((_, index) => (
+                            <li key={index}>
+                                {
+                                    isColor ? (
+                                        <Skeleton variant="rectangular" width={30} height={30} sx={{ borderRadius: 5 }} />
+                                    ) : (
+                                        <Skeleton variant="rectangular" width={50} height={30} style={{ borderRadius: 3 }} />
+                                    )
+                                }
+                            </li>
+                        ))
+                    ) : (
+                        options.map((option, index) => (
+                            <li key={index}>
+                                {
+                                    isColor ? (
+                                        <ColorButton
+                                            style={{ backgroundColor: isColor ? option.name : 'default' }}
+                                            onClick={() => handleOptionSelection(option)}
+                                            className={filterOptions.includes(option) ? 'selected' : ''}
+                                        />
+                                    ) : (
+                                        <OptionButton
+                                            variant="outlined"
+                                            onClick={() => handleOptionSelection(option)}
+                                            className={filterOptions.includes(option) ? 'selected' : ''}
+                                        >
+                                            {option}
+                                        </OptionButton>
+                                    )
+                                }
+                            </li>
+                        ))
+                    )
                 }
             </FiltersWithWrapedItems>
         </div>
     );
-}
+};
 
 export default Selector;

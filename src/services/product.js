@@ -1,3 +1,4 @@
+import { Query } from "appwrite";
 import { databaseID, databases } from "./config";
 
 async function getColors() {
@@ -58,17 +59,44 @@ async function getFilters() {
     }
 }  
 
-async function getProducts(currentPage, pageSize) {
+async function getProducts({currentPage, pageSize, name, tags, colors, sizes}) {
+    const offset = (currentPage - 1) * pageSize
+    const queries = [
+        Query.limit(6),
+        Query.offset(offset),
+    ]
+
+    if (name && name.trim().length > 0) {
+        queries.push(Query.search('name', name))
+    }
+
+    if (tags && tags.length > 0) {
+        const tagQueries = tags.map(tag => Query.contains('categories_tags', tag));
+        queries.push(tags.length > 1 ? Query.or(tagQueries) : tagQueries[0]);
+    }
+
+    if (colors && colors.length > 0) {
+        const colorQueries = colors.map(color => Query.equal('colors', color));
+        queries.push(colors.length > 1 ? Query.or(colorQueries) : colorQueries[0]);
+    }
+
+    if (sizes && sizes.length > 0) {
+        const sizeQueries = sizes.map(size => Query.equal('sizes', size));
+        queries.push(sizes.length > 1 ? Query.or(sizeQueries) : sizeQueries[0]);
+    }
+
     const products = await databases.listDocuments(
         databaseID,
         'products',
-        [],
-        {
-            limit: pageSize,
-            offset: currentPage * pageSize,
-        }
+        queries,
     )
-    return products.documents
+    
+    const maxPages = Math.ceil(products.total / pageSize)
+    
+    return {
+        products: products.documents,
+        maxPages: maxPages,
+    }
 }
 
 export {getFilters, getProducts}

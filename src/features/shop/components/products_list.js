@@ -1,4 +1,9 @@
-import { Pagination, styled } from "@mui/material";
+import { IconButton, Pagination, Skeleton, styled } from "@mui/material";
+import { PromiseBuilder } from "../../../commun/components/promise_builder";
+import { getProducts } from "../../../services/product";
+import SearchField from "../../../commun/components/search_field";
+import { FilterListRounded, RefreshRounded } from "@mui/icons-material";
+import { useState } from "react";
 
 const ContentAlignment = styled('ul')(({ theme }) => ({
     display: 'grid',
@@ -63,123 +68,114 @@ const PaginationController = styled(Pagination)({
     justifyItems: 'center',
 })
 
-const ProductsList = () => {
-    const products = [
-        {
-            picURL: 'https://plus.unsplash.com/premium_photo-1675186049366-64a655f8f537?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-            title: 'Rounded Red Hat',
-            price: '50DA',
-            colors: [
-                {
-                    name: 'red',
-                    hex: '#FF0000'
-                },
-                {
-                    name: 'blue',
-                    hex: '#0000FF'
-                }
-            ]
-        },
-        {
-            picURL: 'https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-            title: 'Blue T-Shirt',
-            price: '100DA',
-            colors: [
-                {
-                    name: 'blue',
-                    hex: '#0000FF'
-                },
-                {
-                    name: 'black',
-                    hex: '#000000'
-                }
-            ]
-        },
-        {
-            picURL: 'https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-            title: 'Green Sneakers',
-            price: '150DA',
-            colors: [
-                {
-                    name: 'green',
-                    hex: '#00FF00'
-                },
-                {
-                    name: 'white',
-                    hex: '#FFFFFF'
-                }
-            ]
-        },
-        {
-            picURL: 'https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-            title: 'Black Jacket',
-            price: '200DA',
-            colors: [
-                {
-                    name: 'black',
-                    hex: '#000000'
-                },
-                {
-                    name: 'grey',
-                    hex: '#808080'
-                }
-            ]
-        },
-        {
-            picURL: 'https://plus.unsplash.com/premium_photo-1675186049222-0b5018db6ce9?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-            title: 'White Sneakers',
-            price: '250DA',
-            colors: [
-                {
-                    name: 'white',
-                    hex: '#FFFFFF'
-                },
-                {
-                    name: 'grey',
-                    hex: '#808080'
-                }
-            ]
-        },
-        {
-            picURL: 'https://images.unsplash.com/photo-1509319117193-57bab727e09d?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-            title: 'Purple Dress',
-            price: '300DA',
-            colors: [
-                {
-                    name: 'purple',
-                    hex: '#800080'
-                },
-                {
-                    name: 'pink',
-                    hex: '#FFC0CB'
-                }
-            ]
-        }
-    ]
+const SearchContainer = styled('div')(({ theme }) => ({
+    display: 'flex', 
+    marginBottom: 20, 
+    width: '100%', 
+    justifyContent: 'space-between',
+}))
 
-    return ( 
+const DrawerButton = styled(IconButton)(({ theme }) => ({
+    display: 'none',
+    color: 'black',
+    [theme.breakpoints.down('md')]: {
+        display: 'flex',
+        justifySelf: 'start',
+    }
+}))
+
+const ProductsList = ({onDrawerOpen}) => {
+    const [refreshKey, setRefreshKey] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [query, setQuery] = useState('');
+
+    const pageSize = 3;
+
+    return (
         <div>
-            <ContentAlignment>
-                {
-                    products.map((product, index) => (
-                        <Product key={index}>
-                            <ProductImage style={{ 
-                                backgroundImage: `url(${product.picURL})`, 
-                            }}></ProductImage>
-                            <h3>{product.title}</h3>
-                            <ProductPrice>{product.price}</ProductPrice>
-                            <ProductColors>
-                                {
-                                    product.colors.map((color, index) => (
-                                        <li key={index} style={{ backgroundColor: color.hex}}></li>
-                                    ))
-                                }
-                            </ProductColors>
-                        </Product>
-                    ))
+            <SearchContainer>
+                <div style={{display: 'flex', gap: 10}}>
+                    <SearchField 
+                        style={{justifySelf: 'flex-end'}}
+                        onValueChanged={(value) => setQuery(value)}
+                    />
+                    <DrawerButton 
+                        variant="outlined"
+                        style={{gridColumn: 'span 2'}} 
+                        onClick={onDrawerOpen}
+                    >
+                        <FilterListRounded/>
+                    </DrawerButton>
+                </div>
+                <IconButton onClick={() => setRefreshKey(prev => prev + 1)}>
+                    <RefreshRounded style={{color: 'black'}}/>
+                </IconButton>
+            </SearchContainer>
+            <PromiseBuilder
+                key={refreshKey}
+                promise={() => getProducts({
+                    currentPage, 
+                    pageSize, 
+                    name: query,
+                    // tags: [
+                    //     '680014cd0037af565569',
+                    //     '680014cd0037af565561'
+                    // ]
+                })}
+                loading={
+                    <ContentAlignment>
+                        {Array.from(new Array(6)).map((_, index) => (
+                            <Product key={index}>
+                                <Skeleton variant="rectangular" width="100%" height={400} />
+                                <Skeleton variant="text" width="70%" height={'40px'} />
+                                <Skeleton variant="text" width="40%" height={'30px'}/>
+                                <div style={{display: "flex", gap: 5, marginTop: 10}}>
+                                    {
+                                        Array.from(new Array(3)).map((_, index) => (
+                                            <Skeleton key={index} variant="circular" width={40} height={40} />
+                                        ))
+                                    }
+                                </div>
+                            </Product>
+                        ))}
+                    </ContentAlignment>
                 }
-            </ContentAlignment>
-            <PaginationController count={10} size="small"/>
+                builder={(data) => {
+                    const products = data.products
+                    const maxPages = data.maxPages
+                    return <div>
+                        <ContentAlignment>
+                            {products.map((product, index) => (
+                                <Product key={index}>
+                                    <ProductImage
+                                        style={{
+                                            backgroundImage: `url(${product.images[0].url})`,
+                                        }}
+                                    ></ProductImage>
+                                    <h3>{product.name}</h3>
+                                    <ProductPrice>{`${product.price}DA`}</ProductPrice>
+                                    <ProductColors>
+                                        {product.colors.map((color, index) => (
+                                            <li
+                                                key={index}
+                                                style={{ backgroundColor: `#${color.code}` }}
+                                            ></li>
+                                        ))}
+                                    </ProductColors>
+                                </Product>
+                            ))}
+                        </ContentAlignment>
+                        <PaginationController
+                            count={maxPages} 
+                            size="small" 
+                            page={currentPage}
+                            onChange={(_, value) => {
+                                setCurrentPage(value)
+                            }}
+                        />
+                    </div>
+                }}
+            />
         </div>
     );
 }

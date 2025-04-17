@@ -1,7 +1,7 @@
 import { SearchRounded } from "@mui/icons-material";
 import { FormControl, InputAdornment, OutlinedInput } from "@mui/material";
 
-const SearchField = () => {
+const SearchField = ({onValueChanged}) => {
     return (
         <FormControl variant="outlined">
             <OutlinedInput
@@ -9,6 +9,7 @@ const SearchField = () => {
                 id="search"
                 placeholder="Search…"
                 sx={{ flexGrow: 1 }}
+                onChange={(event) => onValueChanged(event.target.value)}
                 startAdornment={
                 <InputAdornment position="start" sx={{ color: 'text.primary' }}>
                     <SearchRounded fontSize="small" />

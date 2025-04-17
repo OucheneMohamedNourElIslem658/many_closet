@@ -1,4 +1,4 @@
-import { styled } from "@mui/material";
+import { Skeleton, styled } from "@mui/material";
 import Selector from "../../../commun/components/option_selector";
 import { PromiseBuilder } from "../../../commun/components/promise_builder";
 import { getFilters } from "../../../services/product";
@@ -79,18 +79,45 @@ function formatePriceFilter(price) {
     }
 }
 
-const FiltersSideBar = () => {
+const FiltersSideBar = ({ onSizeChanged = () => {}, onColorChanged = () => {}, onCategoryChanged = () => {}, onPriceChanged = () => {} }) => {
+    const handlePriceChange = (price, isChecked) => {
+        if (isChecked) {
+            onPriceChanged(price);
+        }
+    };
+
     return ( 
         <div>
+            <FiltersTitle>Filters</FiltersTitle>
             <PromiseBuilder
                 promise={getFilters}
-                builder={(data) => (
-                    <div>
-                        <FiltersTitle>Filters</FiltersTitle>
+                loading={
                         <FiltersList>
                             <li>
-                                <Selector title="Sizes" options={data.sizes} />
-                                <Selector title="Colors" options={data.colors} isColor={true}/>
+                                <Selector title="Sizes" isLoading={true} />
+                                <Selector title="Colors" isLoading={true} />
+                                <div>
+                                    <p>Prices</p>
+                                    <PricesList style={{gap: 10}}>
+                                        {
+                                            Array.from({ length: 4 }).map((_, index) => (
+                                                <li key={index}>
+                                                    <Skeleton variant="rectangular" width={'60%'} height={15} style={{minWidth: 100}} />
+                                                </li>
+                                            ))
+                                        }
+                                    </PricesList>
+                                </div>
+                                <Selector title="Tags" isLoading={true} />
+                            </li>
+                        </FiltersList>
+                }
+                builder={(data) => (
+                    <div>
+                        <FiltersList>
+                            <li>
+                                <Selector title="Sizes" options={data.sizes} onOptionSelected={onSizeChanged}/>
+                                <Selector title="Colors" options={data.colors} isColor={true} onOptionSelected={onColorChanged} />
                                 <div>
                                     <p>Prices</p>
                                     <PricesList>
@@ -98,7 +125,10 @@ const FiltersSideBar = () => {
                                             data.prices.map((price, index) => (
                                                 <li key={index}>
                                                     <PriceItem>
-                                                        <CustomCheckBox type="checkbox" />
+                                                        <CustomCheckBox 
+                                                            type="checkbox" 
+                                                            onChange={(e) => handlePriceChange(price, e.target.checked)} 
+                                                        />
                                                         {formatePriceFilter(price)}
                                                     </PriceItem>
                                                 </li>
@@ -106,7 +136,7 @@ const FiltersSideBar = () => {
                                         }
                                     </PricesList>
                                 </div>
-                                <Selector title="Tags" options={data.categories} />
+                                <Selector title="Tags" options={data.categories} onOptionSelected={onCategoryChanged} />
                             </li>
                         </FiltersList>
                     </div>

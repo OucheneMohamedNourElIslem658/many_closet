@@ -1,10 +1,7 @@
-import { Box, Button, Drawer, IconButton, styled } from "@mui/material";
+import { Box, Drawer, styled } from "@mui/material";
 import FiltersSideBar from "./components/filters_bar";
 import ProductsList from "./components/products_list";
 import { useState } from "react";
-import { FilterListRounded, RefreshRounded } from "@mui/icons-material";
-import SearchField from "../../commun/components/search_field";
-import { getProducts } from "../../services/product";
 
 const ContentAlignment = styled('div')(({ theme }) => ({
     display: 'grid',
@@ -38,15 +35,6 @@ const HeaderSubTitle = styled('p')(({ theme }) => ({
     marginBottom: 10,
 }))
 
-const DrawerButton = styled(IconButton)(({ theme }) => ({
-    display: 'none',
-    color: 'black',
-    [theme.breakpoints.down('md')]: {
-        display: 'flex',
-        justifySelf: 'start',
-    }
-}))
-
 const CustomDrawer = styled(Drawer)(({ theme }) => ({
     [theme.breakpoints.down('md')]: {
         display: 'block',
@@ -66,13 +54,6 @@ const Title = styled('h1')(({theme}) => ({
     marginBottom: 8
 }))
 
-const SearchContainer = styled('div')(({ theme }) => ({
-    display: 'flex', 
-    marginBottom: 20, 
-    width: '100%', 
-    justifyContent: 'space-between',
-}))
-
 const ShopPage = () => {
     const [open, setOpen] = useState(false);
 
@@ -86,28 +67,7 @@ const ShopPage = () => {
                 <FiltersSizeBarContainer>
                     <FiltersSideBar/>
                 </FiltersSizeBarContainer>
-                <div>
-                    <SearchContainer>
-                        <div style={{display: 'flex', gap: 10}}>
-                            <SearchField style={{justifySelf: 'flex-end'}}/>
-                            <DrawerButton 
-                                variant="outlined"
-                                style={{gridColumn: 'span 2'}} 
-                                onClick={() => setOpen(!open)}
-                            >
-                                <FilterListRounded/>
-                            </DrawerButton>
-                        </div>
-                        <IconButton onClick={async () => {
-                            const docs = await getProducts()
-                            console.log(docs);
-                            
-                        }}>
-                            <RefreshRounded style={{color: 'black'}}/>
-                        </IconButton>
-                    </SearchContainer>
-                    <ProductsList/>
-                </div>
+                <ProductsList onDrawerOpen={() => setOpen(!open)}/>
             </ContentAlignment>
             <CustomDrawer
                 anchor='left'
