@@ -62,7 +62,7 @@ async function getFilters() {
 async function getProducts({currentPage, pageSize, name, tags, colors, sizes}) {
     const offset = (currentPage - 1) * pageSize
     const queries = [
-        Query.limit(6),
+        Query.limit(pageSize),
         Query.offset(offset),
     ]
 
