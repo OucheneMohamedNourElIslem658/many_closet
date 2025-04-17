@@ -1,10 +1,11 @@
-import { Avatar, Box, Button, IconButton, Popper, styled } from '@mui/material';
+import { Avatar, Box, Button, IconButton, Popper, Skeleton, styled } from '@mui/material';
 import { Link } from 'react-router-dom';
 import SignInDialog from '../../features/landing/components/sign_in_dialog';
-import { createCurrentUser, getUser, logoutUser } from '../../services/auth';
+import { createCurrentUser, getCurrentUser, getUser, logoutUser } from '../../services/auth';
 import { useEffect, useState } from 'react';
 import { AccountCircle, LogoutRounded } from '@mui/icons-material';
 import AccountMenu from './account_menu';
+import { PromiseBuilder } from './promise_builder';
 
 const CustomAppBar = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -56,18 +57,6 @@ const StyledLink = styled(Link)(({ theme }) => ({
 }));
 
 const AppBar = () => {
-
-    const [currentUser, setUser] = useState(null);
-
-    useEffect(() => {
-        const getCurrentUser = async () => {
-            const userData = await getUser();
-            setUser(userData)
-        };
-
-        getCurrentUser();
-    }, []);
-
     return (
         <CustomAppBar>
             <Logo>Many Closet</Logo>
@@ -88,13 +77,21 @@ const AppBar = () => {
                     <StyledLink to="/contact">Contact</StyledLink>
                 </li>
             </NavigationList>
-            {
-                currentUser ? (
-                    <AccountMenu currentUser={currentUser}/>
-                ) : (
-                    <SignInDialog />
-                )
-            }
+            <PromiseBuilder
+                promise={getUser}
+                loading={<Skeleton variant="circular" width={40} height={40} />}
+                builder={(user) => {
+                    if (!user) {
+                        return (
+                            <SignInDialog />
+                        );
+                    }
+
+                    return (
+                        <AccountMenu currentUser={user}/>
+                    );
+                }}
+            />
         </CustomAppBar>
     );
 }

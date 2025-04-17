@@ -56,6 +56,12 @@ const Title = styled('h1')(({theme}) => ({
 
 const ShopPage = () => {
     const [open, setOpen] = useState(false);
+    const [filters, setFilters] = useState({
+        tags: [],
+        colors: [],
+        sizes: [],
+        price: {}
+    });
 
     return ( 
         <div>
@@ -65,9 +71,14 @@ const ShopPage = () => {
                     <HeaderSubTitle>Welcome to our shop</HeaderSubTitle>
                 </Header>
                 <FiltersSizeBarContainer>
-                    <FiltersSideBar/>
+                <FiltersSideBar
+                    onCategoryChanged={(data) => setFilters({...filters, tags: data})}
+                    onColorChanged={(data) => setFilters({...filters, colors: data})}
+                    onSizeChanged={(data) => setFilters({...filters, sizes: data})}
+                    onPriceChanged={(data) => setFilters({...filters, price: data})}
+                />
                 </FiltersSizeBarContainer>
-                <ProductsList onDrawerOpen={() => setOpen(!open)}/>
+                <ProductsList onDrawerOpen={() => setOpen(!open)} filters={filters}/>
             </ContentAlignment>
             <CustomDrawer
                 anchor='left'
@@ -75,7 +86,12 @@ const ShopPage = () => {
                 onClose={() => setOpen(false)}
             >
                 <Box sx={{width: 250}} padding={'20px'} role="presentation">
-                    <FiltersSideBar/>
+                <FiltersSideBar
+                    onCategoryChanged={(data) => setFilters({...filters, categories: data})}
+                    onColorChanged={(data) => setFilters({...filters, colors: data})}
+                    onSizeChanged={(data) => setFilters({...filters, sizes: data})}
+                    onPriceChanged={(data) => setFilters({...filters, price: data})}
+                />
                 </Box>
             </CustomDrawer>
         </div>

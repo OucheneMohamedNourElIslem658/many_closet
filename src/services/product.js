@@ -8,6 +8,7 @@ async function getColors() {
         [],
     )).documents.map((color) => {
         return {
+            id: color.$id,
             name: color.name,
             hex: color.hex,
         }
@@ -20,7 +21,10 @@ async function getCategories() {
         'categories',
         [],
     )).documents.map((category) => {
-        return category.name
+        return {
+            id: category.$id,
+            name: category.name,
+        }
     })
 }
 
@@ -30,7 +34,10 @@ async function getSizes() {
         'sizes',
         [],
     )).documents.map((size) => {
-        return size.name
+        return {
+            id: size.$id,
+            name: size.name,
+        }
     })
 }
 
@@ -59,7 +66,7 @@ async function getFilters() {
     }
 }  
 
-async function getProducts({currentPage, pageSize, name, tags, colors, sizes}) {
+async function getProducts({currentPage, pageSize, name, tags, colors, sizes, priceRange}) {
     const offset = (currentPage - 1) * pageSize
     const queries = [
         Query.limit(pageSize),
@@ -71,18 +78,28 @@ async function getProducts({currentPage, pageSize, name, tags, colors, sizes}) {
     }
 
     if (tags && tags.length > 0) {
+        console.log(tags);
+        
         const tagQueries = tags.map(tag => Query.contains('categories_tags', tag));
         queries.push(tags.length > 1 ? Query.or(tagQueries) : tagQueries[0]);
     }
 
     if (colors && colors.length > 0) {
-        const colorQueries = colors.map(color => Query.equal('colors', color));
+        const colorQueries = colors.map(color => Query.contains('colors_tags', color));
         queries.push(colors.length > 1 ? Query.or(colorQueries) : colorQueries[0]);
     }
 
     if (sizes && sizes.length > 0) {
-        const sizeQueries = sizes.map(size => Query.equal('sizes', size));
+        const sizeQueries = sizes.map(size => Query.contains('sizes_tags', size));
         queries.push(sizes.length > 1 ? Query.or(sizeQueries) : sizeQueries[0]);
+    }
+
+    if (priceRange && priceRange.min !== undefined && priceRange.max) {
+        if (priceRange.max === Infinity) {
+            queries.push(Query.greaterThanEqual('price', priceRange.min))
+        } else {
+            queries.push(Query.between('price', priceRange.min, priceRange.max))
+        }
     }
 
     const products = await databases.listDocuments(

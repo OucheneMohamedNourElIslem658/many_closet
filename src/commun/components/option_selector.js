@@ -64,7 +64,9 @@ const Selector = ({ title, options, isColor, type = 'multi', isLoading = false, 
                 : [...filterOptions, option];
         }
         setFilterOptions(updatedOptions);
-        onOptionSelected(updatedOptions);
+        
+        const selectedOptionsIds = updatedOptions.map((option) => option.id);
+        onOptionSelected(selectedOptionsIds);
     }
 
     return (
@@ -100,7 +102,7 @@ const Selector = ({ title, options, isColor, type = 'multi', isLoading = false, 
                                             onClick={() => handleOptionSelection(option)}
                                             className={filterOptions.includes(option) ? 'selected' : ''}
                                         >
-                                            {option}
+                                            {option.name}
                                         </OptionButton>
                                     )
                                 }

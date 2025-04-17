@@ -61,13 +61,3 @@ export const storeCurrentUser = async () => {
     ]
   )
 }
-
-
-export const getCurrentUser = () => {
-  try {
-    const user = localStorage.getItem('user')
-    return user ? JSON.parse(user) : null
-  } catch (error) {
-    console.error(error)
-  }
-}

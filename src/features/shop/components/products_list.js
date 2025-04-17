@@ -84,7 +84,7 @@ const DrawerButton = styled(IconButton)(({ theme }) => ({
     }
 }))
 
-const ProductsList = ({onDrawerOpen}) => {
+const ProductsList = ({onDrawerOpen, filters}) => {
     const [refreshKey, setRefreshKey] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [query, setQuery] = useState('');
@@ -107,7 +107,8 @@ const ProductsList = ({onDrawerOpen}) => {
                         <FilterListRounded/>
                     </DrawerButton>
                 </div>
-                <IconButton onClick={() => setRefreshKey(prev => prev + 1)}>
+                <IconButton 
+                    onClick={() => setRefreshKey(prev => prev + 1)}>
                     <RefreshRounded style={{color: 'black'}}/>
                 </IconButton>
             </SearchContainer>
@@ -117,10 +118,10 @@ const ProductsList = ({onDrawerOpen}) => {
                     currentPage, 
                     pageSize, 
                     name: query,
-                    // tags: [
-                    //     '680014cd0037af565569',
-                    //     '680014cd0037af565561'
-                    // ]
+                    tags: filters.tags,
+                    colors: filters.colors,
+                    sizes: filters.sizes,
+                    priceRange: filters.price,
                 })}
                 loading={
                     <ContentAlignment>
