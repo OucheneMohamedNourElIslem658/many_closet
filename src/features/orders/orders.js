@@ -5,6 +5,8 @@ import OrdersDrawer from "./components/order_drawer";
 import { useState } from "react";
 import SearchField from "../../commun/components/search_field";
 import ConfirmationDialog from "../../commun/components/confirmation_dialog";
+import { PromiseBuilder } from "../../commun/components/promise_builder";
+import { getOrder, getOrders } from "../../services/order";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -105,6 +107,7 @@ const OrdersPage = () => {
     ]
 
     const [open, setOpen] = useState(false);
+    const [orderID, setOrderID] = useState(null);
 
     return (
         <ContentContainer>
@@ -114,7 +117,7 @@ const OrdersPage = () => {
             </div>
             <SearchController>
                 <SearchField/>
-                <RefreshButton>
+                <RefreshButton onClick={async () => await getOrder('6802abd900263131e6d8')}>
                     <RefreshRounded/>
                 </RefreshButton>
             </SearchController>
@@ -129,35 +132,46 @@ const OrdersPage = () => {
                             <TableCell/>
                         </TableRow>
                     </TableHeader>
-                    {
-                        orders.map((order) => (
-                            <TableRow key={order.id} style={{cursor: 'pointer'}}>
-                                <TableCell onClick={() => setOpen(true)}>
-                                    <p style={{fontSize: '16px', fontWeight: 600}}>{order.itemsNames.join(', ')}</p>
-                                    <p>N° {order.id}</p>
-                                </TableCell>
-                                <TableCell>{order.price}</TableCell>
-                                <TableCell>{order.timeAgo}</TableCell>
-                                <TableCell>{order.status}</TableCell>
-                                <TableCell>
-                                    <ConfirmationDialog
-                                        button={<IconButton>
-                                            <DeleteRounded style={{color: theme.palette.error.main}}/>
-                                        </IconButton>}
-                                        onConfirm={() => {}}
-                                        title="Delete Order"
-                                        description="Are you sure you want to delete this order?"
-                                    />
-                                </TableCell>
-                            </TableRow>
-                        ))
-                    }
+                    <PromiseBuilder
+                        promise={() => getOrders()}
+                        builder={(orders) => {
+                            return orders.map((order) => {
+                                const itemsNames = order.items.map((item) => {
+                                    return item.name
+                                })
+
+                                return <TableRow key={order.$id} style={{cursor: 'pointer'}}>
+                                    <TableCell onClick={() => {
+                                        setOrderID(order.$id)
+                                        setOpen(true)
+                                    }}>
+                                        <p style={{fontSize: '16px', fontWeight: 600}}>{itemsNames.join(', ')}</p>
+                                        <p>N° {order.id}</p>
+                                    </TableCell>
+                                    <TableCell>{order.price}DA</TableCell>
+                                    <TableCell>{order.timeAgo}</TableCell>
+                                    <TableCell>{order.status}</TableCell>
+                                    <TableCell>
+                                        <ConfirmationDialog
+                                            button={<IconButton>
+                                                <DeleteRounded style={{color: theme.palette.error.main}}/>
+                                            </IconButton>}
+                                            onConfirm={() => {}}
+                                            title="Delete Order"
+                                            description="Are you sure you want to delete this order?"
+                                        />
+                                    </TableCell>
+                                </TableRow>
+                            })
+                            }
+                        }
+                    />
                 </OrdersTable>
             </TableScroller>
             <OrdersDrawer 
                 open={open}
                 onClose={() => setOpen(false)}
-                order={orders[0]}
+                orderID={orderID}
             />
             <PaginationController count={10}/>
         </ContentContainer>

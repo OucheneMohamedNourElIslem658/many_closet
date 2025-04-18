@@ -1,7 +1,7 @@
 import { SearchRounded } from "@mui/icons-material";
 import { FormControl, InputAdornment, OutlinedInput } from "@mui/material";
 
-const SearchField = ({onValueChanged}) => {
+const SearchField = ({onValueChanged = () => {}}) => {
     return (
         <FormControl variant="outlined">
             <OutlinedInput
