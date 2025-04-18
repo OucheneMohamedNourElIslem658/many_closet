@@ -159,7 +159,7 @@ const ProductsList = ({onDrawerOpen, filters}) => {
                                             backgroundImage: `url(${product.images[0].url})`,
                                         }}
                                     ></ProductImage>
-                                    <h3>{product.name}</h3>
+                                    <h3 style={{fontWeight: '500', fontSize: 20}}>{product.name}</h3>
                                     <ProductPrice>{`${product.price}DA`}</ProductPrice>
                                     <ProductColors>
                                         {product.colors.map((color, index) => (

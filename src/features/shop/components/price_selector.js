@@ -115,16 +115,6 @@ const PriceSelector = ({onPriceChanged, options, isLoading}) => {
                             </li>
                         ))
                     }
-                    <li>
-                        <PriceItem>
-                            <CustomCheckBox 
-                                type="radio" 
-                                name="price"
-                                onChange={(e) => handlePriceChange(null, e.target.checked)} 
-                            />
-                            None
-                        </PriceItem>
-                    </li>
                 </PricesList>
             )}
         </div>

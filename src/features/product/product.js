@@ -36,7 +36,7 @@ const Name = styled('h1')(({ theme }) => ({
     fontWeight: '100',
     marginBottom: '10px',
     color: theme.palette.primary.main,
-    marginRight: '20px'
+    marginRight: '20px',
 }))
 
 const AvailablityTag = styled('div')(({ theme }) => ({
@@ -48,6 +48,8 @@ const AvailablityTag = styled('div')(({ theme }) => ({
     fontFamily: theme.typography.fontFamily,
     justifySelf: 'start',
     whiteSpace: 'nowrap',
+    position: 'relative',
+    bottom: 5
 }))
 
 const Price = styled('p')(({ theme }) => ({
@@ -175,7 +177,6 @@ const SidePicturesList = styled('ul')(({ theme }) => ({
 const TitleContainer = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
     width: '100%',
 }))
 
@@ -267,7 +268,7 @@ const ProductPage = () => {
                 </TitleContainer>
                 <Description>{product.description}</Description>
                 <OrdersContainer>
-                    <ShoppingBagOutlined style={{color: 'black'}}/>
+                    <ShoppingBagOutlined style={{color: 'black', position: 'relative', bottom: 2}}/>
                     <p>{product.ordersCount} 24 people ordered this product</p>
                     <Spacer/>
                     <FavButton onClick={() => setIsFavourite(!isFavourite)}>
@@ -280,12 +281,12 @@ const ProductPage = () => {
                 </OrdersContainer>
                 <Selector 
                     title="Size" 
-                    options={product.sizes}
+                    options={product.sizes.map((size) => ({name: size}))}
                     type="single"
                 />
                 <Selector 
                     title="Colors" 
-                    options={product.colors.map(color => color.name)} 
+                    options={product.colors.map(color => ({name: color.name}))} 
                     isColor={true}
                     intialSelection={product.colors[0]}
                     type="single"

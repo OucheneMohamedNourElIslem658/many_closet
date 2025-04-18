@@ -17,7 +17,9 @@ const FiltersList = styled('ul')(({ theme }) => ({
 }));
 
 const FiltersTitle = styled('h2')({
-    marginBottom: 15
+    marginBottom: 15,
+    fontWeight: '500',
+    fontSize: 28
 })
 
 const FiltersSideBar = ({ onSizeChanged, onColorChanged, onCategoryChanged, onPriceChanged }) => {

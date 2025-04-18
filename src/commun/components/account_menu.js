@@ -1,7 +1,8 @@
-import { Logout } from "@mui/icons-material";
+import { Logout, ShoppingBagOutlined } from "@mui/icons-material";
 import { Avatar, Box, Divider, IconButton, ListItem, ListItemAvatar, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
 import { Fragment, useState } from "react";
 import { logoutUser } from "../../services/auth";
+import OrdersDrawer from "../../features/orders/components/order_drawer";
 
 export default function AccountMenu({currentUser}) {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -12,6 +13,9 @@ export default function AccountMenu({currentUser}) {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const [openDrawer, setOpenDrawer] = useState(false)
+
   return (
     <Fragment>
       <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
@@ -69,6 +73,15 @@ export default function AccountMenu({currentUser}) {
             <ListItemText primary={currentUser.name} secondary={currentUser.email} />
         </ListItem>
         <Divider />
+        <MenuItem onClick={() => {
+          handleClose();
+          setOpenDrawer(true)
+        }}>
+          <ListItemIcon>
+            <ShoppingBagOutlined fontSize="small" />
+          </ListItemIcon>
+          My Card
+        </MenuItem>
         <MenuItem onClick={() => logoutUser()}>
           <ListItemIcon>
             <Logout fontSize="small" />
@@ -76,6 +89,19 @@ export default function AccountMenu({currentUser}) {
           Logout
         </MenuItem>
       </Menu>
+      <OrdersDrawer
+        open={openDrawer}
+        onClose={() => setOpenDrawer(false)}
+        order={{
+          id: 11225855599,
+          price: 200,
+          timeAgo: '2 days ago',
+          status: 'delivered',
+          itemsNames: [
+            "T-shirt", "Jeans", "Sneakers"
+          ]
+        }}
+      />
     </Fragment>
   );
 }
