@@ -4,6 +4,7 @@ import { getProducts } from "../../../services/product";
 import SearchField from "../../../commun/components/search_field";
 import { FilterListRounded, RefreshRounded } from "@mui/icons-material";
 import { useState } from "react";
+import EmptyDataComponent from "../../../commun/components/empty";
 
 const ContentAlignment = styled('ul')(({ theme }) => ({
     display: 'grid',
@@ -125,7 +126,7 @@ const ProductsList = ({onDrawerOpen, filters}) => {
                 })}
                 loading={
                     <ContentAlignment>
-                        {Array.from(new Array(6)).map((_, index) => (
+                        {Array.from(new Array(pageSize)).map((_, index) => (
                             <Product key={index}>
                                 <Skeleton variant="rectangular" width="100%" height={400} />
                                 <Skeleton variant="text" width="70%" height={'40px'} />
@@ -144,6 +145,11 @@ const ProductsList = ({onDrawerOpen, filters}) => {
                 builder={(data) => {
                     const products = data.products
                     const maxPages = data.maxPages
+
+                    if (!products || products.length === 0) {
+                        return <EmptyDataComponent/>
+                    }
+
                     return <div>
                         <ContentAlignment>
                             {products.map((product, index) => (

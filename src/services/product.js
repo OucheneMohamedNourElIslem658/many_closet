@@ -5,7 +5,6 @@ async function getColors() {
     return (await databases.listDocuments(
         databaseID,
         'colors',
-        [],
     )).documents.map((color) => {
         return {
             id: color.$id,
@@ -78,8 +77,6 @@ async function getProducts({currentPage, pageSize, name, tags, colors, sizes, pr
     }
 
     if (tags && tags.length > 0) {
-        console.log(tags);
-        
         const tagQueries = tags.map(tag => Query.contains('categories_tags', tag));
         queries.push(tags.length > 1 ? Query.or(tagQueries) : tagQueries[0]);
     }

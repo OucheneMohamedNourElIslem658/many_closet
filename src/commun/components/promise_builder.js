@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import ErrorComponent from './error';
 
 export const PromiseBuilder = ({ promise, builder, loading, error }) => {
   const [data, setData] = useState(null);
@@ -28,6 +29,6 @@ export const PromiseBuilder = ({ promise, builder, loading, error }) => {
   }, [promise]);
 
   if (loadingState) return loading ?? <p>Loading...</p>;
-  if (errorState) return error ?? <p>Error: {errorState.message}</p>;
+  if (errorState) return error ?? <ErrorComponent error={errorState.message} />;
   return builder(data);
 };

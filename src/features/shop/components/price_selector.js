@@ -74,13 +74,20 @@ const PriceSelector = ({onPriceChanged, options, isLoading}) => {
         handlePriceChange(null, true);
     };
 
+    const isAnyPriceSelected = () => {
+        const radios = document.getElementsByName('price');
+        return Array.from(radios).some(radio => radio.checked);
+    };
+
     return (
         <div>
             <div style={{display: 'flex', alignItems: 'end'}}>
                 <p>Prices</p>
-                <div onClick={unSelectAll} style={{cursor: 'pointer'}}>
-                    <RefreshRounded style={{height: 15, position: 'relative', top: 3}}/>
-                </div>
+                {isAnyPriceSelected() && (
+                    <div onClick={unSelectAll} style={{cursor: 'pointer'}}>
+                        <RefreshRounded style={{height: 15, position: 'relative', top: 3}}/>
+                    </div>
+                )}
             </div>
             {isLoading ? (
                 <PricesList style={{gap: 10}}>
