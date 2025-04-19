@@ -1,5 +1,5 @@
 import { CloseRounded } from "@mui/icons-material";
-import { Box, Drawer, IconButton, styled } from "@mui/material";
+import { Box, Drawer, IconButton, Skeleton, styled } from "@mui/material";
 import OrderForm from "./order_form";
 import { PromiseBuilder } from "../../../commun/components/promise_builder";
 import { getOrder } from "../../../services/order";
@@ -95,44 +95,6 @@ const PriceInfo = styled('div')(({ theme }) => ({
 }))
 
 const OrdersDrawer = ({open, onClose, orderID}) => {
-    // const order = {
-    //     items: [
-    //         {
-    //             name: 'Denim Jacket',
-    //             price: 200,
-    //             quantity: 2,
-    //             color: 'black',
-    //             size: 'L',
-    //             picURL: 'https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-    //         },
-    //         {
-    //             name: 'White T-shirt',
-    //             price: 100,
-    //             quantity: 1,
-    //             color: 'white',
-    //             size: 'M',
-    //             picURL: 'https://images.unsplash.com/photo-1509319117193-57bab727e09d?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-    //         },
-    //         {
-    //             name: 'Black Sneakers',
-    //             price: 300,
-    //             quantity: 1,
-    //             color: 'black',
-    //             size: '42',
-    //             picURL: 'https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-    //         },
-    //         // {
-    //         //     name: 'Blue Jeans',
-    //         //     price: 150,
-    //         //     quantity: 1,
-    //         //     color: 'blue',
-    //         //     size: '32',
-    //         //     picURL: 'https://plus.unsplash.com/premium_photo-1675186049222-0b5018db6ce9?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-    //         // }
-    //     ],
-    // }
-
-
     return ( 
         <Drawer
             anchor='right'
@@ -143,14 +105,38 @@ const OrdersDrawer = ({open, onClose, orderID}) => {
                 <CloseButton onClick={onClose}>
                     <CloseRounded style={{color: 'black'}}/>
                 </CloseButton>
-                <PromiseBuilder
+                {orderID && <PromiseBuilder
                     promise={() => getOrder(orderID)}
+                    loading={
+                        <div>
+                            <Skeleton variant="text" width={200} height={50} />
+                            <Skeleton variant="text" width={250} height={30} />
+                            <ItemsList>
+                                {Array.from({ length: 3 }).map((_, index) => (
+                                    <OrderItem key={index}>
+                                        <ItemImage style={{ backgroundColor: '#e0e0e0' }} />
+                                        <div>
+                                            <Skeleton variant="text" width={100} height={40} />
+                                            <Skeleton variant="text" width={150} />
+                                            <Skeleton variant="text" width={120} />
+                                            <Skeleton variant="text" width={80} />
+                                        </div>
+                                    </OrderItem>
+                                ))}
+                            </ItemsList>
+                        </div>
+                    }
                     builder={(order) => {
+                        const isMyCard = order.status === 'in_card'
+                        const title = isMyCard ? 'My Card' : 'Order: ' + order.status
+
                         return (
                             <div>
                                 <div>
-                                    <Title>Orders</Title>
-                                    <ItemsCost>The items you picked cost you <strong>2000DA</strong> </ItemsCost>
+                                    <Title>{title}</Title>
+                                    {
+                                        !isMyCard ? <ItemsCost>The items you picked cost you <strong>{order.price}DA</strong> </ItemsCost> : null
+                                    }
                                 </div>
                                 <ItemsList>
                                     {
@@ -169,18 +155,32 @@ const OrdersDrawer = ({open, onClose, orderID}) => {
                                     }
                                 </ItemsList>
                                 <PaymentContainer>
+                                    {
+                                        !isMyCard && <div><PriceInfo>
+                                                        <p>Delivery Address:</p>
+                                                        <p>{order.address}</p>
+                                                    </PriceInfo>
+                                                    <PriceInfo>
+                                                        <p>Shipping cost:</p>
+                                                        <p>{order.shippment_price}DA</p>
+                                                    </PriceInfo> </div> 
+                                        }
                                     <PriceInfo>
-                                        <p>Shipping cost:</p>
-                                        <p>200DA</p>
+                                        <p>Items cost:</p>
+                                        <p>{order.itemsPrice}DA</p>
                                     </PriceInfo>
-                                    <PriceInfo>
-                                        <p>Total:</p>
-                                        <p>2200DA</p>
-                                    </PriceInfo>
-                                    <OrderForm/>
+                                    {
+                                        !isMyCard && <PriceInfo>
+                                            <p>Total:</p>
+                                            <p>{order.price}DA</p>
+                                        </PriceInfo>
+                                    }
+                                    {
+                                        isMyCard && <OrderForm/>
+                                    }
                                 </PaymentContainer>
                             </div>
-                    )}}/>
+                    )}}/>}
             </Box>
         </Drawer>
     );

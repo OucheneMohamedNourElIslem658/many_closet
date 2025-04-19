@@ -1,13 +1,20 @@
+import { Query } from "appwrite";
 import { databaseID, databases } from "./config";
+import { date2TimeAgo } from "../commun/utils/time_formats";
 
-async function getOrders() {
-    const orders = await databases.listDocuments(
+async function getOrders({currentPage, pageSize}) {
+    const offset = (currentPage - 1) * pageSize
+    const data = await databases.listDocuments(
         databaseID,
         'orders',
-        [],
+        [
+            Query.limit(pageSize),
+            Query.offset(offset),
+            Query.notEqual('status', 'in_card')
+        ],
     )
 
-    const orderItemsPrices = orders.documents.map((order) => {
+    const orderItemsPrices = data.documents.map((order) => {
         return order.orderItems.map((item) => {
             return item.product.price
         })
@@ -15,7 +22,7 @@ async function getOrders() {
 
     const itemsPrice = orderItemsPrices.flat().reduce((sum, price) => sum + price, 0);
 
-    return orders.documents.map((order) => {
+    const orders = data.documents.map((order) => {
         const price = itemsPrice + order.delivery_price.price
         
         return {
@@ -35,6 +42,13 @@ async function getOrders() {
             })
         }
     })
+
+    const maxPages = Math.ceil(data.total / pageSize)
+
+    return {
+        orders: orders,
+        maxPages: maxPages
+    }
 }
 
 async function getOrder(id) {
@@ -69,31 +83,19 @@ async function getOrder(id) {
         price: price,
         timeAgo: date2TimeAgo(order.$updatedAt),
         status: order.status,
-        items: order.orderItems.map((item) => {
+        address: `${order.delivery_price.state} - ${order.address}`,
+        shippment_price: order.delivery_price.price,
+        itemsPrice: itemsPrice,
+        items: orderItems.map((item) => {
             return {
                 name: item.product.name,
-                quantity: item.quantity,
+                quantity: item.product_count,
                 color: item.color.name,
                 size: item.size.name,
-                picURL: item.product.images?.[0]?.url || null
+                picURL: item.product.images?.[0]?.url || null,
+                price: item.product.price * item.product_count,
             }
         })
-    }
-}
-
-function date2TimeAgo(date) {
-    const time = new Date(date).getTime()
-    const now = new Date().getTime()
-    const diff = now - time
-
-    if (diff < 1000 * 60) {
-        return Math.floor(diff / 1000) + ' seconds ago'
-    } else if (diff < 1000 * 60 * 60) {
-        return Math.floor(diff / (1000 * 60)) + ' minutes ago'
-    } else if (diff < 1000 * 60 * 60 * 24) {
-        return Math.floor(diff / (1000 * 60 * 60)) + ' hours ago'
-    } else {
-        return Math.floor(diff / (1000 * 60 * 60 * 24)) + ' days ago'
     }
 }
 

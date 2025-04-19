@@ -1,12 +1,12 @@
 import { DeleteRounded, RefreshRounded } from "@mui/icons-material";
-import { IconButton, Pagination, styled, Table, TableCell, TableHead, TableRow } from "@mui/material";
+import { IconButton, Pagination, Skeleton, styled, Table, TableCell, TableHead, TableRow } from "@mui/material";
 import theme from "../../commun/utils/theme";
 import OrdersDrawer from "./components/order_drawer";
 import { useState } from "react";
-import SearchField from "../../commun/components/search_field";
 import ConfirmationDialog from "../../commun/components/confirmation_dialog";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
-import { getOrder, getOrders } from "../../services/order";
+import {getOrders } from "../../services/order";
+import EmptyDataComponent from "../../commun/components/empty";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -54,13 +54,6 @@ const PaginationController = styled(Pagination)(({ theme }) => ({
     marginTop: 40,
 }))
 
-const SearchController = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 20
-})
-
 const OrdersTable = styled(Table)({
     minWidth: 650,
     width: '100%'
@@ -76,38 +69,13 @@ const TableScroller = styled('div')({
 })
 
 const OrdersPage = () => {
-    const orders = [
-        {
-            id: 11225855599,
-            price: 200,
-            timeAgo: '2 days ago',
-            status: 'delivered',
-            itemsNames: [
-                "T-shirt", "Jeans", "Sneakers"
-            ]
-        },
-        {
-            id: 11225855600,
-            price: 100,
-            timeAgo: '5 days ago',
-            status: 'delivered',
-            itemsNames: [
-                "Jacket", "Scarf"
-            ]
-        },
-        {
-            id: 11225855601,
-            price: 300,
-            timeAgo: '1 week ago',
-            status: 'delivered',
-            itemsNames: [
-                "Dress", "Heels", "Handbag"
-            ]
-        },
-    ]
-
     const [open, setOpen] = useState(false);
     const [orderID, setOrderID] = useState(null);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 10
+
+    const [refreshKey, setRefreshKey] = useState(0);
 
     return (
         <ContentContainer>
@@ -115,12 +83,9 @@ const OrdersPage = () => {
                 <Title>Orders</Title>
                 <SubTitle>Here you can view your past orders.</SubTitle>
             </div>
-            <SearchController>
-                <SearchField/>
-                <RefreshButton onClick={async () => await getOrder('6802abd900263131e6d8')}>
-                    <RefreshRounded/>
-                </RefreshButton>
-            </SearchController>
+            <RefreshButton onClick={async () => setRefreshKey(refreshKey + 1)}>
+                <RefreshRounded/>
+            </RefreshButton>
             <TableScroller>
                 <OrdersTable>
                     <TableHeader>
@@ -133,19 +98,48 @@ const OrdersPage = () => {
                         </TableRow>
                     </TableHeader>
                     <PromiseBuilder
-                        promise={() => getOrders()}
-                        builder={(orders) => {
+                        promise={() => getOrders({pageSize, currentPage})}
+                        loading={
+                            Array.from({ length: pageSize }).map((_, index) => (
+                                <TableRow key={`skeleton-${index}`}>
+                                    <TableCell>
+                                        <Skeleton variant="text" width="80%" height={20} />
+                                        <Skeleton variant="text" width="50%" height={14} />
+                                    </TableCell>
+                                    <TableCell>
+                                        <Skeleton variant="text" width="50%" height={20} />
+                                    </TableCell>
+                                    <TableCell>
+                                        <Skeleton variant="text" width="60%" height={20} />
+                                    </TableCell>
+                                    <TableCell>
+                                        <Skeleton variant="text" width="40%" height={20} />
+                                    </TableCell>
+                                    <TableCell>
+                                        <Skeleton variant="text" width="30%" height={20} />
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        }
+                        builder={(data) => {
+                            const orders = data.orders;
+
+                            if (!orders || orders.length === 0) {
+                                return <EmptyDataComponent/>
+                                
+                            }
+
                             return orders.map((order) => {
                                 const itemsNames = order.items.map((item) => {
-                                    return item.name
-                                })
+                                    return item.name;
+                                });
 
-                                return <TableRow key={order.$id} style={{cursor: 'pointer'}}>
+                                return <TableRow key={order.id} style={{cursor: 'pointer'}}>
                                     <TableCell onClick={() => {
-                                        setOrderID(order.$id)
-                                        setOpen(true)
+                                        setOrderID(order.id);
+                                        setOpen(true);
                                     }}>
-                                        <p style={{fontSize: '16px', fontWeight: 600}}>{itemsNames.join(', ')}</p>
+                                        <p style={{fontSize: '16px', fontWeight: 600, textDecoration: 'none'}}>{itemsNames.join(', ')}</p>
                                         <p>N° {order.id}</p>
                                     </TableCell>
                                     <TableCell>{order.price}DA</TableCell>
@@ -161,10 +155,20 @@ const OrdersPage = () => {
                                             description="Are you sure you want to delete this order?"
                                         />
                                     </TableCell>
+                                </TableRow>;
+                            }).concat(
+                                <TableRow key="pagination">
+                                    <TableCell sx={{ borderBottom: "none"}} colSpan={5}>
+                                        <PaginationController 
+                                            style={{justifySelf: 'center'}} 
+                                            count={data.maxPages} 
+                                            page={currentPage}
+                                            onChange={(_, page) => setCurrentPage(page)} 
+                                        />
+                                    </TableCell>
                                 </TableRow>
-                            })
-                            }
-                        }
+                            );
+                        }}
                     />
                 </OrdersTable>
             </TableScroller>
@@ -173,7 +177,6 @@ const OrdersPage = () => {
                 onClose={() => setOpen(false)}
                 orderID={orderID}
             />
-            <PaginationController count={10}/>
         </ContentContainer>
     );
 }
