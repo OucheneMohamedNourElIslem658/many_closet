@@ -64,16 +64,20 @@ const RightPic = styled('img')(({theme}) => ({
 }))
 
 const ForumSection = () => {
+    const contactMail  = 'amaniouchene123@gmail.com'
+
     return (
         <Content id="contact">
-            <img src={images.ForumLeftPic} alt="" />
+            <img src={images.ForumLeftPic} alt="Forum Left" />
             <ForumForm>
-                <Title>Say Something To Our Us</Title>
-                <Desc>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque duis ultrices sollicitudin aliquam sem. Scelerisque duis ultrices sollicitudin </Desc>
-                <MailField placeholder="michael@ymail.com" disabled></MailField>
-                <Button variant='contained'>Send Mail Now</Button>
+                <Title>Say Something To Us</Title>
+                <Desc>We value your feedback. Please share your thoughts with us.</Desc>
+                <MailField placeholder={contactMail} disabled></MailField>
+                <Button variant='contained' onClick={() => window.location.href = `mailto:${contactMail}`}>
+                    Send Mail Now
+                </Button>
             </ForumForm>
-            <RightPic src={images.ForumRightPic} alt="" />
+            <RightPic src={images.ForumRightPic} alt="Forum Right" />
         </Content>
     );
 }

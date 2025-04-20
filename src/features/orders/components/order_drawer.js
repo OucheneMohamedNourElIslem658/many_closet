@@ -3,6 +3,7 @@ import { Box, Drawer, IconButton, Skeleton, styled } from "@mui/material";
 import OrderForm from "./order_form";
 import { PromiseBuilder } from "../../../commun/components/promise_builder";
 import { getOrder } from "../../../services/order";
+import EmptyDataComponent from "../../../commun/components/empty";
 
 const CloseButton = styled(IconButton)({
     position: 'absolute',
@@ -74,7 +75,6 @@ const ItemsList = styled('ul')(({ theme }) => ({
 const PaymentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
-    gap: 10,
     position: 'sticky',
     bottom: 0,
     left: 0,
@@ -92,6 +92,13 @@ const PriceInfo = styled('div')(({ theme }) => ({
     padding: '5px 0',
     fontSize: 18,
     fontWeight: 400,
+    '& p': {
+        fontFamily: theme.typography.fontFamily,
+    },
+    '& h3': {
+        fontWeight: 400,
+    },
+
 }))
 
 const OrdersDrawer = ({open, onClose, orderID}) => {
@@ -105,8 +112,8 @@ const OrdersDrawer = ({open, onClose, orderID}) => {
                 <CloseButton onClick={onClose}>
                     <CloseRounded style={{color: 'black'}}/>
                 </CloseButton>
-                {orderID && <PromiseBuilder
-                    promise={() => getOrder(orderID)}
+                {open && <PromiseBuilder
+                    promise={() => getOrder({id: orderID})}
                     loading={
                         <div>
                             <Skeleton variant="text" width={200} height={50} />
@@ -127,6 +134,11 @@ const OrdersDrawer = ({open, onClose, orderID}) => {
                         </div>
                     }
                     builder={(order) => {
+
+                        if (!order) {
+                            return <EmptyDataComponent/>
+                        }
+
                         const isMyCard = order.status === 'in_card'
                         const title = isMyCard ? 'My Card' : 'Order: ' + order.status
 
@@ -156,22 +168,24 @@ const OrdersDrawer = ({open, onClose, orderID}) => {
                                 </ItemsList>
                                 <PaymentContainer>
                                     {
-                                        !isMyCard && <div><PriceInfo>
-                                                        <p>Delivery Address:</p>
+                                        !isMyCard && <PriceInfo>
+                                                        <h3>Delivery Address:</h3>
                                                         <p>{order.address}</p>
                                                     </PriceInfo>
-                                                    <PriceInfo>
-                                                        <p>Shipping cost:</p>
+                                    }
+                                    {
+                                        !isMyCard && <PriceInfo>
+                                                        <h3>Shipping cost:</h3>
                                                         <p>{order.shippment_price}DA</p>
-                                                    </PriceInfo> </div> 
-                                        }
+                                                    </PriceInfo>
+                                    }
                                     <PriceInfo>
-                                        <p>Items cost:</p>
+                                        <h3>Items cost:</h3>
                                         <p>{order.itemsPrice}DA</p>
                                     </PriceInfo>
                                     {
                                         !isMyCard && <PriceInfo>
-                                            <p>Total:</p>
+                                            <h3>Total:</h3>
                                             <p>{order.price}DA</p>
                                         </PriceInfo>
                                     }

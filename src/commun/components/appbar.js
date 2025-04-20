@@ -1,9 +1,7 @@
-import { Avatar, Box, Button, IconButton, Popper, Skeleton, styled } from '@mui/material';
+import { Skeleton, styled } from '@mui/material';
 import { Link } from 'react-router-dom';
 import SignInDialog from '../../features/landing/components/sign_in_dialog';
-import { createCurrentUser, getCurrentUser, getUser, logoutUser } from '../../services/auth';
-import { useEffect, useState } from 'react';
-import { AccountCircle, LogoutRounded } from '@mui/icons-material';
+import { getUser } from '../../services/auth';
 import AccountMenu from './account_menu';
 import { PromiseBuilder } from './promise_builder';
 

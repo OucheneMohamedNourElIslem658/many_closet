@@ -1,7 +1,9 @@
 import { styled } from '@mui/material/styles';
 import NewArrivalItem from './new_arrivale_item';
-import images from '../../../commun/utils/images';
 import { Button } from '@mui/material';
+import { PromiseBuilder } from '../../../commun/components/promise_builder';
+import { getProducts } from '../../../services/product';
+import { Link } from 'react-router-dom/cjs/react-router-dom';
 
 const Content = styled('div')({
     display: 'flex',
@@ -40,95 +42,46 @@ const ViewAllButton = styled(Button)({
 })
 
 const NewArrivalSection = () => {
-    const items = [
-        {
-            id: 1,
-            name: 'Shiny Dress',
-            price: '$200',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque du...',
-            image: images.ForumLeftPic,
-            status: 'off market'
-        },
-        {
-            id: 2,
-            name: 'Casual Shirt',
-            price: '$50',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque du...',
-            image: images.ForumRightPic,
-            status: 'available'
-        },
-        {
-            id: 3,
-            name: 'Elegant Skirt',
-            price: '$120',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque du...',
-            image: images.ForumLeftPic,
-            status: 'off market'
-        },
-        {
-            id: 4,
-            name: 'Shiny Dress',
-            price: '$200',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque du...',
-            image: images.ForumLeftPic,
-            status: 'off market'
-        },
-        {
-            id: 5,
-            name: 'Casual Shirt',
-            price: '$50',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque du...',
-            image: images.ForumRightPic,
-            status: 'available'
-        },
-        {
-            id: 6,
-            name: 'Elegant Skirt',
-            price: '$120',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque du...',
-            image: images.ForumLeftPic,
-            status: 'off market'
-        },
-        {
-            id: 7,
-            name: 'Shiny Dress',
-            price: '$200',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque du...',
-            image: images.ForumLeftPic,
-            status: 'off market'
-        },
-        {
-            id: 8,
-            name: 'Casual Shirt',
-            price: '$50',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque du...',
-            image: images.ForumRightPic,
-            status: 'available'
-        },
-        {
-            id: 10,
-            name: 'Elegant Skirt',
-            price: '$120',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque du...',
-            image: images.ForumLeftPic,
-            status: 'off market'
-        }
-    ]
+    const itemsCount = 9
 
     return ( 
         <Content>
             <ContentHeader>
                 <Title>New Arrival</Title>
-                <Desc>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Scelerisque duis ultrices sollicitudin aliquam sem. Scelerisque duis ultrices sollicitudin </Desc>
+                <Desc>Discover our latest collection of fashion items, carefully curated to bring you style and comfort.</Desc>
             </ContentHeader>
-            <Items>
-                {
-                    items.map((item) => {
-                        return <NewArrivalItem key={item.id} item={item}/>
-                    })
+            <PromiseBuilder
+                promise={() => getProducts({currentPage: 1, pageSize: itemsCount})}
+                loading={
+                    <Items>
+                        {Array.from(new Array(itemsCount)).map((_, index) => (
+                            <NewArrivalItem isLoading={true}/>
+                        ))}
+                    </Items>
                 }
-            </Items>
-            <ViewAllButton variant='contained'>View All</ViewAllButton>
+                builder={(data) => {
+                    console.log(data);
+                    
+                    const products = data.products.map((product) => {
+                        return {
+                            id: product.$id,
+                            name: product.name,
+                            price: product.price,
+                            description: product.description,
+                            image: product.images?.[0]?.url || null,
+                            status: product.status,
+                            isAvailable: product.is_available,
+                        }
+                    })
+
+                    return <Items>
+                        {products.map((product) => (
+                            <NewArrivalItem key={product.id} item={product} />
+                        ))}
+                    </Items>
+                }}
+            />
+            <ViewAllButton variant='contained' component={Link} to='shop'>View All</ViewAllButton>
         </Content>
     );
 }

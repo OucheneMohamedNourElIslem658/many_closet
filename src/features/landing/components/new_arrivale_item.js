@@ -1,4 +1,4 @@
-import { styled } from "@mui/material";
+import { Skeleton, styled } from "@mui/material";
 
 const ItemContentAlignment = styled('li')(({theme}) => ({
     width: 250,
@@ -31,13 +31,14 @@ const ItemName = styled('p')(({theme}) => ({
     textAlign: 'start',
     fontFamily: theme.typography.fontFamily,
     fontSize: 20,
-    alignSelf: 'end'
+    alignSelf: 'end',
+    fontWeight: 500
 }))
 
 const ItemPrice = styled('p')(({theme}) => ({
     justifySelf: 'end',
     fontFamily: theme.typography.fontFamily,
-    fontSize: 22,
+    fontSize: 18,
 }))
 
 const ItemDescription = styled('p')(({theme}) => ({
@@ -49,41 +50,64 @@ const ItemDescription = styled('p')(({theme}) => ({
     fontFamily: theme.typography.fontFamily,
 }))
 
-const OffmarketTag = styled('div')(({theme}) =>({
+const AvailablityTag = styled('div')(({theme}) =>({
     border: `${theme.palette.error.main} 1px solid`,
     borderRadius: 50,
     textAlign: 'center',
     justifySelf: 'start',
-    padding: '2px 10px'
+    padding: '2px 10px',
+    color: theme.palette.error.main,
+    '&.available': {
+        border: `${theme.palette.success.main} 1px solid`,
+        color: theme.palette.success.main,
+    }
 }))
 
 const OffmarketContent = styled('p')(({theme}) => ({
     fontSize: 12,
-    color: theme.palette.error.main,
     fontFamily: theme.typography.fontFamily
 }))
 
-const NewArrivalItem = (props) => {
-    let item = props.item
-
-    return ( <ItemContentAlignment>
-        <ItemImage style={{
-            backgroundImage: 'url(' + item.image + ')',
-        }}>
-        </ItemImage>
-        <ItemName>
-            {item.name}
-        </ItemName>
-        <ItemPrice>
-            {item.price}
-        </ItemPrice>
-        <ItemDescription>
-            {item.description}
-        </ItemDescription>
-        <OffmarketTag>
-            <OffmarketContent>off market!</OffmarketContent> 
-        </OffmarketTag>
-    </ItemContentAlignment>);
+const NewArrivalItem = ({item, isLoading}) => {
+    return isLoading ? (
+        <ItemContentAlignment>
+            <ItemImage>
+                <Skeleton variant="rectangular" width="100%" height="150px" />
+            </ItemImage>
+            <ItemName>
+                <Skeleton variant="text" width="80%" />
+            </ItemName>
+            <ItemPrice>
+                <Skeleton variant="text" width="50%" />
+            </ItemPrice>
+            <ItemDescription>
+                <Skeleton variant="text" width="90%" />
+            </ItemDescription>
+            <Skeleton variant="text" width="60px" />
+        </ItemContentAlignment>
+    ) : (
+        <ItemContentAlignment>
+            <ItemImage style={{
+                backgroundImage: 'url(' + item.image + ')',
+                backgroundPosition: 'center',
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+            }}>
+            </ItemImage>
+            <ItemName>
+                {item.name}
+            </ItemName>
+            <ItemPrice>
+                {item.price}DA
+            </ItemPrice>
+            <ItemDescription>
+                {item.description}
+            </ItemDescription>
+            <AvailablityTag className={item.isAvailable ? 'available' : ''}>
+                <OffmarketContent>{ item.isAvailable ? 'available' : 'not available' }</OffmarketContent> 
+            </AvailablityTag>
+        </ItemContentAlignment>
+    );
 }
 
 export default NewArrivalItem

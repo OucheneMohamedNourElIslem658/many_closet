@@ -1,8 +1,9 @@
-import { Logout, ShoppingBagOutlined } from "@mui/icons-material";
+import { Logout, ShoppingBagOutlined, ShoppingBasketRounded } from "@mui/icons-material";
 import { Avatar, Box, Divider, IconButton, ListItem, ListItemAvatar, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
 import { Fragment, useState } from "react";
 import { logoutUser } from "../../services/auth";
 import OrdersDrawer from "../../features/orders/components/order_drawer";
+import { Link } from 'react-router-dom';
 
 export default function AccountMenu({currentUser}) {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -82,6 +83,12 @@ export default function AccountMenu({currentUser}) {
           </ListItemIcon>
           My Card
         </MenuItem>
+        <MenuItem onClick={handleClose} component={Link} to="/orders">
+          <ListItemIcon>
+            <ShoppingBasketRounded fontSize="small" />
+          </ListItemIcon>
+          My Orders
+        </MenuItem>
         <MenuItem onClick={() => logoutUser()}>
           <ListItemIcon>
             <Logout fontSize="small" />
@@ -92,15 +99,7 @@ export default function AccountMenu({currentUser}) {
       <OrdersDrawer
         open={openDrawer}
         onClose={() => setOpenDrawer(false)}
-        order={{
-          id: 11225855599,
-          price: 200,
-          timeAgo: '2 days ago',
-          status: 'delivered',
-          itemsNames: [
-            "T-shirt", "Jeans", "Sneakers"
-          ]
-        }}
+        orderID={null}
       />
     </Fragment>
   );

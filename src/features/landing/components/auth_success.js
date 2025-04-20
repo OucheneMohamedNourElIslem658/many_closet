@@ -3,7 +3,6 @@ import { logoutUser, storeCurrentUser } from "../../../services/auth";
 import { CircularProgress, styled } from "@mui/material";
 
 const Description = styled('div')(({ theme }) => ({
-    marginTop: theme.spacing(2),
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',

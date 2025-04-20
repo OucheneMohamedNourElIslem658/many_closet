@@ -1,5 +1,6 @@
 import { Box, Button, styled } from '@mui/material';
 import Images from '../../../commun/utils/images'
+import { Link } from 'react-router-dom/cjs/react-router-dom.min';
 
 const LandingSectionContentAlignment = styled('div')(({theme}) => ({
     display: 'grid',
@@ -89,7 +90,7 @@ const LandingSection = () => {
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit
                 </Paragraph>
 
-                <ShopButton variant="contained" color="primary">
+                <ShopButton variant="contained" color="primary" component={Link} to='/shop'>
                     Shop Now
                 </ShopButton>
             </Content>

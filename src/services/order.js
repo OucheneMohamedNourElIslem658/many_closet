@@ -27,12 +27,10 @@ async function getOrders({currentPage, pageSize}) {
         
         return {
             id: order.$id,
-            price: order.price,
             timeAgo: date2TimeAgo(order.$updatedAt),
             status: order.status,
             price: price,
             items: order.orderItems.map((item) => {
-                
                 return {
                     name: item.product.name,
                     quantity: item.quantity,
@@ -51,12 +49,32 @@ async function getOrders({currentPage, pageSize}) {
     }
 }
 
-async function getOrder(id) {
-    const order = await databases.getDocument(
-        databaseID,
-        'orders',
-        id,
-    )
+async function getOrder({id}) {
+    let order = null
+    if (id) {
+        order = await databases.getDocument(
+            databaseID,
+            'orders',
+            id,
+        )
+    } else {
+        const orders = await databases.listDocuments(
+            databaseID,
+            'orders',
+            [
+                Query.equal('status', 'in_card'),
+                Query.limit(1),
+            ],
+        )
+
+        if (orders.documents.length > 0) {
+            order = orders.documents[0]
+        }
+    }
+
+    if (!order) {
+        return null
+    }
 
     const orderItems = await Promise.all(
         order.orderItems.map(async (item) => {
