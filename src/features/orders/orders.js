@@ -69,9 +69,6 @@ const TableScroller = styled('div')({
 })
 
 const OrdersPage = () => {
-    const [open, setOpen] = useState(false);
-    const [orderID, setOrderID] = useState(null);
-
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10
 
@@ -126,36 +123,10 @@ const OrdersPage = () => {
 
                             if (!orders || orders.length === 0) {
                                 return <EmptyDataComponent/>
-                                
                             }
 
                             return orders.map((order) => {
-                                const itemsNames = order.items.map((item) => {
-                                    return item.name;
-                                });
-
-                                return <TableRow key={order.id} style={{cursor: 'pointer'}}>
-                                    <TableCell onClick={() => {
-                                        setOrderID(order.id);
-                                        setOpen(true);
-                                    }}>
-                                        <p style={{fontSize: '16px', fontWeight: 600, textDecoration: 'none'}}>{itemsNames.join(', ')}</p>
-                                        <p>N° {order.id}</p>
-                                    </TableCell>
-                                    <TableCell>{order.price}DA</TableCell>
-                                    <TableCell>{order.timeAgo}</TableCell>
-                                    <TableCell>{order.status}</TableCell>
-                                    <TableCell>
-                                        <ConfirmationDialog
-                                            button={<IconButton>
-                                                <DeleteRounded style={{color: theme.palette.error.main}}/>
-                                            </IconButton>}
-                                            onConfirm={() => {}}
-                                            title="Delete Order"
-                                            description="Are you sure you want to delete this order?"
-                                        />
-                                    </TableCell>
-                                </TableRow>;
+                                return <OrderRow key={order.id} order={order} />;
                             }).concat(
                                 <TableRow key="pagination">
                                     <TableCell sx={{ borderBottom: "none"}} colSpan={5}>
@@ -172,12 +143,41 @@ const OrdersPage = () => {
                     />
                 </OrdersTable>
             </TableScroller>
+        </ContentContainer>
+    );
+}
+
+const OrderRow = ({order}) => {
+    const [open, setOpen] = useState(false);
+
+    return (
+        <TableRow key={order.id}>
+            <TableCell onClick={() => setOpen(true)} sx={{cursor: 'pointer'}}>
+                <p style={{fontSize: '16px', fontWeight: 600, textDecoration: 'none'}}>{order.items.map((item) => item.name).join(', ')}</p>
+                <p>N° {order.id}</p>
+            </TableCell>
+            <TableCell>{order.price}DA</TableCell>
+            <TableCell>{order.timeAgo}</TableCell>
+            <TableCell>{order.status}</TableCell>
+            <TableCell>
+                <ConfirmationDialog  
+                    title="Delete Order"
+                    description="Are you sure you want to delete this order?"
+                    button={
+                        <IconButton onClick={() => setOpen(true)} sx={{color: theme.palette.error.main}}>
+                            <DeleteRounded/>
+                        </IconButton>
+                    }
+                    onConfirm={() => {}}
+                />
+            </TableCell>
             <OrdersDrawer 
                 open={open}
                 onClose={() => setOpen(false)}
-                orderID={orderID}
+                orderID={order.id}
             />
-        </ContentContainer>
+        </TableRow>
+
     );
 }
  

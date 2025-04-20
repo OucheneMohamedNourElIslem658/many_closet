@@ -15,14 +15,15 @@ const Title = styled('h1')(({ theme }) => ({
     fontSize: 35,
     fontWeight: 100,
     color: theme.palette.text.primary,
-    margin: 0,
+    marginBottom: 5,
 }))
 
-const ItemsCost = styled('p')(({ theme }) => ({
-    fontSize: 20,
+const ItemsUpdate = styled('p')(({ theme }) => ({
+    fontSize: 16,
     fontWeight: 400,
     color: theme.palette.text.secondary,
     fontFamily: theme.typography.fontFamily,
+    marginBottom: 10,
     '& strong': {
         color: theme.palette.primary.main,
     },
@@ -90,7 +91,7 @@ const PriceInfo = styled('div')(({ theme }) => ({
     flexDirection: 'row',
     alignItems: 'center',
     padding: '5px 0',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 400,
     '& p': {
         fontFamily: theme.typography.fontFamily,
@@ -147,7 +148,7 @@ const OrdersDrawer = ({open, onClose, orderID}) => {
                                 <div>
                                     <Title>{title}</Title>
                                     {
-                                        !isMyCard ? <ItemsCost>The items you picked cost you <strong>{order.price}DA</strong> </ItemsCost> : null
+                                        !isMyCard ? <ItemsUpdate>The order was last updated {order.timeAgo} </ItemsUpdate> : null
                                     }
                                 </div>
                                 <ItemsList>
