@@ -82,7 +82,13 @@ const PriceSelector = ({onPriceChanged, options, isLoading}) => {
     return (
         <div>
             <div style={{display: 'flex', alignItems: 'end'}}>
-                <p>Prices</p>
+                {
+                    isLoading ? (
+                        <Skeleton variant="rectangular" width={6} height={15} style={{minWidth: 100}} />
+                    ) : (
+                        <h2 style={{fontSize: 20, fontWeight: 500, marginBottom: 10}}>Price</h2>
+                    )
+                }
                 {isAnyPriceSelected() && (
                     <div onClick={unSelectAll} style={{cursor: 'pointer'}}>
                         <RefreshRounded style={{height: 15, position: 'relative', top: 3}}/>

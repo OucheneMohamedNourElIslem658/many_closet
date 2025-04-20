@@ -1,9 +1,12 @@
 import { AddRounded, RemoveRounded, ShoppingBagOutlined, StarBorderRounded, StarRounded } from "@mui/icons-material";
-import { Box, Button, IconButton, styled } from "@mui/material";
+import { Box, Button, IconButton, Skeleton, styled } from "@mui/material";
 import Selector from "../../commun/components/option_selector";
 import { useState } from "react";
 import OrdersDrawer from "../orders/components/order_drawer";
 import ConfirmationDialog from "../../commun/components/confirmation_dialog";
+import { useParams } from "react-router-dom/cjs/react-router-dom.min";
+import { PromiseBuilder } from "../../commun/components/promise_builder";
+import { getProduct } from "../../services/product";
 
 const Picture = styled('div')(({ theme }) => ({
     backgroundSize: 'cover',
@@ -49,7 +52,10 @@ const AvailablityTag = styled('div')(({ theme }) => ({
     justifySelf: 'start',
     whiteSpace: 'nowrap',
     position: 'relative',
-    bottom: 5
+    bottom: 5,
+    '&.available': {
+        backgroundColor: theme.palette.success.main,
+    },
 }))
 
 const Price = styled('p')(({ theme }) => ({
@@ -196,38 +202,7 @@ const FavButton = styled(IconButton)(({ theme }) => ({
 }))
 
 const ProductPage = () => {
-    const product = {
-        picsURLs: [
-            'https://plus.unsplash.com/premium_photo-1675186049366-64a655f8f537?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-            'https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-            'https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-            'https://plus.unsplash.com/premium_photo-1675186049222-0b5018db6ce9?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-            'https://images.unsplash.com/photo-1509319117193-57bab727e09d?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D',
-        ],
-        title: 'Black Jacket',
-        price: '200DA',
-        colors: [
-            {
-                name: 'black',
-                hex: '#000000'
-            },
-            {
-                name: 'grey',
-                hex: '#808080'
-            }
-        ],
-        description: 'This is a black jacket made of high quality materials. It is perfect for winter and will keep you warm and stylish. It is available in different sizes and colors. It is a must-have for your wardrobe.',
-        ordersCount: 100,
-        sizes: ['L', 'M', 'S', 'XL'],
-        tags: ['jacket', 'clothing', 'fashion'],
-        orderedQuantity: 3,
-        isAvailable: false,
-        isFavourite: false,
-    }
-
-    const [counter, setCounter] = useState(product.orderedQuantity); 
-    const [selectedImage, setSelectedImage] = useState(product.picsURLs[0]);
-    const [isFavourite, setIsFavourite] = useState(product.isFavourite);
+    const [counter, setCounter] = useState(0); 
     const [open, setOpen] = useState(false);
 
     function incCounter() {
@@ -242,104 +217,170 @@ const ProductPage = () => {
         }
     }
 
+    const { id } = useParams();
+
     return ( 
-        <ProductPageContainer>
-            <PicturesAlignment>
-                <SidePicturesList>
-                    {
-                        product.picsURLs.map((picURL, index) => (
-                            <li key={index} onClick={() => setSelectedImage(picURL)}>
-                                <Picture
-                                    style={{backgroundImage: `url(${picURL})`}}
-                                    className={selectedImage === picURL ? 'selected' : ''}>
-                                </Picture>
-                            </li>
-                        ))
-                    }
-                </SidePicturesList>
-                <MainPicture style={{backgroundImage: `url(${selectedImage})`}}></MainPicture>
-            </PicturesAlignment>
-            <InfoContainer>
-                <TitleContainer>
-                    <Name>{product.title}</Name>
-                    <AvailablityTag>{product.isAvailable ? 'AVAILABLE' : 'NOT AVAILABLE'}</AvailablityTag>
-                    <Spacer/>
-                    <Price>{product.price}</Price>
-                </TitleContainer>
-                <Description>{product.description}</Description>
-                <OrdersContainer>
-                    <ShoppingBagOutlined style={{color: 'black', position: 'relative', bottom: 2}}/>
-                    <p>{product.ordersCount} 24 people ordered this product</p>
-                    <Spacer/>
-                    <FavButton onClick={() => setIsFavourite(!isFavourite)}>
-                        {
-                            isFavourite ? 
-                            <StarRounded style={{size: 8, color: 'orange'}}/> : 
-                            <StarBorderRounded style={{size: 8, color: 'grey'}}/>
-                        }
-                    </FavButton>
-                </OrdersContainer>
-                <Selector 
-                    title="Size" 
-                    options={product.sizes.map((size) => ({name: size}))}
-                    type="single"
-                />
-                <Selector 
-                    title="Colors" 
-                    options={product.colors.map(color => ({name: color.name}))} 
-                    isColor={true}
-                    intialSelection={product.colors[0]}
-                    type="single"
-                />
-                <div>
-                    <p>Tags</p>
-                    <TagsList>
-                        {
-                            product.tags.map((tag, index) => (
+        <PromiseBuilder
+            promise={() => getProduct(id)}
+            loading={
+                <ProductPageContainer>
+                    <PicturesAlignment>
+                        <SidePicturesList>
+                            {Array(5).fill(0).map((_, index) => (
                                 <li key={index}>
-                                    <p>{tag}</p>
+                                    <Skeleton variant="rectangular" width={58} height={77} />
                                 </li>
-                            ))
-                        }
-                    </TagsList>
-                </div>
-                <QuantityContainer>
-                    <div>
-                        <p>Quantity</p>
-                        <QuantityController>
-                            <QuantityDecButton onClick={decCounter}>
-                                <RemoveRounded/>
-                            </QuantityDecButton>
-                            <Box 
-                                width={20} 
-                                display="flex" 
-                                justifyContent="center" 
-                                alignItems="center"
-                            >
-                                {counter}
-                            </Box>
-                            <QuantityIncButton onClick={incCounter}>
-                                <AddRounded/>
-                            </QuantityIncButton>
-                        </QuantityController>
-                    </div>
-                    <ConfirmationDialog
-                        button={<AddToCartButton
-                            variant="outlined"
-                            onClick={() => setOpen(true)}
-                        >Add to cart</AddToCartButton>}
-                        title="Add to cart"
-                        description={`Are you sure you want to add ${counter} of this product to your cart?`}
-                        onConfirm={() => {}}
+                            ))}
+                        </SidePicturesList>
+                        <Skeleton variant="rectangular" width="100%" height={650} />
+                    </PicturesAlignment>
+                    <InfoContainer>
+                        <TitleContainer style={{gap: 10}}>
+                            <Skeleton variant="text" width="40%" height={40} />
+                            <Skeleton variant="rectangular" width={100} height={20} style={{ borderRadius: '20px' }} />
+                            <Spacer />
+                            <Skeleton variant="text" width={80} height={30} />
+                        </TitleContainer>
+                        <Skeleton variant="text" width="100%" height={60} />
+                        <OrdersContainer>
+                            <ShoppingBagOutlined style={{ color: '#e0e0e0', position: 'relative', bottom: 2 }} />
+                            <Skeleton variant="text" width={150} height={20} />
+                            <Spacer />
+                            <FavButton disabled>
+                                <Skeleton variant="circular" width={40} height={40} />
+                            </FavButton>
+                        </OrdersContainer>
+                        <Selector title="Size" isLoading={true} />
+                        <Selector title="Colors" isColor={true} isLoading={true} />
+                        <Selector title="Tags" isLoading={true} />
+                        <QuantityContainer>
+                            <div>
+                                <Skeleton width={80}/>
+                                <QuantityController>
+                                    <QuantityDecButton disabled>
+                                        <RemoveRounded />
+                                    </QuantityDecButton>
+                                    <Skeleton variant="rectangular" width={40} height={30} />
+                                    <QuantityIncButton disabled>
+                                        <AddRounded />
+                                    </QuantityIncButton>
+                                </QuantityController>
+                            </div>
+                            <Skeleton variant="rectangular" width="100%" height={40} />
+                        </QuantityContainer>
+                    </InfoContainer>
+                </ProductPageContainer>
+            }
+            builder={(product) => {
+                return <ProductPageContainer>
+                <ProductPicture images={product.images}/>
+                <InfoContainer>
+                    <TitleContainer>
+                        <Name>{product.name}</Name>
+                        <AvailablityTag
+                            className={product.is_available ? 'available' : 'not-available'}
+                        >
+                            {product.is_available ? 'AVAILABLE' : 'NOT AVAILABLE'}
+                        </AvailablityTag>
+                        <Spacer/>
+                        <Price>{product.price}DA</Price>
+                    </TitleContainer>
+                    <Description>{product.desc}</Description>
+                    <OrdersContainer>
+                        <ShoppingBagOutlined style={{color: 'black', position: 'relative', bottom: 2}}/>
+                        <p>{product.totalOrders} people ordered this product</p>
+                        <Spacer/>
+                        <FavButton>
+                            {
+                                product.is_favourite ? 
+                                <StarRounded style={{size: 8, color: 'orange'}}/> : 
+                                <StarBorderRounded style={{size: 8, color: 'grey'}}/>
+                            }
+                        </FavButton>
+                    </OrdersContainer>
+                    <Selector 
+                        title="Size" 
+                        options={product.sizes.map((size) => ({name: size.name}))}
+                        type="single"
                     />
-                </QuantityContainer>
-            </InfoContainer>
-            <OrdersDrawer
-                open={open} 
-                onClose={() => setOpen(false)} 
-            />
-        </ProductPageContainer>
+                    <Selector 
+                        title="Colors" 
+                        options={product.colors.map(color => ({name: `#${color.code}`}))} 
+                        isColor={true}
+                        intialSelection={product.colors[0]}
+                        type="single"
+                    />
+                    <div>
+                        <p>Tags</p>
+                        <TagsList>
+                            {
+                                product.categories.map((tag, index) => (
+                                    <li key={index}>
+                                        <p>{tag.name}</p>
+                                    </li>
+                                ))
+                            }
+                        </TagsList>
+                    </div>
+                    <QuantityContainer>
+                        <div>
+                            <p>Quantity</p>
+                            <QuantityController>
+                                <QuantityDecButton onClick={decCounter}>
+                                    <RemoveRounded/>
+                                </QuantityDecButton>
+                                <Box 
+                                    width={20} 
+                                    display="flex" 
+                                    justifyContent="center" 
+                                    alignItems="center"
+                                >
+                                    {counter}
+                                </Box>
+                                <QuantityIncButton onClick={incCounter}>
+                                    <AddRounded/>
+                                </QuantityIncButton>
+                            </QuantityController>
+                        </div>
+                        <ConfirmationDialog
+                            button={<AddToCartButton
+                                variant="outlined"
+                                onClick={() => setOpen(true)}
+                            >Add to cart</AddToCartButton>}
+                            title="Add to cart"
+                            description={`Are you sure you want to add ${counter} of this product to your cart?`}
+                            onConfirm={() => {}}
+                        />
+                    </QuantityContainer>
+                </InfoContainer>
+                <OrdersDrawer
+                    open={open} 
+                    onClose={() => setOpen(false)} 
+                />
+            </ProductPageContainer>
+            }}
+        />
     );
+}
+
+const ProductPicture  = ({images, isLoading}) => {
+    const [selectedImage, setSelectedImage] = useState(images[0].url);
+
+    return <PicturesAlignment>
+        <SidePicturesList>
+            {images.map((image, index) => (
+                <li key={index} onClick={() => setSelectedImage(image.url)}>
+                    <Picture
+                        style={{ backgroundImage: `url(${image.url})` }}
+                        className={selectedImage === image.url ? 'selected' : ''}>
+                    </Picture>
+                </li>
+            ))}
+        </SidePicturesList>
+        <MainPicture
+            style={{ backgroundImage: `url(${selectedImage})` }}
+        ></MainPicture>
+    </PicturesAlignment>
 }
  
 export default ProductPage;

@@ -71,7 +71,7 @@ const Selector = ({ title, options, isColor, type = 'multi', isLoading = false, 
 
     return (
         <div>
-            <p>{title}</p>
+            <p>{isLoading ? <Skeleton width={100} /> : title}</p>
             <FiltersWithWrapedItems>
                 {
                     isLoading ? (

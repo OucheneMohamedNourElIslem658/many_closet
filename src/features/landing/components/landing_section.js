@@ -1,6 +1,6 @@
 import { Box, Button, styled } from '@mui/material';
 import Images from '../../../commun/utils/images'
-import { Link } from 'react-router-dom/cjs/react-router-dom.min';
+import { Link } from 'react-router-dom';
 
 const LandingSectionContentAlignment = styled('div')(({theme}) => ({
     display: 'grid',

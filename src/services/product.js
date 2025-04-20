@@ -113,4 +113,18 @@ async function getProducts({currentPage, pageSize, name, tags, colors, sizes, pr
     }
 }
 
-export {getFilters, getProducts}
+async function getProduct(id) {
+    let product = await databases.getDocument(
+        databaseID,
+        'products',
+        id,
+    )
+
+    const orderItemsQuantities = product.orderItems.map((item) => item.product_count)
+
+    product.totalOrders = orderItemsQuantities.reduce((acc, quantity) => acc + quantity, 0);
+
+    return product
+}
+
+export {getFilters, getProducts, getProduct}

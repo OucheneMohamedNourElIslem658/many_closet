@@ -5,6 +5,7 @@ import SearchField from "../../../commun/components/search_field";
 import { FilterListRounded, RefreshRounded } from "@mui/icons-material";
 import { useState } from "react";
 import EmptyDataComponent from "../../../commun/components/empty";
+import { Link } from "react-router-dom";
 
 const ContentAlignment = styled('ul')(({ theme }) => ({
     display: 'grid',
@@ -153,23 +154,25 @@ const ProductsList = ({onDrawerOpen, filters}) => {
                     return <div>
                         <ContentAlignment>
                             {products.map((product, index) => (
-                                <Product key={index}>
-                                    <ProductImage
-                                        style={{
-                                            backgroundImage: `url(${product.images[0].url})`,
-                                        }}
-                                    ></ProductImage>
-                                    <h3 style={{fontWeight: '500', fontSize: 20}}>{product.name}</h3>
-                                    <ProductPrice>{`${product.price}DA`}</ProductPrice>
-                                    <ProductColors>
-                                        {product.colors.map((color, index) => (
-                                            <li
-                                                key={index}
-                                                style={{ backgroundColor: `#${color.code}` }}
-                                            ></li>
-                                        ))}
-                                    </ProductColors>
-                                </Product>
+                                <Link to={`/product/${product.$id}`} style={{textDecoration: 'none'}}>
+                                    <Product key={index}>
+                                        <ProductImage
+                                            style={{
+                                                backgroundImage: `url(${product.images[0].url})`,
+                                            }}
+                                        ></ProductImage>
+                                        <h3 style={{fontWeight: '500', fontSize: 20}}>{product.name}</h3>
+                                        <ProductPrice>{`${product.price}DA`}</ProductPrice>
+                                        <ProductColors>
+                                            {product.colors.map((color, index) => (
+                                                <li
+                                                    key={index}
+                                                    style={{ backgroundColor: `#${color.code}` }}
+                                                ></li>
+                                            ))}
+                                        </ProductColors>
+                                    </Product>
+                                </Link>
                             ))}
                         </ContentAlignment>
                         <PaginationController
