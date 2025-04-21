@@ -44,13 +44,12 @@ const PricesList = styled('ul')(({ theme }) => ({
     display: 'flex',
     listStyleType: 'none',
     flexDirection: 'column',
-    margin: 0,
     padding: 0,
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     color: theme.palette.text.primary,
     marginBottom: 10,
-    marginTop: 10
+    marginTop: 5
 }));
 
 function formatePriceFilter(price) {
@@ -86,7 +85,7 @@ const PriceSelector = ({onPriceChanged, options, isLoading}) => {
                     isLoading ? (
                         <Skeleton variant="rectangular" width={6} height={15} style={{minWidth: 100}} />
                     ) : (
-                        <h2 style={{fontSize: 20, fontWeight: 500, marginBottom: 10}}>Price</h2>
+                        <h2 style={{fontSize: 16, fontWeight: 500}}>Price</h2>
                     )
                 }
                 {isAnyPriceSelected() && (

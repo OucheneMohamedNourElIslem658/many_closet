@@ -1,5 +1,5 @@
 import { Button, IconButton, Skeleton, styled } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const FiltersWithWrapedItems = styled('ul')(({ theme }) => ({
     display: 'flex',
@@ -51,8 +51,8 @@ const ColorButton = styled(IconButton)(({ theme }) => ({
     transition: 'padding 0.1s ease-in-out',
 }))
 
-const Selector = ({ title, options, isColor, type = 'multi', isLoading = false, onOptionSelected = () => {} }) => {
-    const [filterOptions, setFilterOptions] = useState([]);
+const Selector = ({ title, options, initialOption, isColor, type = 'multi', isLoading = false, onOptionSelected = () => {} }) => {
+    const [filterOptions, setFilterOptions] = useState([initialOption]);
     
     function handleOptionSelection(option) {
         let updatedOptions;

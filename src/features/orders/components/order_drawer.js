@@ -1,9 +1,11 @@
-import { CloseRounded } from "@mui/icons-material";
+import { CloseRounded, DeleteRounded } from "@mui/icons-material";
 import { Box, Drawer, IconButton, Skeleton, styled } from "@mui/material";
 import OrderForm from "./order_form";
 import { PromiseBuilder } from "../../../commun/components/promise_builder";
-import { getOrder } from "../../../services/order";
+import { getOrder, removeItemFromCard } from "../../../services/order";
 import EmptyDataComponent from "../../../commun/components/empty";
+import ConfirmationDialog from "../../../commun/components/confirmation_dialog";
+import { useState } from "react";
 
 const CloseButton = styled(IconButton)({
     position: 'absolute',
@@ -81,6 +83,7 @@ const PaymentContainer = styled('div')(({ theme }) => ({
     left: 0,
     right: 0,
     padding: 20,
+    gap: 10,
     backgroundColor: theme.palette.background.paper,
     borderTop: `1px solid ${theme.palette.grey[300]}`,
 }))
@@ -99,10 +102,11 @@ const PriceInfo = styled('div')(({ theme }) => ({
     '& h3': {
         fontWeight: 400,
     },
-
 }))
 
 const OrdersDrawer = ({open, onClose, orderID}) => {
+    const [refreshKey, setRefreshKey] = useState(0)
+
     return ( 
         <Drawer
             anchor='right'
@@ -136,7 +140,7 @@ const OrdersDrawer = ({open, onClose, orderID}) => {
                     }
                     builder={(order) => {
 
-                        if (!order) {
+                        if (!order || !order.items || order.items.length === 0) {
                             return <EmptyDataComponent/>
                         }
 
@@ -162,6 +166,19 @@ const OrdersDrawer = ({open, onClose, orderID}) => {
                                                     <ItemInfo>Color: {item.color}</ItemInfo>
                                                     <ItemInfo>Size: {item.size}</ItemInfo>
                                                     <ItemPrice>Price: {item.price}DA</ItemPrice>
+                                                    <ConfirmationDialog
+                                                        title='Remove Item'
+                                                        description='Are you sure you want to remove this item from your card?'
+                                                        button={
+                                                            <IconButton>
+                                                                <DeleteRounded/>
+                                                            </IconButton>
+                                                        }
+                                                        onConfirm={async () => {
+                                                            await removeItemFromCard(item.id)
+                                                            setRefreshKey(refreshKey + 1)
+                                                        }}
+                                                    />
                                                 </div>
                                             </OrderItem>
                                         ))

@@ -120,7 +120,7 @@ const OrdersPage = () => {
                         }
                         builder={(data) => {
                             const orders = data.orders;
-
+                            
                             if (!orders || orders.length === 0) {
                                 return <EmptyDataComponent/>
                             }

@@ -7,6 +7,8 @@ import ConfirmationDialog from "../../commun/components/confirmation_dialog";
 import { useParams } from "react-router-dom/cjs/react-router-dom.min";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
 import { getProduct } from "../../services/product";
+import { addItemToCard } from "../../services/order";
+import AddItemToCardDialog from "./components/add_item_to_card_dialog";
 
 const Picture = styled('div')(({ theme }) => ({
     backgroundSize: 'cover',
@@ -202,76 +204,30 @@ const FavButton = styled(IconButton)(({ theme }) => ({
 }))
 
 const ProductPage = () => {
-    const [counter, setCounter] = useState(0); 
     const [open, setOpen] = useState(false);
-
-    function incCounter() {
-        if (counter < 10) {
-            setCounter(counter + 1);
-        }
-    }
-
-    function decCounter() {
-        if (counter > 0) {
-            setCounter(counter - 1);
-        }
-    }
 
     const { id } = useParams();
 
     return ( 
         <PromiseBuilder
             promise={() => getProduct(id)}
-            loading={
-                <ProductPageContainer>
-                    <PicturesAlignment>
-                        <SidePicturesList>
-                            {Array(5).fill(0).map((_, index) => (
-                                <li key={index}>
-                                    <Skeleton variant="rectangular" width={58} height={77} />
-                                </li>
-                            ))}
-                        </SidePicturesList>
-                        <Skeleton variant="rectangular" width="100%" height={650} />
-                    </PicturesAlignment>
-                    <InfoContainer>
-                        <TitleContainer style={{gap: 10}}>
-                            <Skeleton variant="text" width="40%" height={40} />
-                            <Skeleton variant="rectangular" width={100} height={20} style={{ borderRadius: '20px' }} />
-                            <Spacer />
-                            <Skeleton variant="text" width={80} height={30} />
-                        </TitleContainer>
-                        <Skeleton variant="text" width="100%" height={60} />
-                        <OrdersContainer>
-                            <ShoppingBagOutlined style={{ color: '#e0e0e0', position: 'relative', bottom: 2 }} />
-                            <Skeleton variant="text" width={150} height={20} />
-                            <Spacer />
-                            <FavButton disabled>
-                                <Skeleton variant="circular" width={40} height={40} />
-                            </FavButton>
-                        </OrdersContainer>
-                        <Selector title="Size" isLoading={true} />
-                        <Selector title="Colors" isColor={true} isLoading={true} />
-                        <Selector title="Tags" isLoading={true} />
-                        <QuantityContainer>
-                            <div>
-                                <Skeleton width={80}/>
-                                <QuantityController>
-                                    <QuantityDecButton disabled>
-                                        <RemoveRounded />
-                                    </QuantityDecButton>
-                                    <Skeleton variant="rectangular" width={40} height={30} />
-                                    <QuantityIncButton disabled>
-                                        <AddRounded />
-                                    </QuantityIncButton>
-                                </QuantityController>
-                            </div>
-                            <Skeleton variant="rectangular" width="100%" height={40} />
-                        </QuantityContainer>
-                    </InfoContainer>
-                </ProductPageContainer>
-            }
+            loading={<ProductPageLoader/>}
             builder={(product) => {
+                const colors = product.colors.map((color) => ({
+                    id: color.$id,
+                    name: color.name,
+                    hex: color.hex,
+                }))
+
+                const sizes = product.sizes.map((size) => ({
+                    id: size.$id,
+                    name: size.name,
+                }))
+
+                let sizeID = sizes[0].id
+                let colorID = colors[0].id
+                let quantity = 1
+
                 return <ProductPageContainer>
                 <ProductPicture images={product.images}/>
                 <InfoContainer>
@@ -300,15 +256,18 @@ const ProductPage = () => {
                     </OrdersContainer>
                     <Selector 
                         title="Size" 
-                        options={product.sizes.map((size) => ({name: size.name}))}
+                        options={sizes}
                         type="single"
+                        initialOption={sizes[0]}
+                        onOptionSelected={(selected) => sizeID = selected[0]}
                     />
                     <Selector 
                         title="Colors" 
-                        options={product.colors.map(color => ({name: `#${color.code}`}))} 
+                        options={colors} 
                         isColor={true}
-                        intialSelection={product.colors[0]}
                         type="single"
+                        initialOption={colors[0]}
+                        onOptionSelected={(selected) => colorID = selected[0]}
                     />
                     <div>
                         <p>Tags</p>
@@ -323,33 +282,11 @@ const ProductPage = () => {
                         </TagsList>
                     </div>
                     <QuantityContainer>
-                        <div>
-                            <p>Quantity</p>
-                            <QuantityController>
-                                <QuantityDecButton onClick={decCounter}>
-                                    <RemoveRounded/>
-                                </QuantityDecButton>
-                                <Box 
-                                    width={20} 
-                                    display="flex" 
-                                    justifyContent="center" 
-                                    alignItems="center"
-                                >
-                                    {counter}
-                                </Box>
-                                <QuantityIncButton onClick={incCounter}>
-                                    <AddRounded/>
-                                </QuantityIncButton>
-                            </QuantityController>
-                        </div>
-                        <ConfirmationDialog
-                            button={<AddToCartButton
-                                variant="outlined"
-                                onClick={() => setOpen(true)}
-                            >Add to cart</AddToCartButton>}
-                            title="Add to cart"
-                            description={`Are you sure you want to add ${counter} of this product to your cart?`}
-                            onConfirm={() => {}}
+                        <QuantityCounter 
+                            onChanged={(value) => quantity = (value || 1)}
+                        />
+                        <AddItemToCardDialog
+                            onConfirm={async () => await addItemToCard({productID: product.$id, sizeID, colorID, quantity})}
                         />
                     </QuantityContainer>
                 </InfoContainer>
@@ -363,7 +300,97 @@ const ProductPage = () => {
     );
 }
 
-const ProductPicture  = ({images, isLoading}) => {
+const QuantityCounter = ({initialValue, onChanged = () => {}}) => {
+    const [counter, setCounter] = useState(initialValue || 1); 
+
+    function incCounter() {
+        if (counter < 10) {
+            setCounter(counter + 1);
+            onChanged(counter + 1);
+        }
+    }
+
+    function decCounter() {
+        if (counter > 0) {
+            setCounter(counter - 1);
+            onChanged(counter - 1);
+        }
+    }
+
+    return (
+        <div>
+            <p>Quantity</p>
+            <QuantityController>
+                <QuantityDecButton onClick={decCounter}>
+                    <RemoveRounded/>
+                </QuantityDecButton>
+                <Box 
+                    width={20} 
+                    display="flex" 
+                    justifyContent="center" 
+                    alignItems="center"
+                >
+                    {counter}
+                </Box>
+                <QuantityIncButton onClick={incCounter}>
+                    <AddRounded/>
+                </QuantityIncButton>
+            </QuantityController>
+        </div>
+    );
+}
+
+const ProductPageLoader = () => {
+    return <ProductPageContainer>
+        <PicturesAlignment>
+            <SidePicturesList style={{gap: '10px'}}>
+                {Array(5).fill(0).map((_, index) => (
+                    <li key={index}>
+                        <Skeleton variant="rectangular" width={58} height={77} />
+                    </li>
+                ))}
+            </SidePicturesList>
+            <Skeleton variant="rectangular" width="100%" height={650} />
+        </PicturesAlignment>
+        <InfoContainer>
+            <TitleContainer style={{gap: 10}}>
+                <Skeleton variant="text" width="40%" height={40} />
+                <Skeleton variant="rectangular" width={100} height={20} style={{ borderRadius: '20px' }} />
+                <Spacer />
+                <Skeleton variant="text" width={80} height={30} />
+            </TitleContainer>
+            <Skeleton variant="text" width="100%" height={60} />
+            <OrdersContainer>
+                <ShoppingBagOutlined style={{ color: '#e0e0e0', position: 'relative', bottom: 2 }} />
+                <Skeleton variant="text" width={150} height={20} />
+                <Spacer />
+                <FavButton disabled>
+                    <Skeleton variant="circular" width={40} height={40} />
+                </FavButton>
+            </OrdersContainer>
+            <Selector title="Size" isLoading={true} />
+            <Selector title="Colors" isColor={true} isLoading={true} />
+            <Selector title="Tags" isLoading={true} />
+            <QuantityContainer>
+                <div>
+                    <Skeleton width={80}/>
+                    <QuantityController>
+                        <QuantityDecButton disabled>
+                            <RemoveRounded />
+                        </QuantityDecButton>
+                        <Skeleton variant="rectangular" width={40} height={30} />
+                        <QuantityIncButton disabled>
+                            <AddRounded />
+                        </QuantityIncButton>
+                    </QuantityController>
+                </div>
+                <Skeleton variant="rectangular" width="100%" height={40} />
+            </QuantityContainer>
+        </InfoContainer>
+    </ProductPageContainer>
+}
+
+const ProductPicture  = ({images}) => {
     const [selectedImage, setSelectedImage] = useState(images[0].url);
 
     return <PicturesAlignment>
