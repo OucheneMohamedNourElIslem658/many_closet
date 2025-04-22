@@ -9,6 +9,7 @@ import ProductPage from './features/product/product';
 import OrdersPage from './features/orders/orders';
 import AuthSuccess from './features/landing/components/auth_success';
 import Footer from './commun/components/footer';
+import BottomNav from './commun/components/bottom_nav';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
             </Route>
           </Switch>
         </div>
+        <BottomNav/>
         <Footer/>
       </div>
       </Router>

@@ -3,11 +3,14 @@ import {HomeRounded, ShopRounded, NewReleasesRounded, ReviewsRounded, ContactMai
 import { Link } from "react-router-dom";
 
 const StyledBottomNav = styled(BottomNavigation)(({theme}) => ({
-    position: 'sticky',
+    position: 'fixed',
     maxWidth: '95%',
     display: "none",
-    borderRadius: 10,
+    borderRadius: 0,
     margin: '0 auto',
+    bottom: 0,
+    left: 0,
+    right: 0,
     boxShadow: 'hsla(220, 30%, 5%, 0.07) 0px 4px 16px 0px, hsla(220, 25%, 10%, 0.07) 0px 8px 16px -5px;',
     border: 'hsla(220, 20%, 80%, 0.4) 1px solid',
     [theme.breakpoints.down('md')]: {
