@@ -11,7 +11,8 @@ async function getOrders({currentPage, pageSize}) {
         [
             Query.limit(pageSize),
             Query.offset(offset),
-            Query.notEqual('status', 'in_card')
+            Query.notEqual('status', 'in_card'),
+            Query.orderDesc('$createdAt'),
         ],
     )
 
@@ -125,35 +126,45 @@ async function getOrder({id}) {
     }
 }
 
-async function getDeliveryPrices() {
-    const prices = await databases.listDocuments(
-        databaseID,
-        'delivery_prices',
-        [
-            Query.limit(58),
-        ],
-    )
+async function getOrderFormData() {
+    const data = await Promise.all([
+        getUser(),
+        databases.listDocuments(
+            databaseID,
+            'delivery_prices',
+            [
+                Query.limit(100),
+            ],
+        ),
+    ])
 
-    return prices.documents.map((price) => {
-        return {
-            id: price.$id,
-            state: price.state,
-            price: price.price,
-        }
-    })
+    return {
+        user: data[0],
+        deliveryPrices: data[1].documents.map((price) => {
+            console.log(price);
+            
+            return {
+                id: price.$id,
+                state: price.state,
+                price: price.price,
+            }
+        })
+    }
 }
 
 async function makeOrder({address, price_id, cardID, name, phone}) {
+    console.log(address, price_id, cardID, name, phone);
+    
     await databases.updateDocument(
         databaseID,
         'orders',
         cardID,
         {
             address: address,
-            delivery_price: { $id: price_id },
+            delivery_price: price_id,
             status: 'pending',
             name: name,
-            phone_number: phone,
+            phone_number: Number(phone),
         },
     )
 }
@@ -177,8 +188,6 @@ async function deleteOrder(id) {
 }
 
 async function addItemToCard({productID, sizeID, colorID, quantity}) {
-    console.log('entered');
-    
     const card = await databases.listDocuments(
         databaseID,
         'orders',
@@ -190,12 +199,9 @@ async function addItemToCard({productID, sizeID, colorID, quantity}) {
 
     let order = null;
 
+    const currentUser = await getUser();
+
     if (card.documents.length === 0) {
-        const currentUser = await getUser();
-
-        console.log(productID, sizeID, colorID, quantity);
-        
-
         const orderItem = await databases.createDocument(
             databaseID,
             'order_items',
@@ -206,6 +212,9 @@ async function addItemToCard({productID, sizeID, colorID, quantity}) {
                 color: colorID,
                 product_count: quantity,
             },
+            [
+                Permission.write(Role.user(currentUser.$id)),
+            ]
         )
 
         order = await databases.createDocument(
@@ -224,7 +233,6 @@ async function addItemToCard({productID, sizeID, colorID, quantity}) {
             ]
         );
 
-        console.log('added card with item', order.$id, orderItem.$id);
         return;
     }
 
@@ -257,6 +265,9 @@ async function addItemToCard({productID, sizeID, colorID, quantity}) {
                 color: colorID,
                 product_count: quantity,
             },
+            [
+                Permission.write(Role.user(currentUser.$id)),
+            ]
         );
 
         const orderItemIDs = order.orderItems.map((item) => item.$id);
@@ -264,7 +275,7 @@ async function addItemToCard({productID, sizeID, colorID, quantity}) {
         orderItemIDs.push(orderItem.$id);
         
 
-        const doc =  await databases.updateDocument(
+        await databases.updateDocument(
             databaseID,
             'orders',
             order.$id,
@@ -272,8 +283,6 @@ async function addItemToCard({productID, sizeID, colorID, quantity}) {
                 orderItems: orderItemIDs,
             },
         );
-
-        console.log('added new item to order', doc);
     }
 }
 
@@ -285,4 +294,4 @@ async function removeItemFromCard(id) {
     )
 }
 
-export { getOrders, getOrder, makeOrder, deleteOrder, addItemToCard, removeItemFromCard };
+export { getOrders, getOrder, makeOrder, deleteOrder, addItemToCard, removeItemFromCard, getOrderFormData };

@@ -100,6 +100,11 @@ export default function AccountMenu({currentUser}) {
         open={openDrawer}
         onClose={() => setOpenDrawer(false)}
         orderID={null}
+        onOrderCreated={(isCreated) => {
+          if (isCreated) {
+            setOpenDrawer(false)
+          }
+        }}
       />
     </Fragment>
   );

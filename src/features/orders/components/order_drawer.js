@@ -117,7 +117,7 @@ const DeleteButton = styled(IconButton)(({theme}) => ({
     color: theme.palette.error.main,
 }))
 
-const OrdersDrawer = ({open, onClose, orderID}) => {
+const OrdersDrawer = ({open, onClose, orderID, onOrderCreated}) => {
     const [refreshKey, setRefreshKey] = useState(0)
 
     return ( 
@@ -152,7 +152,7 @@ const OrdersDrawer = ({open, onClose, orderID}) => {
                         </div>
                     }
                     builder={(order) => {
-                        const isMyCard = order.status === 'in_card'
+                        const isMyCard = order && order.status === 'in_card'
 
                         if (!order || !order.items || order.items.length === 0) {
                             return <EmptyDataComponent message={isMyCard ? 'Your Card is currently empty!' : null}/>
@@ -225,7 +225,7 @@ const OrdersDrawer = ({open, onClose, orderID}) => {
                                         </PriceInfo>
                                     }
                                     {
-                                        isMyCard && <OrderForm/>
+                                        isMyCard && <OrderForm orderID={order.id} onOrderCreated={onOrderCreated}/>
                                     }
                                 </PaymentContainer>
                             </div>

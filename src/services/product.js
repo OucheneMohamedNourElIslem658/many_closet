@@ -70,6 +70,7 @@ async function getProducts({currentPage, pageSize, name, tags, colors, sizes, pr
     const queries = [
         Query.limit(pageSize),
         Query.offset(offset),
+        Query.orderDesc('$createdAt'),
     ]
 
     if (name && name.trim().length > 0) {
