@@ -4,6 +4,7 @@ const Title = styled('h1')(({ theme }) => ({
     fontSize: 130,
     color: theme.palette.text.primary,
     fontWeight: 'bold',
+    whiteSpace: 'nowrap'
 }))
 
 const SubTitle = styled('p')(({ theme }) => ({
@@ -18,14 +19,15 @@ const ContentContainer = styled('div')({
     flexDirection: 'column',
     alignItems: 'center',
     gap: 20,
-    marginTop: 40
+    marginTop: 40,
+    textAlign: 'center',
 })
 
-const EmptyDataComponent = () => {
+const EmptyDataComponent = ({message}) => {
     return (
         <ContentContainer>
             <Title dangerouslySetInnerHTML={{ __html: "(&#94;-&#94;*)" }}></Title>
-            <SubTitle>No Data Found!</SubTitle>
+            <SubTitle>{message == null ? 'No Data Found!' : message}</SubTitle>
         </ContentContainer>
     );
 }

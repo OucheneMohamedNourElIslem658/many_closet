@@ -4,6 +4,7 @@ import { Button } from '@mui/material';
 import { PromiseBuilder } from '../../../commun/components/promise_builder';
 import { getProducts } from '../../../services/product';
 import { Link } from 'react-router-dom/cjs/react-router-dom';
+import EmptyDataComponent from '../../../commun/components/empty';
 
 const Content = styled('div')({
     display: 'flex',
@@ -55,12 +56,14 @@ const NewArrivalSection = () => {
                 loading={
                     <Items>
                         {Array.from(new Array(itemsCount)).map((_, index) => (
-                            <NewArrivalItem isLoading={true}/>
+                            <NewArrivalItem key={index} isLoading={true}/>
                         ))}
                     </Items>
                 }
                 builder={(data) => {
-                    console.log(data);
+                    if (!data) {
+                        return <EmptyDataComponent/>
+                    }
                     
                     const products = data.products.map((product) => {
                         return {

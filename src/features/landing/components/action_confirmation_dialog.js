@@ -1,14 +1,8 @@
 import React, { Fragment, useState } from "react";
 import ConfirmationDialog from "../../../commun/components/confirmation_dialog";
-import { Button, styled } from "@mui/material";
 import CustomizedSnackbar from "../../../commun/components/snackbar";
 
-const AddToCartButton = styled(Button)(({ theme }) => ({
-    width: '100%',
-    padding: '7px 0',
-}))
-
-const AddItemToCardDialog = ({onConfirm}) => {
+const ActionConfirmationDialog = ({title, description, triggerButton, onConfirm}) => {
     const [disabled, setDisabled] = useState(false)
     const [open, setOpen] = useState(false)
     let [errorMessage, setMessage] = useState('')
@@ -27,13 +21,9 @@ const AddItemToCardDialog = ({onConfirm}) => {
     return (
         <Fragment>
             <ConfirmationDialog
-                button={
-                    <AddToCartButton variant="outlined">
-                        Add to cart
-                    </AddToCartButton>
-                }
-                title="Add to cart"
-                description={`Are you sure you want to add this product to your cart?`}
+                button={triggerButton}
+                title={title}
+                description={description}
                 areButtonsDisabled={disabled}
                 onConfirm={async () => await addItemToMyCard()}
             />
@@ -48,4 +38,4 @@ const AddItemToCardDialog = ({onConfirm}) => {
     );
 }
  
-export default AddItemToCardDialog;
+export default ActionConfirmationDialog;

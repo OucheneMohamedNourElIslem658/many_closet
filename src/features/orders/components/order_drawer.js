@@ -4,8 +4,8 @@ import OrderForm from "./order_form";
 import { PromiseBuilder } from "../../../commun/components/promise_builder";
 import { getOrder, removeItemFromCard } from "../../../services/order";
 import EmptyDataComponent from "../../../commun/components/empty";
-import ConfirmationDialog from "../../../commun/components/confirmation_dialog";
 import { useState } from "react";
+import ActionConfirmationDialog from "../../landing/components/action_confirmation_dialog";
 
 const CloseButton = styled(IconButton)({
     position: 'absolute',
@@ -82,10 +82,13 @@ const PaymentContainer = styled('div')(({ theme }) => ({
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 20,
     gap: 10,
     backgroundColor: theme.palette.background.paper,
     borderTop: `1px solid ${theme.palette.grey[300]}`,
+    [theme.breakpoints.down('sm')]: {
+        paddingTop: 10,
+        gap: 0
+    }
 }))
 
 const PriceInfo = styled('div')(({ theme }) => ({
@@ -101,7 +104,17 @@ const PriceInfo = styled('div')(({ theme }) => ({
     },
     '& h3': {
         fontWeight: 400,
+        whiteSpace: 'nowrap'
     },
+    [theme.breakpoints.down('sm')]: {
+        flexDirection: 'column',
+        alignItems: 'start',
+        gap: 3
+    }
+}))
+
+const DeleteButton = styled(IconButton)(({theme}) => ({
+    color: theme.palette.error.main,
 }))
 
 const OrdersDrawer = ({open, onClose, orderID}) => {
@@ -139,12 +152,12 @@ const OrdersDrawer = ({open, onClose, orderID}) => {
                         </div>
                     }
                     builder={(order) => {
+                        const isMyCard = order.status === 'in_card'
 
                         if (!order || !order.items || order.items.length === 0) {
-                            return <EmptyDataComponent/>
+                            return <EmptyDataComponent message={isMyCard ? 'Your Card is currently empty!' : null}/>
                         }
-
-                        const isMyCard = order.status === 'in_card'
+                        
                         const title = isMyCard ? 'My Card' : 'Order: ' + order.status
 
                         return (
@@ -158,29 +171,33 @@ const OrdersDrawer = ({open, onClose, orderID}) => {
                                 <ItemsList>
                                     {
                                         order.items && order.items.map((item, index) => (
-                                            <OrderItem key={index}>
-                                                <ItemImage style={{backgroundImage: `url(${item.picURL})`}}/>
-                                                <div>
-                                                    <h1 style={{fontSize: 40}}>{item.quantity}</h1>
-                                                    <ItemName>{item.name}</ItemName>
-                                                    <ItemInfo>Color: {item.color}</ItemInfo>
-                                                    <ItemInfo>Size: {item.size}</ItemInfo>
-                                                    <ItemPrice>Price: {item.price}DA</ItemPrice>
-                                                    <ConfirmationDialog
+                                            <div style={{display: 'flex', gap: 10, justifyContent: 'space-between', alignItems: 'center'}} key={index}>
+                                                <OrderItem key={index}>
+                                                    <ItemImage style={{backgroundImage: `url(${item.picURL})`}}/>
+                                                    <div>
+                                                        <h1 style={{fontSize: 40}}>{item.quantity}</h1>
+                                                        <ItemName>{item.name}</ItemName>
+                                                        <ItemInfo>Color: {item.color}</ItemInfo>
+                                                        <ItemInfo>Size: {item.size}</ItemInfo>
+                                                        <ItemPrice>Price: {item.price}DA</ItemPrice>
+                                                    </div>
+                                                </OrderItem>
+                                                {
+                                                    isMyCard && <ActionConfirmationDialog
                                                         title='Remove Item'
                                                         description='Are you sure you want to remove this item from your card?'
-                                                        button={
-                                                            <IconButton>
-                                                                <DeleteRounded/>
-                                                            </IconButton>
+                                                        triggerButton={
+                                                            <DeleteButton>
+                                                                <DeleteRounded style={{height: 30, width: 30}}/>
+                                                            </DeleteButton>
                                                         }
                                                         onConfirm={async () => {
                                                             await removeItemFromCard(item.id)
                                                             setRefreshKey(refreshKey + 1)
                                                         }}
                                                     />
-                                                </div>
-                                            </OrderItem>
+                                                }
+                                            </div>
                                         ))
                                     }
                                 </ItemsList>

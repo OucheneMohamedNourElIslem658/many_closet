@@ -1,14 +1,13 @@
-import { AddRounded, RemoveRounded, ShoppingBagOutlined, StarBorderRounded, StarRounded } from "@mui/icons-material";
+import { AddRounded, RemoveRounded, ShoppingBagOutlined } from "@mui/icons-material";
 import { Box, Button, IconButton, Skeleton, styled } from "@mui/material";
 import Selector from "../../commun/components/option_selector";
 import { useState } from "react";
 import OrdersDrawer from "../orders/components/order_drawer";
-import ConfirmationDialog from "../../commun/components/confirmation_dialog";
 import { useParams } from "react-router-dom/cjs/react-router-dom.min";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
 import { getProduct } from "../../services/product";
 import { addItemToCard } from "../../services/order";
-import AddItemToCardDialog from "./components/add_item_to_card_dialog";
+import AddItemToCardDialog from "../landing/components/action_confirmation_dialog";
 
 const Picture = styled('div')(({ theme }) => ({
     backgroundSize: 'cover',
@@ -32,7 +31,7 @@ const MainPicture = styled('div')(({ theme }) => ({
     backgroundPosition: 'center',
     [theme.breakpoints.down('md')]: {
         height: 430,
-        maxWidth: 350
+        width: 350,
     }
 }))
 
@@ -41,7 +40,7 @@ const Name = styled('h1')(({ theme }) => ({
     fontWeight: '100',
     marginBottom: '10px',
     color: theme.palette.primary.main,
-    marginRight: '20px',
+    whiteSpace: 'nowrap'
 }))
 
 const AvailablityTag = styled('div')(({ theme }) => ({
@@ -186,6 +185,7 @@ const TitleContainer = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     width: '100%',
+    gap: 10
 }))
 
 const Spacer = styled('div')(({ theme }) => ({
@@ -245,14 +245,6 @@ const ProductPage = () => {
                     <OrdersContainer>
                         <ShoppingBagOutlined style={{color: 'black', position: 'relative', bottom: 2}}/>
                         <p>{product.totalOrders} people ordered this product</p>
-                        <Spacer/>
-                        <FavButton>
-                            {
-                                product.is_favourite ? 
-                                <StarRounded style={{size: 8, color: 'orange'}}/> : 
-                                <StarBorderRounded style={{size: 8, color: 'grey'}}/>
-                            }
-                        </FavButton>
                     </OrdersContainer>
                     <Selector 
                         title="Size" 
@@ -286,6 +278,13 @@ const ProductPage = () => {
                             onChanged={(value) => quantity = (value || 1)}
                         />
                         <AddItemToCardDialog
+                            title={"Add to cart"}
+                            description={`Are you sure you want to add ${product.name} to your cart?`}
+                            triggerButton={
+                                <AddToCartButton variant="outlined">
+                                    Add to cart
+                                </AddToCartButton>
+                            }
                             onConfirm={async () => await addItemToCard({productID: product.$id, sizeID, colorID, quantity})}
                         />
                     </QuantityContainer>
