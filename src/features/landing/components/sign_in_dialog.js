@@ -22,19 +22,6 @@ export default function SignInDialog() {
       <Dialog
         open={open}
         onClose={handleClose}
-        slotProps={{
-          paper: {
-            component: 'form',
-            onSubmit: (event) => {
-              event.preventDefault();
-              const formData = new FormData(event.currentTarget);
-              const formJson = Object.fromEntries(formData.entries());
-              const email = formJson.email;
-              console.log(email);
-              handleClose();
-            },
-          },
-        }}
       >
         <DialogTitle fontFamily={'Volkhov'} fontSize={'30px'}>Subscribe</DialogTitle>
         <DialogContent>

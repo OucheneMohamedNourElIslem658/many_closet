@@ -141,8 +141,6 @@ async function getOrderFormData() {
     return {
         user: data[0],
         deliveryPrices: data[1].documents.map((price) => {
-            console.log(price);
-            
             return {
                 id: price.$id,
                 state: price.state,
@@ -153,8 +151,6 @@ async function getOrderFormData() {
 }
 
 async function makeOrder({address, price_id, cardID, name, phone}) {
-    console.log(address, price_id, cardID, name, phone);
-    
     await databases.updateDocument(
         databaseID,
         'orders',
@@ -252,8 +248,6 @@ async function addItemToCard({productID, sizeID, colorID, quantity}) {
                 product_count: newQuantity,
             },
         );
-
-        console.log('updated item quantity', newQuantity);
     } else {
         const orderItem = await databases.createDocument(
             databaseID,

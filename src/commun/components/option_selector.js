@@ -1,5 +1,5 @@
 import { Button, IconButton, Skeleton, styled } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const FiltersWithWrapedItems = styled('ul')(({ theme }) => ({
     display: 'flex',
@@ -52,7 +52,7 @@ const ColorButton = styled(IconButton)(({ theme }) => ({
 }))
 
 const Selector = ({ title, options, initialOption, isColor, type = 'multi', isLoading = false, onOptionSelected = () => {} }) => {
-    const [filterOptions, setFilterOptions] = useState([initialOption]);
+    const [filterOptions, setFilterOptions] = useState([]);
     
     function handleOptionSelection(option) {
         let updatedOptions;
@@ -64,10 +64,18 @@ const Selector = ({ title, options, initialOption, isColor, type = 'multi', isLo
                 : [...filterOptions, option];
         }
         setFilterOptions(updatedOptions);
+
+        const selectedOptionsIds = filterOptions.map((option) => option.id);
         
-        const selectedOptionsIds = updatedOptions.map((option) => option.id);
         onOptionSelected(selectedOptionsIds);
     }
+
+    useEffect(() => {
+        if (initialOption) {
+            setFilterOptions([initialOption]);
+        }
+    }
+    , [initialOption]);
 
     return (
         <div>
