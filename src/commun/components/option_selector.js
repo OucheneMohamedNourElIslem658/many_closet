@@ -1,5 +1,5 @@
 import { Button, IconButton, Skeleton, styled } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const FiltersWithWrapedItems = styled('ul')(({ theme }) => ({
     display: 'flex',
@@ -101,6 +101,7 @@ const Selector = ({ title, options, initialOption, isColor, type = 'multi', isLo
                                             variant="outlined"
                                             onClick={() => handleOptionSelection(option)}
                                             className={filterOptions.includes(option) ? 'selected' : ''}
+                                            style={{borderRadius: 0}}
                                         >
                                             {option.name}
                                         </OptionButton>

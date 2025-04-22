@@ -8,19 +8,24 @@ import Typography from '@mui/material/Typography';
 import { Instagram } from '@mui/icons-material';
 import { Facebook } from '@mui/icons-material';
 import { Mail } from '@mui/icons-material';
+import { styled } from '@mui/material';
 
-function Copyright() {
-  return (
-    <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1 }}>
-      {'Copyright © '}
-      <Link color="text.secondary" href="https://mui.com/">
-        Sitemark
-      </Link>
-      &nbsp;
-      {new Date().getFullYear()}
-    </Typography>
-  );
-}
+const ContentContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  pt: { xs: 4, sm: 8 },
+  width: '100%',
+  borderTop: '1px solid',
+  borderColor: theme.palette.divider,
+  paddingTop: theme.spacing(2),
+
+  [theme.breakpoints.down('sm')]: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
+    gap: theme.spacing(1),
+  }
+}));
 
 export default function Footer() {
   return (
@@ -33,16 +38,7 @@ export default function Footer() {
         py: { xs: 8, sm: 10 },
       }}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          pt: { xs: 4, sm: 8 },
-          width: '100%',
-          borderTop: '1px solid',
-          borderColor: 'divider',
-        }}
-      >
+      <ContentContainer>
         <div>
           <Link color="text.secondary" variant="body2" href="#">
             Privacy Policy
@@ -89,7 +85,20 @@ export default function Footer() {
             <Mail />
           </IconButton>
         </Stack>
-      </Box>
+      </ContentContainer>
     </Container>
+  );
+}
+
+function Copyright() {
+  return (
+    <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1 }}>
+      {'Copyright © '}
+      <Link color="text.secondary" href="https://mui.com/">
+        Sitemark
+      </Link>
+      &nbsp;
+      {new Date().getFullYear()}
+    </Typography>
   );
 }

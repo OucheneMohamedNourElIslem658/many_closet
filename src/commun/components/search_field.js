@@ -4,7 +4,7 @@ import { FormControl, InputAdornment, OutlinedInput } from "@mui/material";
 const SearchField = ({onValueChanged = () => {}}) => {
     return (
         <FormControl variant="outlined">
-            <OutlinedInput
+            <OutlinedInput style={{borderRadius: 0}}
                 size="small"
                 id="search"
                 placeholder="Search…"
