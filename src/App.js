@@ -10,6 +10,8 @@ import OrdersPage from './features/orders/orders';
 import AuthSuccess from './features/landing/components/auth_success';
 import Footer from './commun/components/footer';
 import BottomNav from './commun/components/bottom_nav';
+import AdminAuthPage from './features/auth/admin_auth';
+import ProductsBoardPage from './features/product/products_board';
 
 function App() {
   return (
@@ -20,6 +22,12 @@ function App() {
         <AppBar />
         <div className="content">
           <Switch>
+            <Route path='/admin/auth'>
+              <AdminAuthPage/>
+            </Route>
+            <Route path="/admin/products">
+              <ProductsBoardPage/>
+            </Route>
             <Route path="/auth/success">
               <AuthSuccess/>
             </Route>
