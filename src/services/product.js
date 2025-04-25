@@ -1,6 +1,7 @@
 import { Query } from "appwrite";
 import { databaseID, databases } from "./config";
 import { date2TimeAgo } from "../commun/utils/time_formats";
+import { getUser } from "./auth";
 
 async function getColors() {
     return (await databases.listDocuments(
@@ -66,7 +67,17 @@ async function getFilters() {
     }
 }  
 
-async function getProducts({currentPage, pageSize, name, tags, colors, sizes, priceRange}) {
+async function getProducts({currentPage, pageSize, name, tags, colors, sizes, priceRange, isAdminBoard}) {
+    if (isAdminBoard) {
+        const user = await getUser()
+        console.log(user);
+        
+        const isUserAdmin = user?.labels?.includes('admin')
+        if (!isUserAdmin) {
+            throw new Error("Unauthorized access");
+        }
+    }
+    
     const offset = (currentPage - 1) * pageSize
     const queries = [
         Query.limit(pageSize),

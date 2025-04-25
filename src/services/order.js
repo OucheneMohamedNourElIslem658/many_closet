@@ -16,15 +16,13 @@ async function getOrders({currentPage, pageSize}) {
         ],
     )
 
-    const orderItemsPrices = data.documents.map((order) => {
-        return order.orderItems.map((item) => {
+    const orders = data.documents.map((order) => {
+        const orderItemsPrices = order.orderItems.map((item) => {
             return item.product.price
         })
-    })
 
-    const itemsPrice = orderItemsPrices.flat().reduce((sum, price) => sum + price, 0);
-
-    const orders = data.documents.map((order) => {
+        const itemsPrice = orderItemsPrices.flat().reduce((sum, price) => sum + price, 0);
+        
         const price = itemsPrice + order.delivery_price.price
 
         console.log(order.orderItems);

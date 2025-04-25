@@ -61,3 +61,8 @@ export const storeCurrentUser = async () => {
     ]
   )
 }
+
+export const loginWithEmailAndPassword = async (email, password) => {
+  await account.createEmailPasswordSession(email, password)
+  window.location.href = '/admin/products'
+}

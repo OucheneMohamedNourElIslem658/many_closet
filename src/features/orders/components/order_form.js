@@ -9,14 +9,16 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { CircularProgress, MenuItem, Select } from '@mui/material';
 import { PromiseBuilder } from '../../../commun/components/promise_builder';
 import { getOrderFormData, makeOrder } from '../../../services/order';
-import { KeyboardArrowDownRounded } from '@mui/icons-material';
+import { KeyboardArrowDownRounded, PieChart } from '@mui/icons-material';
 import CustomizedSnackbar from '../../../commun/components/snackbar';
+import { useState } from 'react';
 
 export default function OrderForm({orderID, onOrderCreated}) {
-  const [open, setOpen] = React.useState(false);
-  const [disabled, setDisabled] = React.useState(true);
-  const [openSnackbar, setOpenSnackbar] = React.useState(false);
-  const [snackbarMessage, setSnackbarMessage] = React.useState('');
+  const [open, setOpen] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [dataReady, setDataReady] = useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -26,19 +28,19 @@ export default function OrderForm({orderID, onOrderCreated}) {
     setOpen(false);
   };
 
-  async function createOrder({ address, price_id, cardID, name, phone }) {
+  async function createOrder({ address, priceID, cardID, name, phone }) {
     try {
       setDisabled(true);
       await makeOrder({
         address: address,
-        price_id: price_id,
+        price_id: priceID,
         cardID: cardID,
         name: name,
         phone: phone,
       });
       setDisabled(false);
       setOpen(false);
-      onOrderCreated(true);
+      onOrderCreated();
     } catch (error) {
       setDisabled(false);
       setOpen(false);
@@ -65,11 +67,11 @@ export default function OrderForm({orderID, onOrderCreated}) {
               const formJson = Object.fromEntries(formData.entries());
 
               const address = formJson.address;
-              const price_id = formJson.delivery_price;
+              const priceID = formJson.delivery_price;
               const name = formJson.name;
               const phone = formJson.phone;
               const cardID = orderID;
-              await createOrder({ address, price_id, cardID, name, phone });
+              await createOrder({ address, priceID, cardID, name, phone });
             },
           },
         }}
@@ -83,9 +85,11 @@ export default function OrderForm({orderID, onOrderCreated}) {
             </DialogContent>
           }
           builder={(data) => {
-            setDisabled(false);
             const prices = data.deliveryPrices;
-            
+
+            if (!dataReady) {
+              setDataReady(true)
+            }
 
             const currentUserName = data.user.name || '';
 
@@ -104,7 +108,7 @@ export default function OrderForm({orderID, onOrderCreated}) {
                     variant="standard"
                     required
                     defaultValue={currentUserName}
-                    disabled={disabled}
+                    disabled={!dataReady}
                   />
                   <TextField
                     margin="dense"
@@ -115,29 +119,16 @@ export default function OrderForm({orderID, onOrderCreated}) {
                     fullWidth
                     variant="standard"
                     required
-                    disabled={disabled}
+                    disabled={!dataReady}
                     style={{
                       marginBottom: '20px',
                     }}
                   />
-                  <Select
-                    value={prices[0].id}
-                    labelId="delivery-price-label"
-                    id="delivery-price"
-                    name="delivery_price"
-                    label="Delivery Price"
-                    fullWidth
-                    variant="standard"
-                    required
-                    disabled={disabled}
-                    IconComponent={() => <KeyboardArrowDownRounded/>}
-                  >
-                    {prices.map((price) => (
-                      <MenuItem key={price.id} value={price.id}>
-                        {price.state} - {price.price} AMD
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <PricesDropdown
+                    initialValue={prices[0].id}
+                    prices={prices}
+                    disabled={!dataReady}
+                  />
                   <TextField
                     margin="dense"
                     id="address"
@@ -146,7 +137,7 @@ export default function OrderForm({orderID, onOrderCreated}) {
                     type="text"
                     fullWidth
                     variant="standard"
-                    disabled={disabled}
+                    disabled={!dataReady}
                     required
                   />
               </DialogContent>
@@ -154,8 +145,8 @@ export default function OrderForm({orderID, onOrderCreated}) {
           }}
         />
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button type='submit' disabled={disabled}>Make Order</Button>
+          <Button onClick={handleClose} disabled={disabled || !dataReady}>Cancel</Button>
+          <Button type='submit' disabled={disabled || !dataReady}>Make Order</Button>
         </DialogActions>
       </Dialog>
       <CustomizedSnackbar
@@ -164,5 +155,32 @@ export default function OrderForm({orderID, onOrderCreated}) {
         type="error"
       />
     </React.Fragment>
+  );
+}
+
+const PricesDropdown = ({disabled, initialValue, prices}) => {
+
+  const [value, setValue] = useState(initialValue)
+
+  return (
+    <Select
+      value={value}
+      labelId="delivery-price-label"
+      id="delivery-price"
+      name="delivery_price"
+      label="Delivery Price"
+      fullWidth
+      variant="standard"
+      required
+      disabled={disabled}
+      IconComponent={() => <KeyboardArrowDownRounded/>}
+      onChange={(event) => setValue(event.target.value)}
+    >
+      {prices.map((price) => (
+        <MenuItem key={price.id} value={price.id}>
+          {price.state} - {price.price} AMD
+        </MenuItem>
+      ))}
+    </Select>
   );
 }

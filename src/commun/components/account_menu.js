@@ -1,9 +1,17 @@
-import { Logout, ShoppingBagOutlined, ShoppingBasketRounded } from "@mui/icons-material";
-import { Avatar, Box, Divider, IconButton, ListItem, ListItemAvatar, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
+import { ArchiveRounded, Logout, Padding, ShoppingBagOutlined, ShoppingBasketRounded, Storefront } from "@mui/icons-material";
+import { Avatar, Box, Divider, IconButton, ListItem, ListItemAvatar, ListItemIcon, ListItemText, Menu, MenuItem, styled } from "@mui/material";
 import { Fragment, useState } from "react";
 import { logoutUser } from "../../services/auth";
 import OrdersDrawer from "../../features/orders/components/order_drawer";
 import { Link } from 'react-router-dom';
+
+const AdminTag = styled('p')(({ theme }) => ({
+  fontWeight: 100,
+  paddingLeft: 10,
+  fontFamily: theme.typography.fontFamily,
+  textDecoration: 'underline',
+  fontSize: 14,
+}))
 
 export default function AccountMenu({currentUser}) {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -71,7 +79,7 @@ export default function AccountMenu({currentUser}) {
             <ListItemAvatar>
             <Avatar sx={{ width: 32, height: 32, backgroundColor: 'black' }}>{currentUser.name[0]}</Avatar>
             </ListItemAvatar>
-            <ListItemText primary={currentUser.name} secondary={currentUser.email} />
+            <ListItemText primary={currentUser.name} secondary={currentUser.email}/>
         </ListItem>
         <Divider />
         <MenuItem onClick={() => {
@@ -85,10 +93,25 @@ export default function AccountMenu({currentUser}) {
         </MenuItem>
         <MenuItem onClick={handleClose} component={Link} to="/orders">
           <ListItemIcon>
-            <ShoppingBasketRounded fontSize="small" />
+            <ArchiveRounded fontSize="small" />
           </ListItemIcon>
           My Orders
         </MenuItem>
+        {
+          currentUser.labels.includes('admin') && (
+            <Fragment>
+              <Divider/>
+              <AdminTag>Admin Section:</AdminTag>
+              <MenuItem onClick={handleClose} component={Link} to="/admin/products">
+                <ListItemIcon>
+                  <Storefront fontSize="small" />
+                </ListItemIcon>
+                My Products
+              </MenuItem>
+              <Divider/>
+            </Fragment>
+          )
+        }
         <MenuItem onClick={() => logoutUser()}>
           <ListItemIcon>
             <Logout fontSize="small" />
@@ -100,11 +123,7 @@ export default function AccountMenu({currentUser}) {
         open={openDrawer}
         onClose={() => setOpenDrawer(false)}
         orderID={null}
-        onOrderCreated={(isCreated) => {
-          if (isCreated) {
-            setOpenDrawer(false)
-          }
-        }}
+        onOrderCreated={() => setOpenDrawer(false)}
       />
     </Fragment>
   );

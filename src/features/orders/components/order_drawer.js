@@ -84,6 +84,7 @@ const PaymentContainer = styled('div')(({ theme }) => ({
     right: 0,
     gap: 10,
     backgroundColor: theme.palette.background.paper,
+    paddingTop: 10,
     borderTop: `1px solid ${theme.palette.grey[300]}`,
     [theme.breakpoints.down('sm')]: {
         paddingTop: 10,

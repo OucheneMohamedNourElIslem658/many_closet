@@ -122,7 +122,11 @@ const OrdersPage = () => {
                             const orders = data.orders;
                             
                             if (!orders || orders.length === 0) {
-                                return <EmptyDataComponent/>
+                                // return <TableRow>
+                                //     <TableCell colSpan={5}>
+                                    return    <EmptyDataComponent style={{fontWeight: 100}}/>
+                                //     </TableCell>
+                                // </TableRow>
                             }
 
                             return orders.map((order) => {

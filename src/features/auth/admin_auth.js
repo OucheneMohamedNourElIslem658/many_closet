@@ -1,4 +1,7 @@
 import { Button, styled, TextField } from "@mui/material";
+import { loginWithEmailAndPassword } from "../../services/auth";
+import CustomizedSnackbar from "../../commun/components/snackbar";
+import { useState } from "react";
 
 const SubTitle = styled('p')(({ theme }) => ({
     fontFamily: theme.typography.fontFamily,
@@ -28,13 +31,36 @@ const FormContainer = styled('form')(({ theme }) => ({
 }));
 
 const AdminAuthPage = () => {
+    const [disabled, setDisabled] = useState(false);
+    const [error, setError] = useState(null);
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        setDisabled(true);
+        setError(null);
+
+        const formData = new FormData(event.currentTarget);
+        const email = formData.get('email');
+        const password = formData.get('password');
+
+        setDisabled(true);
+
+        try {
+            await loginWithEmailAndPassword(email, password);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setDisabled(false)
+        }
+    }
+
     return (
         <ContentContainer>
             <div>
                 <h1>Authentification</h1>
                 <SubTitle>Sign In with admin email and password</SubTitle>
             </div>
-            <FormContainer>
+            <FormContainer onSubmit={handleSubmit} noValidate>
                 <TextField
                     margin="dense"
                     id="email"
@@ -43,6 +69,7 @@ const AdminAuthPage = () => {
                     type="email"
                     fullWidth
                     variant="standard"
+                    disabled={disabled}
                     required
                 />
                 <Button style={{alignSelf: 'flex-end', fontSize: '12px'}}>
@@ -56,6 +83,7 @@ const AdminAuthPage = () => {
                     type='password'
                     fullWidth
                     variant="standard"
+                    disabled={disabled}
                     required
                     style={{
                         marginBottom: '30px',
@@ -63,10 +91,16 @@ const AdminAuthPage = () => {
                         bottom: 15
                     }}
                 />
-                <Button variant="contained" color="primary" type="submit" style={{width: '100%'}}>
+                <Button variant="contained" color="primary" type="submit" style={{width: '100%'}} disabled={disabled}>
                     Login
                 </Button>
             </FormContainer>
+            <CustomizedSnackbar
+                message={error}
+                type="error"
+                open={Boolean(error)}
+                onClose={() => setError(null)}
+            />
         </ContentContainer>
     );
 }

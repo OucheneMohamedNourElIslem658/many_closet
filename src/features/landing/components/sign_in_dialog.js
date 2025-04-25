@@ -1,4 +1,4 @@
-import { FacebookRounded, Google } from "@mui/icons-material";
+import { FacebookRounded, Google, ShieldOutlined, ShieldRounded } from "@mui/icons-material";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import { Fragment, useState } from "react";
 import { loginWithFacebook, loginWithGoogle } from "../../../services/auth";
@@ -43,6 +43,15 @@ export default function SignInDialog() {
             onClick={() => loginWithFacebook()}
             startIcon={<FacebookRounded/>}>  
             Sign in with Facebook
+          </Button>
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={() => window.location.href = '/admin/auth'}
+            startIcon={<ShieldOutlined/>}
+            style={{marginTop: 10}}
+          >
+            Sign In As Admin
           </Button>
         </DialogContent>
         <DialogActions>

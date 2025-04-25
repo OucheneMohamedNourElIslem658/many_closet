@@ -362,10 +362,6 @@ const ProductPageLoader = () => {
             <OrdersContainer>
                 <ShoppingBagOutlined style={{ color: '#e0e0e0', position: 'relative', bottom: 2 }} />
                 <Skeleton variant="text" width={150} height={20} />
-                <Spacer />
-                <FavButton disabled>
-                    <Skeleton variant="circular" width={40} height={40} />
-                </FavButton>
             </OrdersContainer>
             <Selector title="Size" isLoading={true} />
             <Selector title="Colors" isColor={true} isLoading={true} />

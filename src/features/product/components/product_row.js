@@ -4,6 +4,7 @@ import { DeleteRounded, EditRounded } from "@mui/icons-material";
 // import { useState } from "react";
 import theme from "../../../commun/utils/theme";
 import { deleteOrder } from "../../../services/product";
+import ActionConfirmationDialog from "../../landing/components/action_confirmation_dialog";
 
 const ProductInfo = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -17,7 +18,7 @@ const Desc = styled('p')(({ theme }) => ({
     color: theme.palette.text.secondary,
     display: '-webkit-box',
     WebkitBoxOrient: 'vertical',
-    WebkitLineClamp: 2,
+    WebkitLineClamp: 3,
     textOverflow: 'ellipsis',
     marginBottom: 0,
     overflow: 'hidden',
@@ -54,6 +55,9 @@ const Sizes = styled('ul')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'row',
     gap: 10,
+    '& li::before': {
+        content: '"• "',
+    }
 }))
 
 const Colors = styled('ul')(({ theme }) => ({
@@ -64,14 +68,17 @@ const Colors = styled('ul')(({ theme }) => ({
     flexDirection: 'row',
     gap: 10,
     marginBottom: 10,
-
-    '& li': {
-        width: 20, 
-        height: 20, 
-        borderRadius: '50%',
-        border: `solid 0.1px ${theme.palette.text.secondary}`,
+    fontSize: 13,
+    color: theme.palette.secondary.main,
+    '& li::before': {
+        content: '"• "',
     }
 }))
+
+const Name = styled('h2')({
+    fontWeight: 100,
+    fontFamily: 'Volkhov'
+})
 
 const AvailablityTag = styled('span')(({ theme }) => ({
     fontSize: 12,
@@ -102,23 +109,25 @@ const ProductRow = ({product, onItemDeleted}) => {
                     }}>
                     </div>
                     <ProductInfo>
-                        <h2 style={{fontFamily: 'Volkhov'}}>{product.name}</h2>
+                        <Name>{product.name}</Name>
                         <Desc>{product.desc}</Desc>
-                        <Categories>
-                            {product.categories.map((category, index) => (
-                                <li key={index}>{category.name}</li>
-                            ))}
-                        </Categories>
-                        <Sizes>
-                            {product.sizes.map((size, index) => (
-                                <li key={index}>{size.name}</li>
-                            ))}
-                        </Sizes>
-                        <Colors>
-                            {product.colors.map((color, index) => (
-                                <li key={index} style={{backgroundColor: `#${color.code}`}}></li>
-                            ))}
-                        </Colors>
+                        <div>
+                            <Categories>
+                                {product.categories.map((category, index) => (
+                                    <li key={index}>{category.name}</li>
+                                ))}
+                            </Categories>
+                            <Sizes>
+                                {product.sizes.map((size, index) => (
+                                    <li key={index}>{size.name}</li>
+                                ))}
+                            </Sizes>
+                            <Colors>
+                                {product.colors.map((color, index) => (
+                                    <li key={index} >{color.name}</li>
+                                ))}
+                            </Colors>
+                        </div>
                         {
                             product.is_available ?
                                 <AvailablityTag className="available">Available</AvailablityTag> : 
@@ -133,10 +142,10 @@ const ProductRow = ({product, onItemDeleted}) => {
                 <IconButton sx={{color: theme.palette.primary.main}}>
                     <EditRounded/>
                 </IconButton>
-                <ConfirmationDialog
+                <ActionConfirmationDialog
                     title="Delete Product"
                     description="Are you sure you want to delete this product?"
-                    button={
+                    triggerButton={
                         <IconButton sx={{color: theme.palette.error.main}}>
                             <DeleteRounded/>
                         </IconButton>

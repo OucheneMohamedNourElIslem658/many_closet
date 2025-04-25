@@ -151,6 +151,8 @@ const ProductsList = ({onDrawerOpen, filters}) => {
                         return <EmptyDataComponent/>
                     }
 
+                    console.log(products);
+
                     return <div>
                         <ContentAlignment>
                             {products.map((product, index) => (

@@ -75,8 +75,8 @@ const ProductsBoardPage = () => {
     return (
         <ContentContainer>
             <div>
-                <Title>Orders</Title>
-                <SubTitle>Here you can view your past orders.</SubTitle>
+                <Title>Products Board</Title>
+                <SubTitle>Here you can adjust your products</SubTitle>
             </div>
             <RefreshButton onClick={async () => setRefreshKey(refreshKey + 1)}>
                 <RefreshRounded/>
@@ -93,7 +93,7 @@ const ProductsBoardPage = () => {
                         </TableRow>
                     </TableHeader>
                     <PromiseBuilder
-                        promise={() => getProducts({pageSize, currentPage})}
+                        promise={() => getProducts({pageSize, currentPage, isAdminBoard: true})}
                         loading={
                             Array.from({ length: pageSize }).map((_, index) => (
                                 <TableRow key={`skeleton-${index}`}>
