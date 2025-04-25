@@ -1,5 +1,6 @@
 import { Query } from "appwrite";
 import { databaseID, databases } from "./config";
+import { date2TimeAgo } from "../commun/utils/time_formats";
 
 async function getColors() {
     return (await databases.listDocuments(
@@ -109,7 +110,12 @@ async function getProducts({currentPage, pageSize, name, tags, colors, sizes, pr
     const maxPages = Math.ceil(products.total / pageSize)
     
     return {
-        products: products.documents,
+        products: products.documents.map((product) => {
+            return {
+                ...product,
+                timeAgo: date2TimeAgo(product.$createdAt),
+            }
+        }),
         maxPages: maxPages,
     }
 }
@@ -128,4 +134,12 @@ async function getProduct(id) {
     return product
 }
 
-export {getFilters, getProducts, getProduct}
+async function deleteOrder(id) {
+    await databases.deleteDocument(
+        databaseID,
+        'products',
+        id
+    )
+}
+
+export {getFilters, getProducts, getProduct, deleteOrder}

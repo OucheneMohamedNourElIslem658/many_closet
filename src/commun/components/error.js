@@ -19,7 +19,7 @@ const ContentContainer = styled('div')({
     flexDirection: 'column',
     alignItems: 'center',
     gap: 10,
-    marginTop: 40
+    margin: 40
 })
 
 const ErrorComponent = ({error}) => {

@@ -26,27 +26,33 @@ async function getOrders({currentPage, pageSize}) {
 
     const orders = data.documents.map((order) => {
         const price = itemsPrice + order.delivery_price.price
+
+        console.log(order.orderItems);
         
+        
+        if (!order.orderItems || order.orderItems.length === 0) {
+            return null
+        }
+
         return {
             id: order.$id,
             timeAgo: date2TimeAgo(order.$createdAt),
             status: order.status,
             price: price,
             items: order.orderItems.map((item) => {
-                return {
-                    name: item.product.name,
-                    quantity: item.quantity,
-                    color: item.color.name,
-                    size: item.size.name,
-                }
-            })
+            return {
+                name: item.product.name,
+                quantity: item.quantity,
+                color: item.color ? item.color.name : null,
+                size: item.size ? item.size.name : null,
+            }})
         }
     })
 
     const maxPages = Math.ceil(data.total / pageSize)
 
     return {
-        orders: orders,
+        orders: orders.filter((order) => order !== null),
         maxPages: maxPages
     }
 }

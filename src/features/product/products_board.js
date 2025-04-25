@@ -88,7 +88,7 @@ const ProductsBoardPage = () => {
                             <TableHeaderTitles>Product</TableHeaderTitles>
                             <TableHeaderTitles>Price</TableHeaderTitles>
                             <TableHeaderTitles>Time</TableHeaderTitles>
-                            <TableHeaderTitles>Status</TableHeaderTitles>
+                            <TableHeaderTitles></TableHeaderTitles>
                             <TableCell/>
                         </TableRow>
                     </TableHeader>
@@ -127,7 +127,7 @@ const ProductsBoardPage = () => {
                             }
 
                             return products.map((product) => {
-                                return <ProductRow key={product.$id} product={product} />;
+                                return <ProductRow key={product.$id} product={product} onItemDeleted={() => setRefreshKey(refreshKey + 1)} />;
                             }).concat(
                                 <TableRow key="pagination">
                                     <TableCell sx={{ borderBottom: "none"}} colSpan={5}>
