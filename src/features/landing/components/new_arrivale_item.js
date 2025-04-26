@@ -1,4 +1,5 @@
 import { Skeleton, styled } from "@mui/material";
+import { Fragment } from "react";
 
 const ItemContentAlignment = styled('li')(({theme}) => ({
     width: 250,
@@ -48,6 +49,11 @@ const ItemDescription = styled('p')(({theme}) => ({
     marginBottom: 10,
     textAlign: 'start',
     fontFamily: theme.typography.fontFamily,
+    display: '-webkit-box',
+    WebkitBoxOrient: 'vertical',
+    WebkitLineClamp: 2,
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
 }))
 
 const AvailablityTag = styled('div')(({theme}) =>({
@@ -71,15 +77,10 @@ const OffmarketContent = styled('p')(({theme}) => ({
 const NewArrivalItem = ({item, isLoading}) => {
     return isLoading ? (
         <ItemContentAlignment>
-            <ItemImage>
-                <Skeleton variant="rectangular" width="100%" height="150px" />
-            </ItemImage>
+            <ItemImage/>
             <ItemName>
                 <Skeleton variant="text" width="80%" />
             </ItemName>
-            <ItemPrice>
-                <Skeleton variant="text" width="50%" />
-            </ItemPrice>
             <ItemDescription>
                 <Skeleton variant="text" width="90%" />
             </ItemDescription>
@@ -87,6 +88,7 @@ const NewArrivalItem = ({item, isLoading}) => {
         </ItemContentAlignment>
     ) : (
         <ItemContentAlignment>
+            <Fragment>
             <ItemImage style={{
                 backgroundImage: 'url(' + item.image + ')',
                 backgroundPosition: 'center',
@@ -106,6 +108,7 @@ const NewArrivalItem = ({item, isLoading}) => {
             <AvailablityTag className={item.isAvailable ? 'available' : ''}>
                 <OffmarketContent>{ item.isAvailable ? 'available' : 'not available' }</OffmarketContent> 
             </AvailablityTag>
+            </Fragment>
         </ItemContentAlignment>
     );
 }

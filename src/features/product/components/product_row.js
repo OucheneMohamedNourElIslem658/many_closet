@@ -1,7 +1,5 @@
-import { IconButton, styled, TableCell, TableRow } from "@mui/material";
-import ConfirmationDialog from "../../../commun/components/confirmation_dialog";
+import { IconButton, Skeleton, styled, TableCell, TableRow } from "@mui/material";
 import { DeleteRounded, EditRounded } from "@mui/icons-material";
-// import { useState } from "react";
 import theme from "../../../commun/utils/theme";
 import { deleteOrder } from "../../../services/product";
 import ActionConfirmationDialog from "../../landing/components/action_confirmation_dialog";
@@ -94,9 +92,64 @@ const AvailablityTag = styled('span')(({ theme }) => ({
     },
 }))
 
-const ProductRow = ({product, onItemDeleted}) => {
-    return (
-        <TableRow key={product.$id}>
+const ProductRow = ({product, onItemDeleted, isLoading}) => {
+    if (isLoading) {
+        return (
+            <TableRow>
+            <TableCell>
+                <Leading>
+                <div style={{
+                    height: 230,
+                    width: 170,
+                    minWidth: 170,
+                    backgroundColor: theme.palette.action.hover,
+                }}>
+                    <Skeleton variant="rectangular" height={230} width={170} />
+                </div>
+                <ProductInfo>
+                    <Skeleton variant="text" width={150} />
+                    <div>
+                        <Skeleton variant="text" width={300} />
+                        <Skeleton variant="text" width={300} />
+                        <Skeleton variant="text" width={300} />
+                    </div>
+                    <div>
+                    <Categories sx={{ '& li::before': { content: 'none' } }}>
+                        {[...Array(3)].map((_, index) => (
+                        <li key={index}>
+                            <Skeleton variant="text" width={50} />
+                        </li>
+                        ))}
+                    </Categories>
+                    <Sizes sx={{ '& li::before': { content: 'none' } }}>
+                        {[...Array(3)].map((_, index) => (
+                        <li key={index}>
+                            <Skeleton variant="text" width={30} />
+                        </li>
+                        ))}
+                    </Sizes>
+                    <Colors sx={{ '& li::before': { content: 'none' } }}>
+                        {[...Array(3)].map((_, index) => (
+                        <li key={index}>
+                            <Skeleton variant="text" width={40} />
+                        </li>
+                        ))}
+                    </Colors>
+                    </div>
+                    <Skeleton variant="rectangular" width={100} height={20} />
+                </ProductInfo>
+                </Leading>
+            </TableCell>
+            <TableCell>
+                <Skeleton variant="text" width={50} />
+            </TableCell>
+            <TableCell>
+                <Skeleton variant="text" width={100} />
+            </TableCell>
+            </TableRow>
+        )
+    } else {
+        return (<TableRow key={product.$id}>
             <TableCell onClick={() => {}} sx={{cursor: 'pointer'}}>
                 <Leading>
                     <div style={{
@@ -158,9 +211,8 @@ const ProductRow = ({product, onItemDeleted}) => {
                     }
                 />
             </TableCell>
-        </TableRow>
-
-    );
+        </TableRow>)
+    }
 }
 
 export default ProductRow

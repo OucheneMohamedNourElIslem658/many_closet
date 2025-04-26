@@ -70,7 +70,7 @@ const NewArrivalSection = () => {
                             id: product.$id,
                             name: product.name,
                             price: product.price,
-                            description: product.description,
+                            description: product.desc,
                             image: product.images?.[0]?.url || null,
                             status: product.status,
                             isAvailable: product.is_available,
@@ -79,7 +79,7 @@ const NewArrivalSection = () => {
 
                     return <Items>
                         {products.map((product) => (
-                            <NewArrivalItem key={product.id} item={product} />
+                            <NewArrivalItem item={product}/>
                         ))}
                     </Items>
                 }}

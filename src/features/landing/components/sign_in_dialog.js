@@ -1,4 +1,4 @@
-import { FacebookRounded, Google, ShieldOutlined, ShieldRounded } from "@mui/icons-material";
+import { FacebookRounded, Google, ShieldOutlined } from "@mui/icons-material";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import { Fragment, useState } from "react";
 import { loginWithFacebook, loginWithGoogle } from "../../../services/auth";

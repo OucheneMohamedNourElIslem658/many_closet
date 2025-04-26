@@ -1,10 +1,11 @@
 import { RefreshRounded } from "@mui/icons-material";
-import { IconButton, Pagination, Skeleton, styled, Table, TableCell, TableHead, TableRow } from "@mui/material";
+import { IconButton, Pagination, styled, Table, TableCell, TableHead, TableRow } from "@mui/material";
 import { useState } from "react";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
 import EmptyDataComponent from "../../commun/components/empty";
 import { getProducts } from "../../services/product";
 import ProductRow from "./components/product_row";
+import SearchField from "../../commun/components/search_field";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -66,9 +67,19 @@ const TableScroller = styled('div')({
     },
 })
 
+const ControlContainer = styled('div')({
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 20,
+})
+
 const ProductsBoardPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10
+
+    const [search, setSearch] = useState('');
 
     const [refreshKey, setRefreshKey] = useState(0);
 
@@ -78,9 +89,17 @@ const ProductsBoardPage = () => {
                 <Title>Products Board</Title>
                 <SubTitle>Here you can adjust your products</SubTitle>
             </div>
-            <RefreshButton onClick={async () => setRefreshKey(refreshKey + 1)}>
-                <RefreshRounded/>
-            </RefreshButton>
+            <ControlContainer>
+                <SearchField
+                    onValueChanged={(value) => {
+                        setCurrentPage(1);
+                        setSearch(value);
+                    }}
+                />
+                <RefreshButton onClick={async () => setRefreshKey(refreshKey + 1)}>
+                    <RefreshRounded/>
+                </RefreshButton>
+            </ControlContainer>
             <TableScroller>
                 <OrdersTable>
                     <TableHeader>
@@ -93,27 +112,10 @@ const ProductsBoardPage = () => {
                         </TableRow>
                     </TableHeader>
                     <PromiseBuilder
-                        promise={() => getProducts({pageSize, currentPage, isAdminBoard: true})}
+                        promise={() => getProducts({pageSize, currentPage, isAdminBoard: true, name: search})}
                         loading={
                             Array.from({ length: pageSize }).map((_, index) => (
-                                <TableRow key={`skeleton-${index}`}>
-                                    <TableCell>
-                                        <Skeleton variant="text" width="80%" height={20} />
-                                        <Skeleton variant="text" width="50%" height={14} />
-                                    </TableCell>
-                                    <TableCell>
-                                        <Skeleton variant="text" width="50%" height={20} />
-                                    </TableCell>
-                                    <TableCell>
-                                        <Skeleton variant="text" width="60%" height={20} />
-                                    </TableCell>
-                                    <TableCell>
-                                        <Skeleton variant="text" width="40%" height={20} />
-                                    </TableCell>
-                                    <TableCell>
-                                        <Skeleton variant="text" width="30%" height={20} />
-                                    </TableCell>
-                                </TableRow>
+                                <ProductRow isLoading={true} key={index}/>
                             ))
                         }
                         builder={(data) => {
