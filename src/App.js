@@ -12,6 +12,7 @@ import Footer from './commun/components/footer';
 import BottomNav from './commun/components/bottom_nav';
 import AdminAuthPage from './features/auth/admin_auth';
 import ProductsBoardPage from './features/product/products_board';
+import OrdersBoardPage from './features/orders_board/orders_board';
 
 function App() {
   return (
@@ -27,6 +28,9 @@ function App() {
             </Route>
             <Route path="/admin/products">
               <ProductsBoardPage/>
+            </Route>
+            <Route path='/admin/orders'>
+              <OrdersBoardPage/>
             </Route>
             <Route path="/auth/success">
               <AuthSuccess/>

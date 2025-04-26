@@ -1,4 +1,4 @@
-import { ArchiveRounded, Logout, Padding, ShoppingBagOutlined, ShoppingBasketRounded, Storefront } from "@mui/icons-material";
+import { ArchiveRounded, ListAltRounded, LocalShipping, Logout, Padding, ShoppingBagOutlined, ShoppingBasketRounded, Storefront } from "@mui/icons-material";
 import { Avatar, Box, Divider, IconButton, ListItem, ListItemAvatar, ListItemIcon, ListItemText, Menu, MenuItem, styled } from "@mui/material";
 import { Fragment, useState } from "react";
 import { logoutUser } from "../../services/auth";
@@ -11,6 +11,7 @@ const AdminTag = styled('p')(({ theme }) => ({
   fontFamily: theme.typography.fontFamily,
   textDecoration: 'underline',
   fontSize: 14,
+  marginBottom: 5
 }))
 
 export default function AccountMenu({currentUser}) {
@@ -107,6 +108,12 @@ export default function AccountMenu({currentUser}) {
                   <Storefront fontSize="small" />
                 </ListItemIcon>
                 My Products
+              </MenuItem>
+              <MenuItem onClick={handleClose} component={Link} to="/admin/orders">
+                <ListItemIcon>
+                  <ListAltRounded fontSize="small" />
+                </ListItemIcon>
+                Client's Orders
               </MenuItem>
               <Divider/>
             </Fragment>
