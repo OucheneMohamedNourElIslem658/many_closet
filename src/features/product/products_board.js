@@ -120,8 +120,6 @@ const ProductsBoardPage = () => {
                         }
                         builder={(data) => {
                             const products = data.products;
-
-                            console.log(products);
                             
                             
                             if (!products || products.length === 0) {

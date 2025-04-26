@@ -5,6 +5,8 @@ import { PromiseBuilder } from "../../commun/components/promise_builder";
 import {getOrders } from "../../services/order";
 import EmptyDataComponent from "../../commun/components/empty";
 import Order_row from "./components/order_row";
+import OrdersStatusTabBar from "./components/order_status_tab_bar";
+import SearchField from "../../commun/components/search_field";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -46,6 +48,17 @@ const TableHeaderTitles = styled(TableCell)(({ theme }) => ({
 const RefreshButton = styled(IconButton)(({ theme }) => ({
     alignSelf: 'end',
     color: theme.palette.primary.main,
+    position: 'relative',
+    bottom: 5,
+}))
+
+const ControllContainer = styled('div')(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 40,
 }))
 
 const PaginationController = styled(Pagination)(({ theme }) => ({
@@ -78,9 +91,17 @@ const OrdersBoardPage = () => {
                 <Title>Orders Board</Title>
                 <SubTitle>Here you can adjust you client's orders</SubTitle>
             </div>
-            <RefreshButton onClick={async () => setRefreshKey(refreshKey + 1)}>
-                <RefreshRounded/>
-            </RefreshButton>
+            <ControllContainer>
+                <SearchField/>
+                <OrdersStatusTabBar
+                    options={['All', 'Pending', 'In Progress', 'Completed', 'Cancelled']}
+                    initialOption={'All'}
+                    onChange={(value) => console.log(value)}
+                />
+                <RefreshButton onClick={async () => setRefreshKey(refreshKey + 1)}>
+                    <RefreshRounded/>
+                </RefreshButton>
+            </ControllContainer>
             <TableScroller>
                 <OrdersTable>
                     <TableHeader>

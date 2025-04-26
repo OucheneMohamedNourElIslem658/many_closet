@@ -100,23 +100,23 @@ export default function AccountMenu({currentUser}) {
         </MenuItem>
         {
           currentUser.labels.includes('admin') && (
-            <Fragment>
-              <Divider/>
-              <AdminTag>Admin Section:</AdminTag>
-              <MenuItem onClick={handleClose} component={Link} to="/admin/products">
+            [
+              <Divider key="admin-divider-1" />,
+              <AdminTag key="admin-tag">Admin Section:</AdminTag>,
+              <MenuItem key="admin-products" onClick={handleClose} component={Link} to="/admin/products">
                 <ListItemIcon>
                   <Storefront fontSize="small" />
                 </ListItemIcon>
                 My Products
-              </MenuItem>
-              <MenuItem onClick={handleClose} component={Link} to="/admin/orders">
+              </MenuItem>,
+              <MenuItem key="admin-orders" onClick={handleClose} component={Link} to="/admin/orders">
                 <ListItemIcon>
                   <ListAltRounded fontSize="small" />
                 </ListItemIcon>
                 Client's Orders
-              </MenuItem>
-              <Divider/>
-            </Fragment>
+              </MenuItem>,
+              <Divider key="admin-divider-2" />
+            ]
           )
         }
         <MenuItem onClick={() => logoutUser()}>

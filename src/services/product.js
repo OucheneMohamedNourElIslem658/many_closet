@@ -70,7 +70,6 @@ async function getFilters() {
 async function getProducts({currentPage, pageSize, name, tags, colors, sizes, priceRange, isAdminBoard}) {
     if (isAdminBoard) {
         const user = await getUser()
-        console.log(user);
         
         const isUserAdmin = user?.labels?.includes('admin')
         if (!isUserAdmin) {

@@ -24,8 +24,6 @@ async function getOrders({currentPage, pageSize}) {
         const itemsPrice = orderItemsPrices.flat().reduce((sum, price) => sum + price, 0);
         
         const price = itemsPrice + order.delivery_price.price
-
-        console.log(order.orderItems);
         
         
         if (!order.orderItems || order.orderItems.length === 0) {

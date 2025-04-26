@@ -151,13 +151,11 @@ const ProductsList = ({onDrawerOpen, filters}) => {
                         return <EmptyDataComponent/>
                     }
 
-                    console.log(products);
-
                     return <div>
                         <ContentAlignment>
                             {products.map((product, index) => (
-                                <Link to={`/product/${product.$id}`} style={{textDecoration: 'none'}}>
-                                    <Product key={index}>
+                                <Link key={index} to={`/product/${product.$id}`} style={{textDecoration: 'none'}}>
+                                    <Product>
                                         <ProductImage
                                             style={{
                                                 backgroundImage: `url(${product.images[0].url})`,
