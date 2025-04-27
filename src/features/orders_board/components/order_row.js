@@ -1,15 +1,18 @@
-import { IconButton, MenuItem, Select, TableCell, TableRow } from "@mui/material";
+import { IconButton, TableCell, TableRow } from "@mui/material";
 import { Fragment, useState } from "react";
-import { DeleteRounded, KeyboardArrowDownRounded } from "@mui/icons-material";
+import { DeleteRounded, EditRounded } from "@mui/icons-material";
 import ActionConfirmationDialog from "../../landing/components/action_confirmation_dialog";
 import theme from "../../../commun/utils/theme";
+import StatusDrodown from "./status_drop_down";
+import { orderStatuses } from "../../../commun/utils/constents";
+import { updateOrder } from "../../../services/order";
 
-const OrderRow = ({order}) => {
-    const [open, setOpen] = useState(false);
+const OrderRow = ({order, onOrderUpdated}) => {
+    const [status, setStatus] = useState(order.status);
 
     return (
         <TableRow key={order.id}>
-            <TableCell onClick={() => setOpen(true)} sx={{cursor: 'pointer'}}>
+            <TableCell sx={{cursor: 'pointer'}}>
                 <p style={{fontSize: '16px', fontWeight: 600, textDecoration: 'none'}}>{order.items.map((item) => item.name).join(', ')}</p>
                 <p>N° {order.id}</p>
             </TableCell>
@@ -18,12 +21,26 @@ const OrderRow = ({order}) => {
             <TableCell>
                 <StatusDrodown
                     initialValue={order.status}
-                    statuses={['pending', 'delivered', 'canceled']}
+                    statuses={orderStatuses.filter((status) => status !== 'in_card')}
+                    onChange={(value) => setStatus(value)}
                 >
                 </StatusDrodown>
             </TableCell>
             <TableCell>
                 <Fragment>
+                    <ActionConfirmationDialog
+                        title="Update Order Status"
+                        description="Are you sure you want to update this order status?"
+                        triggerButton={
+                            <IconButton sx={{color: theme.palette.primary.main}} disabled={status === order.status}>
+                                <EditRounded/>
+                            </IconButton>
+                        }
+                        onConfirm={async () => {
+                            await updateOrder({id: order.id, status})
+                            onOrderUpdated()
+                        }}
+                    />
                     <ActionConfirmationDialog
                         title="Delete Order"
                         description="Are you sure you want to delete this order?"
@@ -37,32 +54,6 @@ const OrderRow = ({order}) => {
                 </Fragment>
             </TableCell>
         </TableRow>
-    );
-}
-
-const StatusDrodown = ({disabled, initialValue, statuses}) => {
-
-    const [value, setValue] = useState(initialValue)
-  
-    return (
-      <Select
-        value={value}
-        id="status"
-        name="status"
-        fullWidth
-        variant="standard"
-        required
-        disabled={disabled}
-        IconComponent={() => <KeyboardArrowDownRounded/>}
-        onChange={(event) => setValue(event.target.value)}
-        sx={{ width: 150 }}
-      >
-        {statuses.map((status) => (
-          <MenuItem key={status} value={status}>
-            {status}
-          </MenuItem>
-        ))}
-      </Select>
     );
 }
 

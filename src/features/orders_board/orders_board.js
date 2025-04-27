@@ -4,9 +4,9 @@ import { useState } from "react";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
 import {getOrders } from "../../services/order";
 import EmptyDataComponent from "../../commun/components/empty";
-import Order_row from "./components/order_row";
-import OrdersStatusTabBar from "./components/order_status_tab_bar";
+import OrderRow from "./components/order_row";
 import SearchField from "../../commun/components/search_field";
+import StatusDrodown from "./components/status_drop_down";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -48,17 +48,16 @@ const TableHeaderTitles = styled(TableCell)(({ theme }) => ({
 const RefreshButton = styled(IconButton)(({ theme }) => ({
     alignSelf: 'end',
     color: theme.palette.primary.main,
-    position: 'relative',
-    bottom: 5,
+    marginLeft: 'auto'
 }))
 
 const ControllContainer = styled('div')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
     marginBottom: 40,
+    gap: 20,
 }))
 
 const PaginationController = styled(Pagination)(({ theme }) => ({
@@ -84,6 +83,8 @@ const OrdersBoardPage = () => {
     const pageSize = 10
 
     const [refreshKey, setRefreshKey] = useState(0);
+    const [filteredStatus, setFilteredStatus] = useState('All');
+    const [id, setID] = useState('');
 
     return (
         <ContentContainer>
@@ -92,11 +93,18 @@ const OrdersBoardPage = () => {
                 <SubTitle>Here you can adjust you client's orders</SubTitle>
             </div>
             <ControllContainer>
-                <SearchField/>
-                <OrdersStatusTabBar
-                    options={['All', 'Pending', 'In Progress', 'Completed', 'Cancelled']}
-                    initialOption={'All'}
-                    onChange={(value) => console.log(value)}
+                <SearchField
+                    placeholder="Enter order ID..."
+                    onValueChanged={(value) => {
+                        setCurrentPage(1);
+                        setID(value);
+                    }}
+                />
+                <StatusDrodown
+                    initialValue={'All'}
+                    borderType="box"
+                    statuses={['All', 'pending', 'accepted', 'rejected', 'packed']}
+                    onChange={(status) => setFilteredStatus(status)}
                 />
                 <RefreshButton onClick={async () => setRefreshKey(refreshKey + 1)}>
                     <RefreshRounded/>
@@ -114,7 +122,7 @@ const OrdersBoardPage = () => {
                         </TableRow>
                     </TableHeader>
                     <PromiseBuilder
-                        promise={() => getOrders({pageSize, currentPage})}
+                        promise={() => getOrders({pageSize, currentPage, status: filteredStatus, id, isAdmin: true})}
                         loading={
                             Array.from({ length: pageSize }).map((_, index) => (
                                 <TableRow key={`skeleton-${index}`}>
@@ -141,11 +149,11 @@ const OrdersBoardPage = () => {
                             const orders = data.orders;
                             
                             if (!orders || orders.length === 0) {
-                                return    <EmptyDataComponent style={{fontWeight: 100}}/>
+                                return <EmptyDataComponent style={{fontWeight: 100}}/>
                             }
 
                             return orders.map((order) => {
-                                return <Order_row key={order.id} order={order} />;
+                                return <OrderRow key={order.id} order={order} onOrderUpdated={() => setRefreshKey(refreshKey + 1)} />;
                             }).concat(
                                 <TableRow key="pagination">
                                     <TableCell sx={{ borderBottom: "none"}} colSpan={5}>

@@ -153,11 +153,11 @@ const OrdersDrawer = ({open, onClose, orderID, onOrderCreated}) => {
                         </div>
                     }
                     builder={(order) => {
-                        const isMyCard = order && order.status === 'in_card'
-
                         if (!order || !order.items || order.items.length === 0) {
-                            return <EmptyDataComponent message={isMyCard ? 'Your Card is currently empty!' : null}/>
+                            return <EmptyDataComponent message={'there is no items here yet'}/>
                         }
+
+                        const isMyCard = order && order.status === 'in_card'
                         
                         const title = isMyCard ? 'My Card' : 'Order: ' + order.status
 

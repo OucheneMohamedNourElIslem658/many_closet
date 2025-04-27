@@ -3,17 +3,39 @@ import { databaseID, databases } from "./config";
 import { date2TimeAgo } from "../commun/utils/time_formats";
 import { getUser } from "./auth";
 
-async function getOrders({currentPage, pageSize}) {
+async function getOrders({currentPage, pageSize, status, id, isAdmin}) {
     const offset = (currentPage - 1) * pageSize
+    const queries = [
+        Query.limit(pageSize),
+        Query.offset(offset),
+        Query.notEqual('status', 'in_card'),
+        Query.orderDesc('$createdAt'),
+        Query.equal('client', '67fccddebe9046bc6a44')
+    ]
+
+    const currentUser = await getUser()
+
+    if (isAdmin) {
+        const isCurrentUserAdmin = currentUser?.labels?.some((role) => role === 'admin')
+        if (!isCurrentUserAdmin) {
+            throw new Error('You are not authorized to view this page')
+        }
+    } else {
+        queries.push(Query.equal('client', currentUser.$id))
+    }
+
+    if (id) {
+        queries.push(Query.startsWith('$id', id))
+    }
+
+    if (status && status !== 'All') {
+        queries.push(Query.equal('status', status))
+    }
+
     const data = await databases.listDocuments(
         databaseID,
         'orders',
-        [
-            Query.limit(pageSize),
-            Query.offset(offset),
-            Query.notEqual('status', 'in_card'),
-            Query.orderDesc('$createdAt'),
-        ],
+        queries
     )
 
     const orders = data.documents.map((order) => {
@@ -290,4 +312,17 @@ async function removeItemFromCard(id) {
     )
 }
 
-export { getOrders, getOrder, makeOrder, deleteOrder, addItemToCard, removeItemFromCard, getOrderFormData };
+async function updateOrder({id, status}) {
+    if (status && status !== 'in_card') {
+        await databases.updateDocument(
+            databaseID,
+            'orders',
+            id,
+            {
+                status: status,
+            },
+        )
+    }
+}
+
+export { getOrders, getOrder, makeOrder, deleteOrder, addItemToCard, removeItemFromCard, getOrderFormData, updateOrder };

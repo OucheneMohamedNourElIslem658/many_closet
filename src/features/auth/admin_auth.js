@@ -72,9 +72,6 @@ const AdminAuthPage = () => {
                     disabled={disabled}
                     required
                 />
-                <Button style={{alignSelf: 'flex-end', fontSize: '12px'}}>
-                    Reset Password
-                </Button>
                 <TextField
                     margin="dense"
                     id='password'
@@ -87,8 +84,6 @@ const AdminAuthPage = () => {
                     required
                     style={{
                         marginBottom: '30px',
-                        position: 'relative',
-                        bottom: 15
                     }}
                 />
                 <Button variant="contained" color="primary" type="submit" style={{width: '100%'}} disabled={disabled}>

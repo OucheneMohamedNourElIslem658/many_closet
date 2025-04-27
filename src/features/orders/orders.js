@@ -122,11 +122,7 @@ const OrdersPage = () => {
                             const orders = data.orders;
                             
                             if (!orders || orders.length === 0) {
-                                // return <TableRow>
-                                //     <TableCell colSpan={5}>
-                                    return    <EmptyDataComponent style={{fontWeight: 100}}/>
-                                //     </TableCell>
-                                // </TableRow>
+                                return    <EmptyDataComponent style={{fontWeight: 100}} message={'you do not have any orders yet'}/>
                             }
 
                             return orders.map((order) => {
