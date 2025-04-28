@@ -1,4 +1,4 @@
-import { Query } from "appwrite";
+import { ID, Query } from "appwrite";
 import { databaseID, databases } from "./config";
 import { date2TimeAgo } from "../commun/utils/time_formats";
 import { getUser } from "./auth";
@@ -11,7 +11,7 @@ async function getColors() {
         return {
             id: color.$id,
             name: color.name,
-            hex: color.hex,
+            hex: color.code,
         }
     })
 }
@@ -152,4 +152,28 @@ async function deleteOrder(id) {
     )
 }
 
-export {getFilters, getProducts, getProduct, deleteOrder}
+async function createProduct({ name, description, price, available, images, colors, sizes, categories }) {
+    const colorsIDs = colors.map((color) => color.id)
+    const catsIDs = categories.map((cat) => cat.id)
+    const sizesIDs = sizes.map((size) => size.id)
+
+    await databases.createDocument(
+        databaseID,
+        'products',
+        ID.unique(),
+        {
+            name: name,
+            desc: description,
+            price: price,
+            is_available: available,
+            colors_tags: colorsIDs,
+            categories_tags: catsIDs,
+            sizes_tags: sizesIDs,
+            colors: colorsIDs,
+            sizes: sizesIDs,
+            categories: catsIDs,
+        }
+    )
+}
+
+export {getFilters, getProducts, getProduct, deleteOrder, createProduct}

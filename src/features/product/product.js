@@ -216,7 +216,7 @@ const ProductPage = () => {
                 const colors = product.colors.map((color) => ({
                     id: color.$id,
                     name: color.name,
-                    hex: color.hex,
+                    hex: color.code,
                 }))
 
                 const sizes = product.sizes.map((size) => ({

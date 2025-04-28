@@ -1,7 +1,10 @@
-import { Button, styled, TextField } from "@mui/material";
+import { Button, FormControlLabel, styled, Switch, TextField } from "@mui/material";
 import CollectionItemsPicker from "./components/collection_items_picker";
 import CustomSwitch from "./components/custom_switch";
 import ImagesPicker from "./components/images_picker";
+import { useState } from "react";
+import { PromiseBuilder } from "../../commun/components/promise_builder";
+import { getFilters } from "../../services/product";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -39,9 +42,42 @@ const FieldsTitles = styled('p')(({ theme }) => ({
     marginTop: 10,
 }))
 
+const FiltersContainer = styled('div')({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+    alignItems: 'start'
+})
+
 const CreateProductPage = () => {
+    let [selectedSizes, setSizes] = useState([])
+    let [selectedColors, setColors] = useState([])
+    let [selectedCategories, setCategories] = useState([])
+    const [isAvailable, setIsAvailable] = useState(true)
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const data = {
+            name: formData.get('name'),
+            description: formData.get('description'),
+            price: formData.get('price'),
+            available: isAvailable,
+            images: formData.getAll('images'),
+            colors: selectedColors,
+            sizes: selectedSizes,
+            categories: selectedCategories,
+        };
+
+        console.log(data);
+    }
+
     return (
-        <ContentContainer>
+        <ContentContainer
+            as="form"
+            onSubmit={handleSubmit}
+            sx={{ mt: 1 }}
+        >
             <TitlesContainer>
                 <Title>Create Product</Title>
                 <SubTitle>Fill the following form to add a product.</SubTitle>
@@ -94,39 +130,62 @@ const CreateProductPage = () => {
                 }}
                 required
             />
-            <CustomSwitch label={'available'}/>
+            <FormControlLabel 
+                control={<Switch defaultChecked />} 
+                label={'available'} 
+                value={isAvailable} 
+                onChange={(_, checked) => {
+                    setIsAvailable(checked)
+                }}
+            />
             <ImagesPicker/>
-            <FieldsTitles>Colors</FieldsTitles>
-            <CollectionItemsPicker
-                initialItems={[
-                    {id: 1, code: '#FF0000', name: 'Red'},
-                    {id: 2, code: '#00FF00', name: 'Green'},    
-                    {id: 3, code: '#0000FF', name: 'Blue'},
-                    {id: 4, code: '#000000', name: 'Black'},
-                    {id: 5, code: '#FFFFFF', name: 'White'},
-                ]}
+            <PromiseBuilder
+                promise={() => getFilters()}
+                loading={
+                    <FiltersContainer>
+                        <FieldsTitles>Colors</FieldsTitles>
+                        <CollectionItemsPicker isLoading={true}/>
+                        <FieldsTitles>Sizes</FieldsTitles>
+                        <CollectionItemsPicker isLoading={true}/>
+                        <FieldsTitles>Categories</FieldsTitles>
+                        <CollectionItemsPicker isLoading={true}/>
+                    </FiltersContainer>
+                }
+                builder={(data) => {
+                    console.log(data);
+                    
+                    const colors = data.colors.map((color) => ({
+                        id: color.id,
+                        name: color.name,
+                        code: color.hex,
+                    }))
+
+                    const sizes = data.sizes
+                    const cats = data.categories
+
+                    console.log(colors);
+                    
+                    return <FiltersContainer>
+                        <FieldsTitles>Colors</FieldsTitles>
+                        <CollectionItemsPicker
+                            type='color'
+                            initialItems={colors}
+                            onItemsChanged={(items) => selectedColors = items}
+                        />
+                        <FieldsTitles>Sizes</FieldsTitles>
+                        <CollectionItemsPicker
+                            initialItems={sizes}
+                            onItemsChanged={(items) => selectedSizes = items}
+                        />
+                        <FieldsTitles>Categories</FieldsTitles>
+                        <CollectionItemsPicker
+                            initialItems={cats}
+                            onItemsChanged={(items) => selectedCategories = items}
+                        />
+                    </FiltersContainer>
+                }}
             />
-            <FieldsTitles>Sizes</FieldsTitles>
-            <CollectionItemsPicker
-                initialItems={[
-                    {id: 1, name: 'S'},
-                    {id: 2, name: 'M'},    
-                    {id: 3, name: 'L'},
-                    {id: 4, name: 'XL'},
-                    {id: 5, name: 'XXL'},
-                ]}
-            />
-            <FieldsTitles>Categories</FieldsTitles>
-            <CollectionItemsPicker
-                initialItems={[
-                    {id: 1, name: 'T-Shirts'},
-                    {id: 2, name: 'Pants'},    
-                    {id: 3, name: 'Shoes'},
-                    {id: 4, name: 'Hats'},
-                    {id: 5, name: 'Accessories'},
-                ]}
-            />
-            <Button type="submit" variant="contained" sx={{ width: '100%', padding: 2, marginTop: 5 }}>
+            <Button type='submit' variant="contained" sx={{ width: '100%', padding: 2, marginTop: 5 }}>
                 Create Product
             </Button>
         </ContentContainer>

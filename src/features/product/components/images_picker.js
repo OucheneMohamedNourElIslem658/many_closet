@@ -95,15 +95,8 @@ const ImagesPicker = () => {
                     <Title>Images</Title>
                     <SubTitle>Upload images for your product.</SubTitle>
                 </TitlesContainer>
-                <IconButton component="label">
+                <IconButton component="label" for={"images"}>
                     <AddAPhotoRounded style={{color: 'black'}}/>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        hidden
-                        onChange={handleFileChange}
-                    />
                 </IconButton>
             </HeaderContainer>
             <ImagesContainer>
@@ -120,6 +113,22 @@ const ImagesPicker = () => {
                     )
                 }
             </ImagesContainer>
+            <div
+                style={{
+                    width: 0,
+                    overflow:'hidden'
+                }}
+            >
+                <input
+                    id="images"
+                    type="file"
+                    name="images"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileChange}
+                    required={!files.length}
+                />
+            </div>
         </ContentContainer>
     );
 }

@@ -1,4 +1,4 @@
-import { Button, IconButton, Skeleton, styled } from "@mui/material";
+import { Button, IconButton, Skeleton, styled, Tooltip } from "@mui/material";
 import { useEffect, useState } from "react";
 
 const FiltersWithWrapedItems = styled('ul')(({ theme }) => ({
@@ -64,10 +64,6 @@ const Selector = ({ title, options, initialOption, isColor, type = 'multi', isLo
                 : [...filterOptions, option];
         }
         setFilterOptions(updatedOptions);
-
-        const selectedOptionsIds = filterOptions.map((option) => option.id);
-        
-        onOptionSelected(selectedOptionsIds);
     }
 
     useEffect(() => {
@@ -76,6 +72,11 @@ const Selector = ({ title, options, initialOption, isColor, type = 'multi', isLo
         }
     }
     , [initialOption]);
+
+    useEffect(() => {
+        const selectedOptionsIds = filterOptions.map((option) => option.id);
+        onOptionSelected(selectedOptionsIds);
+    }, [filterOptions])
 
     return (
         <div>
@@ -99,11 +100,13 @@ const Selector = ({ title, options, initialOption, isColor, type = 'multi', isLo
                             <li key={index}>
                                 {
                                     isColor ? (
-                                        <ColorButton
-                                            style={{ backgroundColor: isColor ? option.name : 'default' }}
-                                            onClick={() => handleOptionSelection(option)}
-                                            className={filterOptions.includes(option) ? 'selected' : ''}
-                                        />
+                                        <Tooltip title={option.name}>
+                                            <ColorButton
+                                                style={{ backgroundColor: isColor ? `#${option.hex}` : 'default' }}
+                                                onClick={() => handleOptionSelection(option)}
+                                                className={filterOptions.includes(option) ? 'selected' : ''}
+                                            />
+                                        </Tooltip>
                                     ) : (
                                         <OptionButton
                                             variant="outlined"
