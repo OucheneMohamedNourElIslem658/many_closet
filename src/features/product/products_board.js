@@ -1,11 +1,12 @@
-import { RefreshRounded } from "@mui/icons-material";
-import { IconButton, Pagination, styled, Table, TableCell, TableHead, TableRow } from "@mui/material";
+import { AddRounded, RefreshRounded } from "@mui/icons-material";
+import { Fab, IconButton, Pagination, styled, Table, TableCell, TableHead, TableRow } from "@mui/material";
 import { useState } from "react";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
 import EmptyDataComponent from "../../commun/components/empty";
 import { getProducts } from "../../services/product";
 import ProductRow from "./components/product_row";
 import SearchField from "../../commun/components/search_field";
+import { Link } from "react-router-dom/cjs/react-router-dom.min";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -15,7 +16,8 @@ const ContentContainer = styled('div')(({ theme }) => ({
     maxWidth: '1200px',
     justifySelf: 'center',
     margin: '0 auto',
-    padding: '0 20px'
+    padding: '0 20px',
+    position: 'relative',
 }))
 
 const Title = styled('h1')(({ theme }) => ({
@@ -144,6 +146,19 @@ const ProductsBoardPage = () => {
                     />
                 </OrdersTable>
             </TableScroller>
+            <Link to={'/admin/products/create'} style={{
+                position: 'sticky',
+                bottom: 20,
+                right: 20,
+                alignSelf: 'end',
+            }}>
+                <Fab 
+                    color="primary" 
+                    aria-label="add"
+                >
+                    <AddRounded/>
+                </Fab>
+            </Link>
         </ContentContainer>
     );
 }

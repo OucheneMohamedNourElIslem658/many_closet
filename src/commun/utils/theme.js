@@ -26,6 +26,18 @@ const theme = createTheme({
             },
         },
     },
+
+    components: {
+        MuiTextField: {
+            styleOverrides: {
+                root: {
+                    '& .MuiInputBase-root': {
+                        borderRadius: 0,
+                    },
+                },
+            },
+        },
+    },
 })
 
 export default theme

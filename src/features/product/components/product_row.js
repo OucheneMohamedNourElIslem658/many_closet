@@ -150,7 +150,7 @@ const ProductRow = ({product, onItemDeleted, isLoading}) => {
         )
     } else {
         return (<TableRow key={product.$id}>
-            <TableCell onClick={() => {}} sx={{cursor: 'pointer'}}>
+            <TableCell>
                 <Leading>
                     <div style={{
                         backgroundImage: `url(${product.images[0].url})`,

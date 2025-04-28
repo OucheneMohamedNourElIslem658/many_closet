@@ -4,9 +4,10 @@ import { useState } from "react";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
 import {getOrders } from "../../services/order";
 import EmptyDataComponent from "../../commun/components/empty";
-import OrderRow from "./components/order_row";
 import SearchField from "../../commun/components/search_field";
 import StatusDrodown from "./components/status_drop_down";
+import EditibleOrderRow from "./components/editible_order_row";
+import { orderStatuses } from "../../commun/utils/constents";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -103,7 +104,7 @@ const OrdersBoardPage = () => {
                 <StatusDrodown
                     initialValue={'All'}
                     borderType="box"
-                    statuses={['All', 'pending', 'accepted', 'rejected', 'packed']}
+                    statuses={['All', ...orderStatuses.filter((status) => status !== 'in_card')]}
                     onChange={(status) => setFilteredStatus(status)}
                 />
                 <RefreshButton onClick={async () => setRefreshKey(refreshKey + 1)}>
@@ -153,7 +154,7 @@ const OrdersBoardPage = () => {
                             }
 
                             return orders.map((order) => {
-                                return <OrderRow key={order.id} order={order} onOrderUpdated={() => setRefreshKey(refreshKey + 1)} />;
+                                return <EditibleOrderRow key={order.id} order={order} onOrderUpdated={() => setRefreshKey(refreshKey + 1)} />;
                             }).concat(
                                 <TableRow key="pagination">
                                     <TableCell sx={{ borderBottom: "none"}} colSpan={5}>

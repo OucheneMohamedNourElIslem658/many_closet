@@ -7,7 +7,7 @@ import StatusDrodown from "./status_drop_down";
 import { orderStatuses } from "../../../commun/utils/constents";
 import { updateOrder } from "../../../services/order";
 
-const OrderRow = ({order, onOrderUpdated}) => {
+const EditibleOrderRow = ({order, onOrderUpdated}) => {
     const [status, setStatus] = useState(order.status);
 
     return (
@@ -57,5 +57,5 @@ const OrderRow = ({order, onOrderUpdated}) => {
     );
 }
 
-export default OrderRow;
+export default EditibleOrderRow;
  

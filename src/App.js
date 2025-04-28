@@ -12,7 +12,8 @@ import Footer from './commun/components/footer';
 import BottomNav from './commun/components/bottom_nav';
 import AdminAuthPage from './features/auth/admin_auth';
 import ProductsBoardPage from './features/product/products_board';
-import OrdersBoardPage from './features/orders_board/orders_board';
+import OrdersBoardPage from './features/orders/orders_board';
+import CreateProductPage from './features/product/create_product';
 
 function App() {
   return (
@@ -23,6 +24,9 @@ function App() {
         <AppBar />
         <div className="content">
           <Switch>
+            <Route path='/admin/products/create'>
+              <CreateProductPage/>
+            </Route>
             <Route path='/admin/auth'>
               <AdminAuthPage/>
             </Route>
