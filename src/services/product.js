@@ -1,5 +1,5 @@
 import { ID, Query } from "appwrite";
-import { databaseID, databases } from "./config";
+import { databaseID, databases, fileStorage } from "./config";
 import { date2TimeAgo } from "../commun/utils/time_formats";
 import { getUser } from "./auth";
 
@@ -152,10 +152,52 @@ async function deleteOrder(id) {
     )
 }
 
-async function createProduct({ name, description, price, available, images, colors, sizes, categories }) {
+async function createProduct({ name, description, price, available, images, colors, sizes, categories, imagesUploadProgress}) {
     const colorsIDs = colors.map((color) => color.id)
     const catsIDs = categories.map((cat) => cat.id)
     const sizesIDs = sizes.map((size) => size.id)
+
+    let totalBytes = 0
+    for (let image of images) {
+        if (image.size) {
+            totalBytes += image.size;
+        }
+    }
+
+    let uploadedBytes = 0
+    const upLoadedImagesIDs = []
+
+    for (let image of images) {
+        const file = await fileStorage.createFile(
+            'shop',
+            ID.unique(),
+            image,
+            [],
+            (progress) => {
+                uploadedBytes += progress.bytesUploaded
+                const progressPercentage = Math.round(uploadedBytes / totalBytes * 100)
+                console.log(progressPercentage)
+            },
+        )
+
+        const imageURL = fileStorage.getFilePreview(
+            'shop',
+            file.$id,
+        )
+        
+        const storedImage = await databases.createDocument(
+            databaseID,
+            'images',
+            ID.unique(),
+            {
+                storage_id: file.$id,
+                url: imageURL
+            }
+        )
+
+        upLoadedImagesIDs.push(storedImage.$id)
+    }
+    
 
     await databases.createDocument(
         databaseID,
@@ -164,7 +206,7 @@ async function createProduct({ name, description, price, available, images, colo
         {
             name: name,
             desc: description,
-            price: price,
+            price: Number(price),
             is_available: available,
             colors_tags: colorsIDs,
             categories_tags: catsIDs,
@@ -172,6 +214,7 @@ async function createProduct({ name, description, price, available, images, colo
             colors: colorsIDs,
             sizes: sizesIDs,
             categories: catsIDs,
+            images: upLoadedImagesIDs,
         }
     )
 }

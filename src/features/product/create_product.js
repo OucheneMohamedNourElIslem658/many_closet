@@ -1,10 +1,9 @@
 import { Button, FormControlLabel, styled, Switch, TextField } from "@mui/material";
 import CollectionItemsPicker from "./components/collection_items_picker";
-import CustomSwitch from "./components/custom_switch";
 import ImagesPicker from "./components/images_picker";
 import { useState } from "react";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
-import { getFilters } from "../../services/product";
+import { createProduct, getFilters } from "../../services/product";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -55,9 +54,15 @@ const CreateProductPage = () => {
     let [selectedCategories, setCategories] = useState([])
     const [isAvailable, setIsAvailable] = useState(true)
 
-    const handleSubmit = (event) => {
+    const [disabled, setDisabled] = useState(false)
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
+        // const imagesUploadProgress = (progress) => {
+        //     console.log(progress);
+        // }
+        
         const data = {
             name: formData.get('name'),
             description: formData.get('description'),
@@ -67,9 +72,22 @@ const CreateProductPage = () => {
             colors: selectedColors,
             sizes: selectedSizes,
             categories: selectedCategories,
+            // imagesUploadProgress: imagesUploadProgress
         };
 
         console.log(data);
+        
+
+        setDisabled(true)
+
+        try {
+            await createProduct(data)
+        } catch (error) {
+            console.log("error =============================>", error);
+            
+        } finally {
+            setDisabled(false)
+        }
     }
 
     return (
@@ -96,6 +114,7 @@ const CreateProductPage = () => {
                     },
                 }}
                 required
+                disabled={disabled}
             />
             <TextField
                 margin="dense"
@@ -113,6 +132,7 @@ const CreateProductPage = () => {
                     }
                 }}
                 required
+                disabled={disabled}
             />
             <TextField
                 margin="dense"
@@ -129,6 +149,7 @@ const CreateProductPage = () => {
                     }
                 }}
                 required
+                disabled={disabled}
             />
             <FormControlLabel 
                 control={<Switch defaultChecked />} 
@@ -137,6 +158,7 @@ const CreateProductPage = () => {
                 onChange={(_, checked) => {
                     setIsAvailable(checked)
                 }}
+                disabled={disabled}
             />
             <ImagesPicker/>
             <PromiseBuilder
@@ -152,8 +174,6 @@ const CreateProductPage = () => {
                     </FiltersContainer>
                 }
                 builder={(data) => {
-                    console.log(data);
-                    
                     const colors = data.colors.map((color) => ({
                         id: color.id,
                         name: color.name,
@@ -162,8 +182,6 @@ const CreateProductPage = () => {
 
                     const sizes = data.sizes
                     const cats = data.categories
-
-                    console.log(colors);
                     
                     return <FiltersContainer>
                         <FieldsTitles>Colors</FieldsTitles>
@@ -185,7 +203,7 @@ const CreateProductPage = () => {
                     </FiltersContainer>
                 }}
             />
-            <Button type='submit' variant="contained" sx={{ width: '100%', padding: 2, marginTop: 5 }}>
+            <Button type='submit' disabled={disabled} variant="contained" sx={{ width: '100%', padding: 2, marginTop: 5 }}>
                 Create Product
             </Button>
         </ContentContainer>
