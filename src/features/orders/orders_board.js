@@ -125,7 +125,7 @@ const OrdersBoardPage = () => {
                     <PromiseBuilder
                         promise={() => getOrders({pageSize, currentPage, status: filteredStatus, id, isAdmin: true})}
                         loading={
-                            Array.from({ length: pageSize }).map((_, index) => (
+                            Array.from({ length: 5 }).map((_, index) => (
                                 <TableRow key={`skeleton-${index}`}>
                                     <TableCell>
                                         <Skeleton variant="text" width="80%" height={20} />
@@ -154,7 +154,11 @@ const OrdersBoardPage = () => {
                             }
 
                             return orders.map((order) => {
-                                return <EditibleOrderRow key={order.id} order={order} onOrderUpdated={() => setRefreshKey(refreshKey + 1)} />;
+                                return <EditibleOrderRow 
+                                    key={order.id} 
+                                    order={order} 
+                                    onOrderDeleted={() => setRefreshKey(refreshKey + 1)}
+                                />;
                             }).concat(
                                 <TableRow key="pagination">
                                     <TableCell sx={{ borderBottom: "none"}} colSpan={5}>

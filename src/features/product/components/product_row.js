@@ -39,6 +39,7 @@ const Categories = styled('ul')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'row',
     gap: 7,
+    whiteSpace: 'nowrap',
     '& li::before': {
         content: '"• "',
     }
@@ -53,6 +54,7 @@ const Sizes = styled('ul')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'row',
     gap: 10,
+    whiteSpace: 'nowrap',
     '& li::before': {
         content: '"• "',
     }
@@ -68,6 +70,7 @@ const Colors = styled('ul')(({ theme }) => ({
     marginBottom: 10,
     fontSize: 13,
     color: theme.palette.secondary.main,
+    whiteSpace: 'nowrap',
     '& li::before': {
         content: '"• "',
     }

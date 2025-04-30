@@ -97,7 +97,7 @@ const OrdersPage = () => {
                     <PromiseBuilder
                         promise={() => getOrders({pageSize, currentPage})}
                         loading={
-                            Array.from({ length: pageSize }).map((_, index) => (
+                            Array.from({ length: 5 }).map((_, index) => (
                                 <TableRow key={`skeleton-${index}`}>
                                     <TableCell>
                                         <Skeleton variant="text" width="80%" height={20} />

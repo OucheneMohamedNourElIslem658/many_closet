@@ -40,7 +40,6 @@ const Name = styled('h1')(({ theme }) => ({
     fontWeight: '100',
     marginBottom: '10px',
     color: theme.palette.primary.main,
-    whiteSpace: 'nowrap'
 }))
 
 const AvailablityTag = styled('div')(({ theme }) => ({
@@ -161,6 +160,7 @@ const InfoContainer = styled('div')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     maxWidth: '500px',
+    width: '100%',
 }))
 
 const SidePicturesList = styled('ul')(({ theme }) => ({
@@ -196,11 +196,6 @@ const QuantityContainer = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'end',
     gap: '30px',
-}))
-
-const FavButton = styled(IconButton)(({ theme }) => ({
-    border: `1px solid ${theme.palette.grey[300]}`,
-    padding: 4,
 }))
 
 const ProductPage = () => {

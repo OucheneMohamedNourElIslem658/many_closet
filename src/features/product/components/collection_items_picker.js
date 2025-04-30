@@ -54,7 +54,20 @@ export default function CollectionItemsPicker({initialItems, type, onItemsChange
     setAnchorEl(null);
   };
 
-  const handleAddNewItem = async (newItem) => {
+  const handleAddNewItem = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+    const newItem = {
+      name: data.name,
+    };
+
+    if (type === 'colors') {
+      newItem.code = data.code.replace('#', '').toUpperCase();
+    }
+
+    e.stopPropagation();
+
     if (!items.includes(newItem)) {
       setFormDisabled(true)
       try {
@@ -168,21 +181,7 @@ export default function CollectionItemsPicker({initialItems, type, onItemsChange
       >
         <NewItemFormContainer>
           <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              const data = Object.fromEntries(formData.entries());
-                const newItem = {
-                  name: data.name,
-                };
-
-                if (type === 'colors') {
-                  newItem.code = data.code.replace('#', '').toUpperCase();
-                }
-                
-                e.stopPropagation();
-                await handleAddNewItem(newItem);
-            }}
+            onSubmit={async (e) => await handleAddNewItem(e)}
           >
             <Fragment>
               <TextField

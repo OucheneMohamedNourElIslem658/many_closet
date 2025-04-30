@@ -10,7 +10,6 @@ async function getOrders({currentPage, pageSize, status, id, isAdmin}) {
         Query.offset(offset),
         Query.notEqual('status', 'in_card'),
         Query.orderDesc('$createdAt'),
-        Query.equal('client', '67fccddebe9046bc6a44')
     ]
 
     const currentUser = await getUser()
@@ -175,6 +174,8 @@ async function getOrderFormData() {
 }
 
 async function makeOrder({address, price_id, cardID, name, phone}) {
+    console.log('entred');
+    
     await databases.updateDocument(
         databaseID,
         'orders',
@@ -187,6 +188,9 @@ async function makeOrder({address, price_id, cardID, name, phone}) {
             phone_number: Number(phone),
         },
     )
+
+    console.log('sorted');
+    
 }
 
 async function deleteOrder(id) {
@@ -222,30 +226,24 @@ async function addItemToCard({productID, sizeID, colorID, quantity}) {
     const currentUser = await getUser();
 
     if (card.documents.length === 0) {
-        const orderItem = await databases.createDocument(
-            databaseID,
-            'order_items',
-            ID.unique(),
-            {
-                product: productID,
-                size: sizeID,
-                color: colorID,
-                product_count: quantity,
-            },
-            [
-                Permission.write(Role.user(currentUser.$id)),
-            ]
-        )
-
         order = await databases.createDocument(
             databaseID,
             'orders',
             ID.unique(),
             {
                 status: 'in_card',
-                client: currentUser.$id,
+                client: {
+                    $id: currentUser.$id,
+                    name: currentUser.name,
+                    email: currentUser.email
+                },
                 orderItems: [
-                    orderItem.$id
+                    {
+                        product: productID,
+                        size: sizeID,
+                        color: colorID,
+                        product_count: quantity,
+                    }
                 ],
             },
             [
@@ -262,8 +260,13 @@ async function addItemToCard({productID, sizeID, colorID, quantity}) {
         (item) => item.product.$id === productID && item.size.$id === sizeID && item.color.$id === colorID
     );
 
+    console.log(existingItem);
+    
+
     if (existingItem) {
         const newQuantity = existingItem.product_count + quantity;
+        console.log(newQuantity);
+        
         await databases.updateDocument(
             databaseID,
             'order_items',
@@ -271,6 +274,7 @@ async function addItemToCard({productID, sizeID, colorID, quantity}) {
             {
                 product_count: newQuantity,
             },
+            null
         );
     } else {
         const orderItem = await databases.createDocument(
@@ -290,7 +294,8 @@ async function addItemToCard({productID, sizeID, colorID, quantity}) {
 
         const orderItemIDs = order.orderItems.map((item) => item.$id);
 
-        orderItemIDs.push(orderItem.$id);
+        orderItemIDs.push(orderItem);
+        
         
 
         await databases.updateDocument(
@@ -298,7 +303,7 @@ async function addItemToCard({productID, sizeID, colorID, quantity}) {
             'orders',
             order.$id,
             {
-                orderItems: orderItemIDs,
+                orderItems: orderItemIDs
             },
         );
     }

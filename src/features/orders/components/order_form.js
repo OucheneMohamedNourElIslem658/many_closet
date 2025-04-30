@@ -46,6 +46,7 @@ export default function OrderForm({orderID, onOrderCreated}) {
       setOpen(false);
       setSnackbarMessage(error.message);
       setOpenSnackbar(true);
+      throw error;
     }
   }
 
@@ -71,6 +72,9 @@ export default function OrderForm({orderID, onOrderCreated}) {
               const name = formJson.name;
               const phone = formJson.phone;
               const cardID = orderID;
+
+              // console.log(priceID);
+              
               await createOrder({ address, priceID, cardID, name, phone });
             },
           },
