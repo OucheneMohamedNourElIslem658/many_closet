@@ -6,6 +6,8 @@ import { Fragment, useEffect, useState } from 'react';
 import { Avatar, Box, Button, colors, Menu, MenuItem, Skeleton, TextField } from '@mui/material';
 import { AddRounded, CheckRounded, CircleRounded, CloseRounded } from '@mui/icons-material';
 import ActionConfirmationDialog from '../../landing/components/action_confirmation_dialog';
+import { addFilter, deleteFilter } from '../../../services/product';
+import CustomizedSnackbar from '../../../commun/components/snackbar';
 
 const ListItem = styled('li')(({ theme }) => ({
   margin: theme.spacing(0.5),
@@ -30,11 +32,13 @@ const ItemLeadingContainer = styled('div')(({ theme }) => ({
   gap: 5,
 }));
 
-export default function CollectionItemsPicker({initialItems, type, onItemsChanged = ([]) => {}, isLoading = false}) {
+export default function CollectionItemsPicker({initialItems, type, onItemsChanged = ([]) => {}, isLoading = false, disabled}) {
   const [items, setItems] = useState([]);
 
   const [selectedItems, setSelectedItems] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [error, setError] = useState('');
+  const [formDisabled, setFormDisabled] = useState(false);
 
   const handleChipClick = (item) => {
     setSelectedItems((prev) =>
@@ -50,19 +54,33 @@ export default function CollectionItemsPicker({initialItems, type, onItemsChange
     setAnchorEl(null);
   };
 
-  const handleAddNewItem = (newItem) => {
+  const handleAddNewItem = async (newItem) => {
     if (!items.includes(newItem)) {
-      const updatedItems = [...items, newItem];
-      setItems(updatedItems);
-      setSelectedItems([...selectedItems, newItem]);
-      onItemsChanged(selectedItems)
+      setFormDisabled(true)
+      try {
+        const createdItem = await addFilter({type, data: newItem})
+        const updatedItems = [...items, createdItem];
+        setItems(updatedItems);
+        setSelectedItems([...selectedItems, createdItem]);
+        onItemsChanged(selectedItems)
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setFormDisabled(false)
+        setAnchorEl(null)
+      }
     }
     setAnchorEl(null);
   };
 
-  const handleItemDelete = (item) => {
-    setItems((prev) => prev.filter((i) => i !== item));
-    setSelectedItems((prev) => prev.filter((i) => i !== item));
+  const handleItemDelete = async (item) => {
+    try {
+      await deleteFilter({type, id: item.id});
+      setItems((prev) => prev.filter((i) => i !== item));
+      setSelectedItems((prev) => prev.filter((i) => i !== item));
+    } catch (error) {
+      setError(error.message);
+    }
   }
 
   useEffect(() => {
@@ -93,10 +111,11 @@ export default function CollectionItemsPicker({initialItems, type, onItemsChange
           ))
         ) : (
           items.map((item) => {
-            const colorCode = type === 'color' ? `${item.code}` : null;
-            const isColorBlack = type === 'color' && item.code === `000000`;
+            const colorCode = type === 'colors' ? `${item.hex}` : null;
+            const isColorBlack = type === 'colors' && item.hex === `000000`;
             return <ListItem key={item.id || item}>
               <Chip
+                disabled={disabled}
                 label={item.name}
                 onClick={() => handleChipClick(item)}
                 color={selectedItems.includes(item) ? 'primary' : 'default'}
@@ -106,7 +125,7 @@ export default function CollectionItemsPicker({initialItems, type, onItemsChange
                 icon={
                   selectedItems.includes(item) 
                   ? 
-                    type === 'color' 
+                    type === 'colors' 
                     ? <CircleRounded 
                       fontSize='small'
                       style={{
@@ -124,7 +143,7 @@ export default function CollectionItemsPicker({initialItems, type, onItemsChange
                     triggerButton={<CloseRounded style={{color: !selectedItems.includes(item) ? 'black' : 'white'}}/>}
                     title={`Are you sure you want to delete ${item.name} ?`}
                     description={`This action will remove ${item.name} from the list.`}
-                    onConfirm={() => handleItemDelete(item)}
+                    onConfirm={async () => await handleItemDelete(item)}
                   />
                 }
                 onDelete={() => {}} 
@@ -134,7 +153,7 @@ export default function CollectionItemsPicker({initialItems, type, onItemsChange
         )}
         {!isLoading && (
           <ListItem>
-            <Button variant="outlined" onClick={handleAddItemClick} style={{borderRadius: '50px'}}>
+            <Button variant="outlined" onClick={handleAddItemClick} style={{borderRadius: '50px'}} disabled={disabled}>
               <AddRounded/>
               Add Item
             </Button>
@@ -147,45 +166,63 @@ export default function CollectionItemsPicker({initialItems, type, onItemsChange
         onClose={handleMenuClose}
         style={{marginTop: '10px'}}
       >
-        <NewItemFormContainer 
-          as='form'
-          onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.currentTarget);
-            const data = Object.fromEntries(formData.entries());
-            const newItem = {
-              id: items.length + 1,
-              name: data.name,
-              code: type === 'color' && data.code ? data.code.substring(1) : null,
-            };
-            handleAddNewItem(newItem);
-          }}
-        >
-          <TextField
-            label="Name"
-            name='name'
-            variant="outlined"
-            size="small"
-            required
-            slotProps={{
-              input: {
-                endAdornment: type === 'color' && (
-                  <input
-                    type="color"
-                    name='code'
-                    style={{ width: '45px', height: '40px', border: 'none', cursor: 'pointer'}}
-                    required
-                  />
-                ),
-                style: {
-                  paddingRight: 3
+        <NewItemFormContainer>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const data = Object.fromEntries(formData.entries());
+                const newItem = {
+                  name: data.name,
+                };
+
+                if (type === 'colors') {
+                  newItem.code = data.code.replace('#', '').toUpperCase();
                 }
-              }
+                
+                e.stopPropagation();
+                await handleAddNewItem(newItem);
             }}
-          />
-          <Button type='submit'>Add</Button>
+          >
+            <Fragment>
+              <TextField
+                label="Name"
+                name='name'
+                variant="outlined"
+                size="small"
+                required
+                disabled={formDisabled}
+                slotProps={{
+                  input: {
+                    endAdornment: type === 'colors' && (
+                      <input
+                        type="color"
+                        name='code'
+                        style={{ width: '45px', height: '40px', border: 'none', cursor: 'pointer'}}
+                        required
+                        disabled={formDisabled}
+                      />
+                    ),
+                    style: {
+                      paddingRight: 3
+                    }
+                  },
+                  htmlInput: {
+                    maxLength: type === 'colors' ? 20 : type === 'sizes' ? 5 : 50,
+                  },
+                }}
+              />
+              <Button type='submit' disabled={formDisabled}>Add</Button>
+            </Fragment>
+          </form>
         </NewItemFormContainer>
       </Menu>
+      <CustomizedSnackbar
+        open={Boolean(error)}
+        message={error}
+        type='error'
+        handleClose={() => setError(null)}  
+      />
     </Fragment>
   );
 }

@@ -1,9 +1,12 @@
 import { Button, FormControlLabel, styled, Switch, TextField } from "@mui/material";
 import CollectionItemsPicker from "./components/collection_items_picker";
 import ImagesPicker from "./components/images_picker";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
 import { createProduct, getFilters } from "../../services/product";
+import ErrorComponent from "../../commun/components/error";
+import ActionConfirmationDialog from "../landing/components/action_confirmation_dialog";
+import CustomizedSnackbar from "../../commun/components/snackbar";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -49,46 +52,71 @@ const FiltersContainer = styled('div')({
 })
 
 const CreateProductPage = () => {
-    let [selectedSizes, setSizes] = useState([])
-    let [selectedColors, setColors] = useState([])
-    let [selectedCategories, setCategories] = useState([])
-    const [isAvailable, setIsAvailable] = useState(true)
+    const [state, setState] = useState({
+        data: null,
+        loadingState: true,
+        errorState: null,
+        selectedSizes: [],
+        selectedColors: [],
+        selectedCategories: [],
+        isAvailable: true,
+        disabled: false,
+        error: '',
+    });
 
-    const [disabled, setDisabled] = useState(false)
+    useEffect(() => {
+        let isMounted = true;
+        setState((prev) => ({ ...prev, loadingState: true }));
+        getFilters()
+            .then((res) => {
+                if (isMounted) {
+                    setState((prev) => ({
+                        ...prev,
+                        data: res,
+                        loadingState: false,
+                    }));
+                }
+            })
+            .catch((err) => {
+                if (isMounted) {
+                    setState((prev) => ({
+                        ...prev,
+                        errorState: err,
+                        loadingState: false,
+                    }));
+                }
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        // const imagesUploadProgress = (progress) => {
-        //     console.log(progress);
-        // }
-        
+
         const data = {
             name: formData.get('name'),
             description: formData.get('description'),
             price: formData.get('price'),
-            available: isAvailable,
+            available: state.isAvailable,
             images: formData.getAll('images'),
-            colors: selectedColors,
-            sizes: selectedSizes,
-            categories: selectedCategories,
-            // imagesUploadProgress: imagesUploadProgress
+            colors: state.selectedColors,
+            sizes: state.selectedSizes,
+            categories: state.selectedCategories,
         };
 
-        console.log(data);
-        
-
-        setDisabled(true)
-
+        setState((prev) => ({ ...prev, disabled: true }));
         try {
-            await createProduct(data)
+            await createProduct(data);
+            window.location.href = '/admin/products';
         } catch (error) {
-            console.log("error =============================>", error);
-            
+            setState((prev) => ({ ...prev, error }));
         } finally {
-            setDisabled(false)
+            setState((prev) => ({ ...prev, disabled: false }));
         }
-    }
+    };
 
     return (
         <ContentContainer
@@ -114,7 +142,7 @@ const CreateProductPage = () => {
                     },
                 }}
                 required
-                disabled={disabled}
+                disabled={state.disabled}
             />
             <TextField
                 margin="dense"
@@ -129,10 +157,10 @@ const CreateProductPage = () => {
                 slotProps={{
                     htmlInput: {
                         maxLength: 500,
-                    }
+                    },
                 }}
                 required
-                disabled={disabled}
+                disabled={state.disabled}
             />
             <TextField
                 margin="dense"
@@ -146,68 +174,106 @@ const CreateProductPage = () => {
                     htmlInput: {
                         min: 0,
                         max: 1000000000,
-                    }
+                    },
                 }}
                 required
-                disabled={disabled}
+                disabled={state.disabled}
             />
-            <FormControlLabel 
-                control={<Switch defaultChecked />} 
-                label={'available'} 
-                value={isAvailable} 
+            <FormControlLabel
+                control={<Switch defaultChecked />}
+                label={'available'}
+                value={state.isAvailable}
                 onChange={(_, checked) => {
-                    setIsAvailable(checked)
+                    setState((prev) => ({ ...prev, isAvailable: checked }));
                 }}
-                disabled={disabled}
+                disabled={state.disabled}
             />
-            <ImagesPicker/>
-            <PromiseBuilder
-                promise={() => getFilters()}
-                loading={
-                    <FiltersContainer>
-                        <FieldsTitles>Colors</FieldsTitles>
-                        <CollectionItemsPicker isLoading={true}/>
-                        <FieldsTitles>Sizes</FieldsTitles>
-                        <CollectionItemsPicker isLoading={true}/>
-                        <FieldsTitles>Categories</FieldsTitles>
-                        <CollectionItemsPicker isLoading={true}/>
-                    </FiltersContainer>
-                }
-                builder={(data) => {
-                    const colors = data.colors.map((color) => ({
-                        id: color.id,
-                        name: color.name,
-                        code: color.hex,
-                    }))
+            <ImagesPicker disabled={state.disabled} />
+            {state.loadingState ? (
+                <FiltersContainer>
+                    <FieldsTitles>Colors</FieldsTitles>
+                    <CollectionItemsPicker isLoading={true} />
+                    <FieldsTitles>Sizes</FieldsTitles>
+                    <CollectionItemsPicker isLoading={true} />
+                    <FieldsTitles>Categories</FieldsTitles>
+                    <CollectionItemsPicker isLoading={true} />
+                </FiltersContainer>
+            ) : null}
+            {state.errorState ? (
+                <ErrorComponent error={state.errorState.message} />
+            ) : null}
+            {state.data
+                ? (() => {
+                      const { colors, sizes, categories } = state.data;
 
-                    const sizes = data.sizes
-                    const cats = data.categories
-                    
-                    return <FiltersContainer>
-                        <FieldsTitles>Colors</FieldsTitles>
-                        <CollectionItemsPicker
-                            type='color'
-                            initialItems={colors}
-                            onItemsChanged={(items) => selectedColors = items}
-                        />
-                        <FieldsTitles>Sizes</FieldsTitles>
-                        <CollectionItemsPicker
-                            initialItems={sizes}
-                            onItemsChanged={(items) => selectedSizes = items}
-                        />
-                        <FieldsTitles>Categories</FieldsTitles>
-                        <CollectionItemsPicker
-                            initialItems={cats}
-                            onItemsChanged={(items) => selectedCategories = items}
-                        />
-                    </FiltersContainer>
+                      return (
+                          <FiltersContainer>
+                              <FieldsTitles>Colors</FieldsTitles>
+                              <CollectionItemsPicker
+                                type="colors"
+                                initialItems={colors}
+                                onItemsChanged={(items) => {
+                                    console.log(items);
+                                    
+                                    setState((prev) => ({
+                                        ...prev,
+                                        selectedColors: items,
+                                    }))
+                                }
+                                }
+                                disabled={state.disabled}
+                              />
+                              <FieldsTitles>Sizes</FieldsTitles>
+                              <CollectionItemsPicker
+                                type="sizes"
+                                initialItems={sizes}
+                                onItemsChanged={(items) =>
+                                    setState((prev) => ({
+                                        ...prev,
+                                        selectedSizes: items,
+                                    }))
+                                }
+                                disabled={state.disabled}
+                              />
+                              <FieldsTitles>Categories</FieldsTitles>
+                              <CollectionItemsPicker
+                                type="categories"
+                                initialItems={categories}
+                                onItemsChanged={(items) =>
+                                    setState((prev) => ({
+                                        ...prev,
+                                        selectedCategories: items,
+                                    }))
+                                }
+                                disabled={state.disabled}
+                              />
+                          </FiltersContainer>
+                      );
+                  })()
+                : null}
+            <Button
+                type="submit"
+                variant="contained"
+                sx={{
+                    width: '100%',
+                    padding: 2,
+                    marginTop: 5,
                 }}
-            />
-            <Button type='submit' disabled={disabled} variant="contained" sx={{ width: '100%', padding: 2, marginTop: 5 }}>
+                loading={state.disabled}
+                loadingPosition="end"
+            >
                 Create Product
             </Button>
+            <CustomizedSnackbar
+                open={Boolean(state.error)}
+                message={state.error.message}
+                handleClose={() =>
+                    setState((prev) => ({ ...prev, error: '' }))
+                }
+                type={'error'}
+            />
         </ContentContainer>
     );
-}
+};
  
 export default CreateProductPage;

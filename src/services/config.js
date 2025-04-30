@@ -13,5 +13,5 @@ const databaseID = '67fd5541001594d976c4'
 
 const fileStorage = new Storage(client)
 
-export { account, databases, databaseID, fileStorage }
+export { client, account, databases, databaseID, fileStorage }
 

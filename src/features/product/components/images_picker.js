@@ -76,7 +76,7 @@ const TitlesContainer = styled('div')(({ theme }) => ({
     gap: 5,
 }))
 
-const ImagesPicker = () => {
+const ImagesPicker = ({disabled}) => {
     const [files, setFiles] = useState([]);
 
     const handleFileChange = (event) => {
@@ -95,7 +95,7 @@ const ImagesPicker = () => {
                     <Title>Images</Title>
                     <SubTitle>Upload images for your product.</SubTitle>
                 </TitlesContainer>
-                <IconButton component="label" for={"images"}>
+                <IconButton component="label" for={"images"} disabled={disabled}>
                     <AddAPhotoRounded style={{color: 'black'}}/>
                 </IconButton>
             </HeaderContainer>
@@ -104,7 +104,7 @@ const ImagesPicker = () => {
                     files.length > 0 ? files.map((file, index) => (
                         <ImagePreview key={index} margin={1}>
                             <img src={file} alt={`Image ${index + 1}`} />
-                            <button type="button" onClick={() => handleRemoveFile(index)}>X</button>
+                            <button type="button" onClick={() => handleRemoveFile(index)} disabled={disabled}>X</button>
                         </ImagePreview>
                     )) : (
                         <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', width: '100%' , alignSelf: 'center'}}>
@@ -120,6 +120,7 @@ const ImagesPicker = () => {
                 }}
             >
                 <input
+                    disabled={disabled}
                     id="images"
                     type="file"
                     name="images"

@@ -219,4 +219,32 @@ async function createProduct({ name, description, price, available, images, colo
     )
 }
 
-export {getFilters, getProducts, getProduct, deleteOrder, createProduct}
+async function addFilter({type, data}){
+    console.log(type, data);
+    
+    const createdFilter = await databases.createDocument(
+        databaseID,
+        type,
+        ID.unique(),
+        data,
+        []
+    )
+
+    const filter = {
+        id: createdFilter.$id,
+        name: createdFilter.name,
+        hex: createdFilter.code
+    }
+
+    return filter
+}
+
+async function deleteFilter({type, id}) {
+    await databases.deleteDocument(
+        databaseID,
+        type,
+        id
+    )
+}
+
+export {getFilters, getProducts, getProduct, deleteOrder, createProduct, addFilter, deleteFilter}
