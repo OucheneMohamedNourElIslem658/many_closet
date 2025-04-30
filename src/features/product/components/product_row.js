@@ -1,8 +1,9 @@
 import { IconButton, Skeleton, styled, TableCell, TableRow } from "@mui/material";
-import { DeleteRounded, EditRounded } from "@mui/icons-material";
+import { DeleteRounded, EditRounded, VisibilityOffRounded, VisibilityRounded } from "@mui/icons-material";
 import theme from "../../../commun/utils/theme";
-import { deleteOrder } from "../../../services/product";
+import { deleteOrder, updateProduct } from "../../../services/product";
 import ActionConfirmationDialog from "../../landing/components/action_confirmation_dialog";
+import { use, useEffect, useState } from "react";
 
 const ProductInfo = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -95,7 +96,18 @@ const AvailablityTag = styled('span')(({ theme }) => ({
     },
 }))
 
-const ProductRow = ({product, onItemDeleted, isLoading}) => {
+const ProductRow = ({product, isLoading}) => {
+    const [isShown, setIsShown] = useState(false)
+
+    console.log(product);
+    
+
+    useEffect(() => {
+        if (!isLoading) {
+            setIsShown(product.is_shown)
+        }
+    }, [product])
+
     if (isLoading) {
         return (
             <TableRow>
@@ -199,17 +211,21 @@ const ProductRow = ({product, onItemDeleted, isLoading}) => {
                     <EditRounded/>
                 </IconButton>
                 <ActionConfirmationDialog
-                    title="Delete Product"
-                    description="Are you sure you want to delete this product?"
+                    title={`${isShown ? 'Hide': 'Show'} Product?`}
+                    description={`Are you sure you want to ${isShown ? 'hide': 'show'} this product?`}
                     triggerButton={
-                        <IconButton sx={{color: theme.palette.error.main}}>
-                            <DeleteRounded/>
+                        <IconButton sx={{color: theme.palette.primary.main}}>
+                            {
+                                isShown 
+                                    ? <VisibilityOffRounded/> 
+                                    : <VisibilityRounded/>
+                            }
                         </IconButton>
                     }
                     onConfirm={
                         async () => {
-                            await deleteOrder(product.$id)
-                            onItemDeleted()
+                            await updateProduct({id: product.$id, isShown: !isShown})
+                            setIsShown((prev) => !prev)
                         }
                     }
                 />

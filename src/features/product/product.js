@@ -8,6 +8,7 @@ import { PromiseBuilder } from "../../commun/components/promise_builder";
 import { getProduct } from "../../services/product";
 import { addItemToCard } from "../../services/order";
 import AddItemToCardDialog from "../landing/components/action_confirmation_dialog";
+import EmptyDataComponent from "../../commun/components/empty";
 
 const Picture = styled('div')(({ theme }) => ({
     backgroundSize: 'cover',
@@ -208,6 +209,8 @@ const ProductPage = () => {
             promise={() => getProduct(id)}
             loading={<ProductPageLoader/>}
             builder={(product) => {
+                if (!product) return <EmptyDataComponent message={'this document does not exist'}/>
+
                 const colors = product.colors.map((color) => ({
                     id: color.$id,
                     name: color.name,

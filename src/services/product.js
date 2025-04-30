@@ -67,7 +67,7 @@ async function getFilters() {
     }
 }  
 
-async function getProducts({currentPage, pageSize, name, tags, colors, sizes, priceRange, isAdminBoard}) {
+async function getProducts({currentPage, pageSize, name, tags, colors, sizes, priceRange, isAdminBoard = false}) {
     if (isAdminBoard) {
         const user = await getUser()
         
@@ -83,6 +83,10 @@ async function getProducts({currentPage, pageSize, name, tags, colors, sizes, pr
         Query.offset(offset),
         Query.orderDesc('$createdAt'),
     ]
+
+    if (!isAdminBoard) {
+        queries.push(Query.equal('is_shown', true))
+    }
 
     if (name && name.trim().length > 0) {
         queries.push(Query.search('name', name))
@@ -118,8 +122,12 @@ async function getProducts({currentPage, pageSize, name, tags, colors, sizes, pr
     )
     
     const maxPages = Math.ceil(products.total / pageSize)
+
+    console.log(products);
+    
     
     return {
+        
         products: products.documents.map((product) => {
             return {
                 ...product,
@@ -131,11 +139,20 @@ async function getProducts({currentPage, pageSize, name, tags, colors, sizes, pr
 }
 
 async function getProduct(id) {
-    let product = await databases.getDocument(
+    let products = await databases.listDocuments(
         databaseID,
         'products',
-        id,
+        [
+            Query.equal('$id', id),
+            Query.equal('is_shown', true)
+        ]
     )
+
+    if (products.total === 0) {
+        return null
+    }
+
+    const product = products.documents[0]
 
     const orderItemsQuantities = product.orderItems.map((item) => item.product_count)
 
@@ -144,11 +161,14 @@ async function getProduct(id) {
     return product
 }
 
-async function deleteOrder(id) {
-    await databases.deleteDocument(
+async function updateProduct({id, isShown}) {
+    await databases.updateDocument(
         databaseID,
         'products',
-        id
+        id,
+        {
+            is_shown: isShown,
+        }
     )
 }
 
@@ -247,4 +267,4 @@ async function deleteFilter({type, id}) {
     )
 }
 
-export {getFilters, getProducts, getProduct, deleteOrder, createProduct, addFilter, deleteFilter}
+export {getFilters, getProducts, getProduct, updateProduct, createProduct, addFilter, deleteFilter}

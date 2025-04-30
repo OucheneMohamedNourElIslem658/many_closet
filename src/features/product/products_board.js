@@ -127,9 +127,12 @@ const ProductsBoardPage = () => {
                             if (!products || products.length === 0) {
                                 return <EmptyDataComponent/>
                             }
+                            
 
                             return products.map((product) => {
-                                return <ProductRow key={product.$id} product={product} onItemDeleted={() => setRefreshKey(refreshKey + 1)} />;
+                                console.log(product);
+                                
+                                return <ProductRow key={product.$id} product={product} />;
                             }).concat(
                                 <TableRow key="pagination">
                                     <TableCell sx={{ borderBottom: "none"}} colSpan={5}>
