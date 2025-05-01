@@ -130,8 +130,6 @@ const ProductsBoardPage = () => {
                             
 
                             return products.map((product) => {
-                                console.log(product);
-                                
                                 return <ProductRow key={product.$id} product={product} />;
                             }).concat(
                                 <TableRow key="pagination">

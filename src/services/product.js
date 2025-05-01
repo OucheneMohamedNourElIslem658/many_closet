@@ -122,9 +122,6 @@ async function getProducts({currentPage, pageSize, name, tags, colors, sizes, pr
     )
     
     const maxPages = Math.ceil(products.total / pageSize)
-
-    console.log(products);
-    
     
     return {
         
@@ -138,14 +135,19 @@ async function getProducts({currentPage, pageSize, name, tags, colors, sizes, pr
     }
 }
 
-async function getProduct(id) {
+async function getProduct(id, isAdminBoard = false) {
+    const queries = [
+        Query.equal('$id', id),
+    ]
+
+    if (!isAdminBoard) {
+        queries.push(Query.equal('is_shown', true))
+    }
+
     let products = await databases.listDocuments(
         databaseID,
         'products',
-        [
-            Query.equal('$id', id),
-            Query.equal('is_shown', true)
-        ]
+        queries
     )
 
     if (products.total === 0) {
@@ -161,7 +163,7 @@ async function getProduct(id) {
     return product
 }
 
-async function updateProduct({id, isShown}) {
+async function updateProductVisibility({id, isShown}) {
     await databases.updateDocument(
         databaseID,
         'products',
@@ -196,7 +198,6 @@ async function createProduct({ name, description, price, available, images, colo
             (progress) => {
                 uploadedBytes += progress.bytesUploaded
                 const progressPercentage = Math.round(uploadedBytes / totalBytes * 100)
-                console.log(progressPercentage)
             },
         )
 
@@ -239,9 +240,113 @@ async function createProduct({ name, description, price, available, images, colo
     )
 }
 
+async function updateProduct({ id, name, description, price, available, images, colors, sizes, categories, imagesToDelete}) {
+    const data = {}
+
+    if (name) {
+        data.name = name
+    }
+
+    if (description) {
+        data.desc = description
+    }
+
+    if (price) {
+        data.price = Number(price)
+    }
+
+    if (available) {
+        data.is_available = available
+    }
+
+    if (colors) {
+        const colorsIDs = colors.map((color) => color.id)
+        data.colors_tags = colorsIDs
+        data.colors = colorsIDs
+    }
+
+    if (categories) {
+        const catsIDs = categories.map((cat) => cat.id)
+        data.categories_tags = catsIDs
+        data.categories = catsIDs
+    }
+
+    if (sizes) {
+        const sizesIDs = sizes.map((size) => size.id)
+        data.sizes_tags = sizesIDs
+        data.sizes = sizesIDs
+    }
+
+    if (imagesToDelete) {
+        for (let image of imagesToDelete) {
+            console.log(image);
+            
+            await databases.deleteDocument(
+                databaseID,
+                'images',
+                image.id,
+            )
+
+            if (image.storage_id) {
+                await fileStorage.deleteFile(
+                    'shop',
+                    image.storage_id,
+                )
+            }
+        }
+    }
+
+    if (images) {
+        const imagesToAdd = images.filter((image) => image.size !== 0)
+
+        const oldProduct = await databases.getDocument(
+            databaseID,
+            'products',
+            id,
+        )
+
+        const oldImages = oldProduct.images.map((image) => image.$id)
+
+        const upLoadedImagesIDs = []
+
+        for (let image of imagesToAdd) {
+            const file = await fileStorage.createFile(
+                'shop',
+                ID.unique(),
+                image,
+                [],
+            )
+
+            const imageURL = fileStorage.getFilePreview(
+                'shop',
+                file.$id,
+            )
+            
+            const storedImage = await databases.createDocument(
+                databaseID,
+                'images',
+                ID.unique(),
+                {
+                    storage_id: file.$id,
+                    url: imageURL
+                }
+            )
+
+            upLoadedImagesIDs.push(storedImage.$id)
+        }
+
+        data.images = [...upLoadedImagesIDs, ...oldImages]
+    }
+
+    await databases.updateDocument(
+        databaseID,
+        'products',
+        id,
+        data,
+    )
+}
+
 async function addFilter({type, data}){
-    console.log(type, data);
-    
     const createdFilter = await databases.createDocument(
         databaseID,
         type,
@@ -267,4 +372,35 @@ async function deleteFilter({type, id}) {
     )
 }
 
-export {getFilters, getProducts, getProduct, updateProduct, createProduct, addFilter, deleteFilter}
+async function getUpdateProductInfo(id) {
+    const productPromise = getProduct(id, true)
+    const filtersPromise = getFilters()
+
+    const [product, filters] = await Promise.all([
+        productPromise,
+        filtersPromise,
+    ])
+
+    product.colors = product.colors.map((color) => ({
+        id: color.$id,
+        name: color.name,
+        hex: color.code,
+    }))
+
+    product.categories = product.categories.map((category) => ({
+        id: category.$id,
+        name: category.name,
+    }))
+
+    product.sizes = product.sizes.map((size) => ({
+        id: size.$id,
+        name: size.name,
+    }))
+
+    return {
+        product: product,
+        filters: filters,
+    }
+}
+
+export {getFilters, getProducts, getProduct, updateProduct, createProduct, addFilter, deleteFilter, getUpdateProductInfo, updateProductVisibility}

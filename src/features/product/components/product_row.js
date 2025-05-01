@@ -1,9 +1,10 @@
 import { IconButton, Skeleton, styled, TableCell, TableRow } from "@mui/material";
 import { DeleteRounded, EditRounded, VisibilityOffRounded, VisibilityRounded } from "@mui/icons-material";
 import theme from "../../../commun/utils/theme";
-import { deleteOrder, updateProduct } from "../../../services/product";
+import { deleteOrder, updateProduct, updateProductVisibility } from "../../../services/product";
 import ActionConfirmationDialog from "../../landing/components/action_confirmation_dialog";
 import { use, useEffect, useState } from "react";
+import { Link } from "react-router-dom/cjs/react-router-dom.min";
 
 const ProductInfo = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -98,9 +99,6 @@ const AvailablityTag = styled('span')(({ theme }) => ({
 
 const ProductRow = ({product, isLoading}) => {
     const [isShown, setIsShown] = useState(false)
-
-    console.log(product);
-    
 
     useEffect(() => {
         if (!isLoading) {
@@ -207,9 +205,11 @@ const ProductRow = ({product, isLoading}) => {
             <TableCell>{product.price}DA</TableCell>
             <TableCell style={{whiteSpace: 'nowrap'}}>{product.timeAgo}</TableCell>
             <TableCell>
-                <IconButton sx={{color: theme.palette.primary.main}}>
-                    <EditRounded/>
-                </IconButton>
+                <Link to={`/admin/products/${product.$id}/edit`} style={{textDecoration: 'none'}}>
+                    <IconButton sx={{color: theme.palette.primary.main}}>
+                        <EditRounded/>
+                    </IconButton>
+                </Link>
                 <ActionConfirmationDialog
                     title={`${isShown ? 'Hide': 'Show'} Product?`}
                     description={`Are you sure you want to ${isShown ? 'hide': 'show'} this product?`}
@@ -224,7 +224,7 @@ const ProductRow = ({product, isLoading}) => {
                     }
                     onConfirm={
                         async () => {
-                            await updateProduct({id: product.$id, isShown: !isShown})
+                            await updateProductVisibility({id: product.$id, isShown: !isShown})
                             setIsShown((prev) => !prev)
                         }
                     }

@@ -1,6 +1,6 @@
 import { Add, AddAPhotoRounded } from "@mui/icons-material";
 import { IconButton, styled, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Title = styled('p')(({ theme }) => ({
     fontSize: 18,
@@ -76,16 +76,60 @@ const TitlesContainer = styled('div')(({ theme }) => ({
     gap: 5,
 }))
 
-const ImagesPicker = ({disabled}) => {
+const ImagesPicker = ({disabled, initialImages = [], imagesToDelete = () => {}}) => {
     const [files, setFiles] = useState([]);
+    const [imagesToDeleteState, setImagesToDeleteState] = useState([]);
+
+    useEffect(() => {
+        if (initialImages.length > 0) {
+            const initialFiles = initialImages.map((image) => ({
+                url: image.url,
+                file: null,
+                storage_id: image.storage_id,
+                id: image.$id
+            }));
+            setFiles(initialFiles);
+        }
+    }, [initialImages]);
 
     const handleFileChange = (event) => {
-        const selectedFiles = Array.from(event.target.files).map((file) => URL.createObjectURL(file));
+        const selectedFiles = Array.from(event.target.files).map((file) => ({
+            url: URL.createObjectURL(file),
+            file: file,
+            storage_id: null,
+            id: null
+        }));
         setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
     }
 
     const handleRemoveFile = (index) => {
-        setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+        if (files[index].id !== null) {
+            setImagesToDeleteState((prev) => {
+                const updatedState = [...prev, files[index]];
+                imagesToDelete(updatedState);
+                return updatedState;
+            });
+        }
+
+        setFiles((prevFiles) => {
+            const newFiles = [...prevFiles];
+            newFiles.splice(index, 1);
+            return newFiles;
+        });
+
+        const inputElement = document.getElementById("images");
+        if (inputElement && inputElement.files) {
+            const dataTransfer = new DataTransfer();
+            Array.from(inputElement.files).forEach((file, i) => {
+                const fileToRemove = files[index].file;
+
+                if (file !== fileToRemove) {
+                    dataTransfer.items.add(file);
+                }
+            });
+            
+            inputElement.files = dataTransfer.files;
+        }
     }
 
     return (
@@ -103,7 +147,7 @@ const ImagesPicker = ({disabled}) => {
                 {
                     files.length > 0 ? files.map((file, index) => (
                         <ImagePreview key={index} margin={1}>
-                            <img src={file} alt={`Image ${index + 1}`} />
+                            <img src={file.url} alt={`Image ${index + 1}`} />
                             <button type="button" onClick={() => handleRemoveFile(index)} disabled={disabled}>X</button>
                         </ImagePreview>
                     )) : (

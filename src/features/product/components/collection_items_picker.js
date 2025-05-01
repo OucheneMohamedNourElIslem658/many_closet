@@ -32,7 +32,7 @@ const ItemLeadingContainer = styled('div')(({ theme }) => ({
   gap: 5,
 }));
 
-export default function CollectionItemsPicker({initialItems, type, onItemsChanged = ([]) => {}, isLoading = false, disabled}) {
+export default function CollectionItemsPicker({initialItems = [], initialSelectedItems = [], type, onItemsChanged = ([]) => {}, isLoading = false, disabled}) {
   const [items, setItems] = useState([]);
 
   const [selectedItems, setSelectedItems] = useState([]);
@@ -75,7 +75,7 @@ export default function CollectionItemsPicker({initialItems, type, onItemsChange
         const updatedItems = [...items, createdItem];
         setItems(updatedItems);
         setSelectedItems([...selectedItems, createdItem]);
-        onItemsChanged(selectedItems)
+        // onItemsChanged(selectedItems)
       } catch (error) {
         setError(error.message);
       } finally {
@@ -103,10 +103,20 @@ export default function CollectionItemsPicker({initialItems, type, onItemsChange
 
 
   useEffect(() => {
-    if (initialItems) {
+    if (initialItems) {;
       setItems(initialItems)
     }
-  }, [initialItems])
+  }, [initialItems]);
+
+  useEffect(() => {
+    setSelectedItems((prev) => {
+      const initialSelectedItemsIDs = initialSelectedItems.map((item) => item.id || item);
+      const newSelectedItems = initialItems.filter((item) => initialSelectedItemsIDs.includes(item.id));
+      
+      return newSelectedItems;
+    });
+  }
+  , [initialSelectedItems]);
 
   return (
     <Fragment>

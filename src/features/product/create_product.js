@@ -213,8 +213,6 @@ const CreateProductPage = () => {
                                 type="colors"
                                 initialItems={colors}
                                 onItemsChanged={(items) => {
-                                    console.log(items);
-                                    
                                     setState((prev) => ({
                                         ...prev,
                                         selectedColors: items,

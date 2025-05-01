@@ -16,6 +16,7 @@ import OrdersBoardPage from './features/orders/orders_board';
 import CreateProductPage from './features/product/create_product';
 import { useEffect } from 'react';
 import initFileStorageCleaner from './services/file_storage';
+import UpdateProductPage from './features/product/edit_product';
 
 function App() {
   useEffect(() => {
@@ -31,6 +32,9 @@ function App() {
         <AppBar />
         <div className="content">
           <Switch>
+            <Route exact path='/admin/products/:id/edit'>
+              <UpdateProductPage/>
+            </Route>
             <Route path='/admin/products/create'>
               <CreateProductPage/>
             </Route>
@@ -49,7 +53,7 @@ function App() {
             <Route path="/shop">
               <ShopPage />
             </Route>
-            <Route path='/product/:id'>
+            <Route path='/product/:id' exact>
               <ProductPage/>
             </Route>
             <Route path='/orders'>

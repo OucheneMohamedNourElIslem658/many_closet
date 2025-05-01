@@ -174,8 +174,6 @@ async function getOrderFormData() {
 }
 
 async function makeOrder({address, price_id, cardID, name, phone}) {
-    console.log('entred');
-    
     await databases.updateDocument(
         databaseID,
         'orders',
@@ -188,9 +186,6 @@ async function makeOrder({address, price_id, cardID, name, phone}) {
             phone_number: Number(phone),
         },
     )
-
-    console.log('sorted');
-    
 }
 
 async function deleteOrder(id) {
@@ -260,12 +255,8 @@ async function addItemToCard({productID, sizeID, colorID, quantity}) {
         (item) => item.product.$id === productID && item.size.$id === sizeID && item.color.$id === colorID
     );
 
-    console.log(existingItem);
-    
-
     if (existingItem) {
         const newQuantity = existingItem.product_count + quantity;
-        console.log(newQuantity);
         
         await databases.updateDocument(
             databaseID,
