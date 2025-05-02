@@ -12,6 +12,8 @@ import { getOrderFormData, makeOrder } from '../../../services/order';
 import { KeyboardArrowDownRounded, PieChart } from '@mui/icons-material';
 import CustomizedSnackbar from '../../../commun/components/snackbar';
 import { useState } from 'react';
+import ImagesPicker from '../../../commun/components/images_picker';
+import theme from '../../../commun/utils/theme';
 
 export default function OrderForm({orderID, onOrderCreated}) {
   const [open, setOpen] = useState(false);
@@ -28,7 +30,7 @@ export default function OrderForm({orderID, onOrderCreated}) {
     setOpen(false);
   };
 
-  async function createOrder({ address, priceID, cardID, name, phone }) {
+  async function createOrder({ address, priceID, cardID, name, phone, image }) {
     try {
       setDisabled(true);
       await makeOrder({
@@ -37,6 +39,7 @@ export default function OrderForm({orderID, onOrderCreated}) {
         cardID: cardID,
         name: name,
         phone: phone,
+        image: image,
       });
       setDisabled(false);
       setOpen(false);
@@ -72,13 +75,14 @@ export default function OrderForm({orderID, onOrderCreated}) {
               const name = formJson.name;
               const phone = formJson.phone;
               const cardID = orderID;
+              const images = formData.getAll('images');
               
-              await createOrder({ address, priceID, cardID, name, phone });
+              await createOrder({ address, priceID, cardID, name, phone, image: images[0]});
             },
           },
         }}
       >
-        <DialogTitle fontFamily={'Volkhov'} fontSize={'30px'}>Order</DialogTitle>
+        <DialogTitle fontFamily={theme.typography.secondaryFontFamily} fontSize={'30px'}>Order</DialogTitle>
         <PromiseBuilder
           promise={getOrderFormData}
           loading={
@@ -141,6 +145,12 @@ export default function OrderForm({orderID, onOrderCreated}) {
                     variant="standard"
                     disabled={!dataReady}
                     required
+                  />
+                  <ImagesPicker 
+                    disabled={!dataReady} 
+                    multiple={false} 
+                    title='Delivery Receipt'
+                    subTitle={'upload your delivery receipt image here'}
                   />
               </DialogContent>
             );

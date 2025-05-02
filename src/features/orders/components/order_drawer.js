@@ -1,4 +1,4 @@
-import { CloseRounded, DeleteRounded } from "@mui/icons-material";
+import { ArrowForwardRounded, CloseRounded, DeleteRounded, LinkRounded, PreviewOutlined } from "@mui/icons-material";
 import { Box, Drawer, IconButton, Skeleton, styled } from "@mui/material";
 import OrderForm from "./order_form";
 import { PromiseBuilder } from "../../../commun/components/promise_builder";
@@ -78,16 +78,17 @@ const ItemsList = styled('ul')(({ theme }) => ({
 const PaymentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
-    position: 'sticky',
-    bottom: 0,
-    left: 0,
+    position: 'fixed',
     right: 0,
+    bottom: 0,
+    width: '80vw',
     gap: 10,
     backgroundColor: theme.palette.background.paper,
-    paddingTop: 10,
+    padding: '20px 20px',
+    maxWidth: 550,
     borderTop: `1px solid ${theme.palette.grey[300]}`,
     [theme.breakpoints.down('sm')]: {
-        paddingTop: 10,
+        padding: '10px 20px',
         gap: 0
     }
 }))
@@ -159,10 +160,10 @@ const OrdersDrawer = ({open, onClose, orderID, onOrderCreated}) => {
 
                         const isMyCard = order && order.status === 'in_card'
                         
-                        const title = isMyCard ? 'My Card' : 'Order: ' + order.status
+                        const title = isMyCard ? 'My Card' : 'Order: ' + order.status;
 
                         return (
-                            <div>
+                            <div style={{position: 'relative'}}>
                                 <div>
                                     <Title>{title}</Title>
                                     {
@@ -227,6 +228,14 @@ const OrdersDrawer = ({open, onClose, orderID, onOrderCreated}) => {
                                     }
                                     {
                                         isMyCard && <OrderForm orderID={order.id} onOrderCreated={onOrderCreated}/>
+                                    }
+                                    {
+                                        order.receipt && <PriceInfo>
+                                            <h3>Receipt:</h3>
+                                            <IconButton onClick={() => window.open(order.receipt.url, '_blank')} style={{borderRadius: 5, padding: 0}}>
+                                                <LinkRounded style={{color: 'black'}} fontSize="large"/>
+                                            </IconButton>
+                                        </PriceInfo>
                                     }
                                 </PaymentContainer>
                             </div>

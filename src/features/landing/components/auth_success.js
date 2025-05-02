@@ -17,20 +17,16 @@ const Description = styled('div')(({ theme }) => ({
 }));
 
 const AuthSuccess = () => {
+    const storeCurrentUserInDatabase = async () => {
+        try {
+            await storeCurrentUser()
+            window.location.href = '/shop'
+        } catch (error) {
+            await logoutUser()
+        }
+    }
 
     useEffect(() => {
-        const storeCurrentUserInDatabase = () => {
-            storeCurrentUser().then(() => {
-                window.location.href = '/shop';
-            }).catch((error) => {
-                if (error.code !== 409) {
-                    logoutUser()
-                    return
-                }
-                window.location.href = '/shop';
-            });
-        }
-
         storeCurrentUserInDatabase();
     }, []);
 

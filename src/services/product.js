@@ -1,5 +1,5 @@
 import { ID, Query } from "appwrite";
-import { databaseID, databases, fileStorage } from "./config";
+import { account, databaseID, databases, fileStorage } from "./config";
 import { date2TimeAgo } from "../commun/utils/time_formats";
 import { getUser } from "./auth";
 
@@ -160,7 +160,17 @@ async function getProduct(id, isAdminBoard = false) {
 
     product.totalOrders = orderItemsQuantities.reduce((acc, quantity) => acc + quantity, 0);
 
-    return product
+    let isAuthenticated = false
+
+    try {
+        const user = await account.get()
+        isAuthenticated = user !== null
+    } catch (error) {}
+
+    return {
+        ...product,
+        isAuthenticated: isAuthenticated,
+    }
 }
 
 async function updateProductVisibility({id, isShown}) {

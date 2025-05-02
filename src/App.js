@@ -14,16 +14,9 @@ import AdminAuthPage from './features/auth/admin_auth';
 import ProductsBoardPage from './features/product/products_board';
 import OrdersBoardPage from './features/orders/orders_board';
 import CreateProductPage from './features/product/create_product';
-import { useEffect } from 'react';
-import initFileStorageCleaner from './services/file_storage';
 import UpdateProductPage from './features/product/edit_product';
 
 function App() {
-  useEffect(() => {
-    initFileStorageCleaner();
-  }
-  , []);
-  
   return (
     <ThemeProvider theme={theme}>
       <Router>

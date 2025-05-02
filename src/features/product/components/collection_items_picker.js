@@ -34,7 +34,6 @@ const ItemLeadingContainer = styled('div')(({ theme }) => ({
 
 export default function CollectionItemsPicker({initialItems = [], initialSelectedItems = [], type, onItemsChanged = ([]) => {}, isLoading = false, disabled}) {
   const [items, setItems] = useState([]);
-
   const [selectedItems, setSelectedItems] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [error, setError] = useState('');
@@ -109,14 +108,16 @@ export default function CollectionItemsPicker({initialItems = [], initialSelecte
   }, [initialItems]);
 
   useEffect(() => {
-    setSelectedItems((prev) => {
-      const initialSelectedItemsIDs = initialSelectedItems.map((item) => item.id || item);
-      const newSelectedItems = initialItems.filter((item) => initialSelectedItemsIDs.includes(item.id));
-      
-      return newSelectedItems;
-    });
-  }
-  , [initialSelectedItems]);
+    if (initialSelectedItems?.length) {
+      setSelectedItems(() => {
+        const initialSelectedItemsIDs = initialSelectedItems.map((item) => item.id || item);
+        const newSelectedItems = initialItems.filter((item) =>
+          initialSelectedItemsIDs.includes(item.id)
+        );
+        return newSelectedItems;
+      });
+    }
+  }, [initialSelectedItems]);
 
   return (
     <Fragment>

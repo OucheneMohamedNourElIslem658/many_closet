@@ -1,5 +1,5 @@
 import { ID, Permission, Query, Role } from "appwrite";
-import { databaseID, databases } from "./config";
+import { databaseID, databases, fileStorage } from "./config";
 import { date2TimeAgo } from "../commun/utils/time_formats";
 import { getUser } from "./auth";
 
@@ -30,6 +30,9 @@ async function getOrders({currentPage, pageSize, status, id, isAdmin}) {
     if (status && status !== 'All') {
         queries.push(Query.equal('status', status))
     }
+
+    console.log(queries);
+    
 
     const data = await databases.listDocuments(
         databaseID,
@@ -83,12 +86,16 @@ async function getOrder({id}) {
             id,
         )
     } else {
+        const currentUser = await getUser()
+        console.log(currentUser.$id);
+        
         const orders = await databases.listDocuments(
             databaseID,
             'orders',
             [
                 Query.equal('status', 'in_card'),
                 Query.limit(1),
+                Query.equal('client', currentUser.$id),
             ],
         )
 
@@ -135,6 +142,7 @@ async function getOrder({id}) {
         address: deliveryAddress,
         shippment_price: shippmentPrice,
         itemsPrice: itemsPrice,
+        receipt: order.receipt,
         items: orderItems.map((item) => {
             return {
                 id: item.$id,
@@ -173,7 +181,28 @@ async function getOrderFormData() {
     }
 }
 
-async function makeOrder({address, price_id, cardID, name, phone}) {
+async function makeOrder({address, price_id, cardID, name, phone, image}) {
+    const file = await fileStorage.createFile(
+        'shop',
+        ID.unique(),
+        image,
+    )
+
+    const previewURL = await fileStorage.getFilePreview(
+        'shop',
+        file.$id,
+    )
+
+    const storedImage = await databases.createDocument(
+        databaseID,
+        'images',
+        ID.unique(),
+        {
+            url: previewURL,
+            storage_id: file.$id,
+        },
+    )
+
     await databases.updateDocument(
         databaseID,
         'orders',
@@ -184,6 +213,7 @@ async function makeOrder({address, price_id, cardID, name, phone}) {
             status: 'pending',
             name: name,
             phone_number: Number(phone),
+            receipt: storedImage.$id,
         },
     )
 }
@@ -207,18 +237,19 @@ async function deleteOrder(id) {
 }
 
 async function addItemToCard({productID, sizeID, colorID, quantity}) {
+    const currentUser = await getUser();
+
     const card = await databases.listDocuments(
         databaseID,
         'orders',
         [
             Query.equal('status', 'in_card'),
             Query.limit(1),
+            Query.equal('client', currentUser.$id),
         ],
     );
 
     let order = null;
-
-    const currentUser = await getUser();
 
     if (card.documents.length === 0) {
         order = await databases.createDocument(
@@ -243,6 +274,7 @@ async function addItemToCard({productID, sizeID, colorID, quantity}) {
             },
             [
                 Permission.write(Role.user(currentUser.$id)),
+                Permission.read(Role.user(currentUser.$id)),
             ]
         );
 
@@ -268,33 +300,30 @@ async function addItemToCard({productID, sizeID, colorID, quantity}) {
             null
         );
     } else {
-        const orderItem = await databases.createDocument(
-            databaseID,
-            'order_items',
-            ID.unique(),
-            {
-                product: productID,
-                size: sizeID,
-                color: colorID,
-                product_count: quantity,
-            },
-            [
-                Permission.write(Role.user(currentUser.$id)),
-            ]
-        );
-
-        const orderItemIDs = order.orderItems.map((item) => item.$id);
-
-        orderItemIDs.push(orderItem);
-        
-        
+        const oldOrderItems = order.orderItems.map((item) => {
+            return {
+                $id: item.$id,
+                product: item.product.$id,
+                size: item.size.$id,
+                color: item.color.$id,
+                product_count: item.product_count,
+            }
+        })
 
         await databases.updateDocument(
             databaseID,
             'orders',
             order.$id,
             {
-                orderItems: orderItemIDs
+                orderItems: [
+                    ...oldOrderItems,
+                    {
+                        product: productID,
+                        size: sizeID,
+                        color: colorID,
+                        product_count: quantity,
+                    }
+                ],
             },
         );
     }
@@ -309,15 +338,30 @@ async function removeItemFromCard(id) {
 }
 
 async function updateOrder({id, status}) {
+    const currentUser = await getUser()
+
     if (status && status !== 'in_card') {
-        await databases.updateDocument(
+        const docs = await databases.listDocuments(
             databaseID,
             'orders',
-            id,
-            {
-                status: status,
-            },
+            [
+                Query.equal('$id', id),
+                Query.equal('client', currentUser.$id),
+                Query.limit(1),
+            ],
         )
+
+        if (docs.documents.length > 0) {
+            await databases.updateDocument(
+                databaseID,
+                'orders',
+                docs.documents[0].$id,
+                {
+                    status: status,
+                }
+            )
+        }
+
     }
 }
 

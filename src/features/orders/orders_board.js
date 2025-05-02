@@ -37,13 +37,13 @@ const SubTitle = styled('p')(({ theme }) => ({
 const TableHeader = styled(TableHead)(({ theme }) => ({
     fontSize: 18,
     fontWeight: 400,
-    fontFamily: 'Volkhov',
+    fontFamily: theme.typography.secondaryFontFamily,
 }))
 
 const TableHeaderTitles = styled(TableCell)(({ theme }) => ({
     fontSize: 18,
     fontWeight: 400,
-    fontFamily: 'Volkhov',
+    fontFamily: theme.typography.secondaryFontFamily,
 }))
 
 const RefreshButton = styled(IconButton)(({ theme }) => ({

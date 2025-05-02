@@ -2,6 +2,7 @@ import { FacebookRounded, Google, ShieldOutlined } from "@mui/icons-material";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 import { Fragment, useState } from "react";
 import { loginWithFacebook, loginWithGoogle } from "../../../services/auth";
+import theme from "../../../commun/utils/theme";
 
 export default function SignInDialog() {
   const [open, setOpen] = useState(false);
@@ -23,7 +24,7 @@ export default function SignInDialog() {
         open={open}
         onClose={handleClose}
       >
-        <DialogTitle fontFamily={'Volkhov'} fontSize={'30px'}>Subscribe</DialogTitle>
+        <DialogTitle fontFamily={theme.typography.secondaryFontFamily} fontSize={'30px'}>Subscribe</DialogTitle>
         <DialogContent>
           <DialogContentText marginBottom={'20px'}>
             To subscribe to this website, please enter your email address here. We

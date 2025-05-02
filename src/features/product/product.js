@@ -271,7 +271,7 @@ const ProductPage = () => {
                             }
                         </TagsList>
                     </div>
-                    <QuantityContainer>
+                    {product.isAuthenticated && <QuantityContainer>
                         <QuantityCounter 
                             onChanged={(value) => quantity = (value || 1)}
                         />
@@ -285,7 +285,7 @@ const ProductPage = () => {
                             }
                             onConfirm={async () => await addItemToCard({productID: product.$id, sizeID, colorID, quantity})}
                         />
-                    </QuantityContainer>
+                    </QuantityContainer>}
                 </InfoContainer>
                 <OrdersDrawer
                     open={open} 

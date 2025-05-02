@@ -14,17 +14,7 @@ const theme = createTheme({
     },
     typography: {
         fontFamily: 'Poppins, sans-serif',
-        
-    },
-    components: {
-        MuiButton: {
-            styleOverrides: {
-                contained: {
-                    padding: '13px 25px',
-                    borderRadius: '12px',
-                },
-            },
-        },
+        secondaryFontFamily: 'Volkhov',
     },
 
     components: {
@@ -34,6 +24,14 @@ const theme = createTheme({
                     '& .MuiInputBase-root': {
                         borderRadius: 0,
                     },
+                },
+            },
+        },
+        MuiButton: {
+            styleOverrides: {
+                contained: {
+                    padding: '13px 25px',
+                    borderRadius: '12px',
                 },
             },
         },

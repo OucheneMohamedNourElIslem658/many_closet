@@ -80,7 +80,7 @@ const Colors = styled('ul')(({ theme }) => ({
 
 const Name = styled('h2')({
     fontWeight: 100,
-    fontFamily: 'Volkhov'
+    fontFamily: theme.typography.secondaryFontFamily,
 })
 
 const AvailablityTag = styled('span')(({ theme }) => ({

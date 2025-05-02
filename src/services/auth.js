@@ -1,4 +1,4 @@
-import { OAuthProvider, Permission, Role } from "appwrite"
+import { ID, OAuthProvider, Permission, Query, Role } from "appwrite"
 import { account, databaseID, databases } from "./config"
 
 
@@ -47,6 +47,28 @@ export const getUser = async () => {
 
 export const storeCurrentUser = async () => {
   const user = await getUser()
+
+  const existingUser = await databases.listDocuments(
+    databaseID,
+    'users',
+    [Query.equal('$id', user.$id)],
+  )
+
+  if (existingUser.documents.length > 0) {
+    await databases.updateDocument(
+      databaseID,
+      'users',
+      existingUser.documents[0].$id,
+      {
+        name: user.name,
+        email: user.email,
+      },
+      [
+        Permission.write(Role.user(user.$id)),
+      ]
+    )
+    return
+  }
   
   await databases.createDocument(
     databaseID,

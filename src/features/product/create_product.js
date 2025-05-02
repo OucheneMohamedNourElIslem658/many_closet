@@ -1,6 +1,6 @@
 import { Button, FormControlLabel, styled, Switch, TextField } from "@mui/material";
 import CollectionItemsPicker from "./components/collection_items_picker";
-import ImagesPicker from "./components/images_picker";
+import ImagesPicker from "../../commun/components/images_picker";
 import { useEffect, useState } from "react";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
 import { createProduct, getFilters } from "../../services/product";
@@ -192,11 +192,11 @@ const CreateProductPage = () => {
             {state.loadingState ? (
                 <FiltersContainer>
                     <FieldsTitles>Colors</FieldsTitles>
-                    <CollectionItemsPicker isLoading={true} />
+                    {/* <CollectionItemsPicker isLoading={true} />
                     <FieldsTitles>Sizes</FieldsTitles>
                     <CollectionItemsPicker isLoading={true} />
                     <FieldsTitles>Categories</FieldsTitles>
-                    <CollectionItemsPicker isLoading={true} />
+                    <CollectionItemsPicker isLoading={true} /> */}
                 </FiltersContainer>
             ) : null}
             {state.errorState ? (

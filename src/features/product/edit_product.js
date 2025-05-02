@@ -1,6 +1,6 @@
 import { Button, CircularProgress, FormControlLabel, Skeleton, styled, Switch, TextField } from "@mui/material";
 import CollectionItemsPicker from "./components/collection_items_picker";
-import ImagesPicker from "./components/images_picker";
+import ImagesPicker from "../../commun/components/images_picker";
 import { Fragment, useEffect, useState } from "react";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
 import { createProduct, getFilters, getUpdateProductInfo, updateProduct } from "../../services/product";
@@ -211,6 +211,7 @@ const UpdateProductPage = () => {
                         disabled={state.disabled}
                         initialImages={state.data?.product.images || []}
                         imagesToDelete={(images) => setState((prev) => ({ ...prev, imagesToDelete: images }))}
+                        subTitle={'Upload images of the product.'}
                     />
                     <FiltersContainer>
                         <FieldsTitles>Colors</FieldsTitles>

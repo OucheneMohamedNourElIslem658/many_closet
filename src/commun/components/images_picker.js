@@ -1,4 +1,4 @@
-import { Add, AddAPhotoRounded } from "@mui/icons-material";
+import { Add, AddAPhotoRounded, Subtitles } from "@mui/icons-material";
 import { IconButton, styled, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -76,7 +76,7 @@ const TitlesContainer = styled('div')(({ theme }) => ({
     gap: 5,
 }))
 
-const ImagesPicker = ({disabled, initialImages = [], imagesToDelete = () => {}}) => {
+const ImagesPicker = ({disabled, title = 'Images', subTitle, multiple = true, initialImages = [], imagesToDelete = () => {}}) => {
     const [files, setFiles] = useState([]);
     const [imagesToDeleteState, setImagesToDeleteState] = useState([]);
 
@@ -93,13 +93,27 @@ const ImagesPicker = ({disabled, initialImages = [], imagesToDelete = () => {}})
     }, [initialImages]);
 
     const handleFileChange = (event) => {
-        const selectedFiles = Array.from(event.target.files).map((file) => ({
-            url: URL.createObjectURL(file),
-            file: file,
-            storage_id: null,
-            id: null
-        }));
-        setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
+        if (multiple) {
+            const selectedFiles = Array.from(event.target.files).map((file) => ({
+                url: URL.createObjectURL(file),
+                file: file,
+                storage_id: null,
+                id: null
+            }));
+            
+            setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
+        } else {
+            const file = event.target.files[0];
+            if (file) {
+                const newFile = {
+                    url: URL.createObjectURL(file),
+                    file: file,
+                    storage_id: null,
+                    id: null
+                };
+                setFiles([newFile]);
+            }
+        }
     }
 
     const handleRemoveFile = (index) => {
@@ -136,8 +150,8 @@ const ImagesPicker = ({disabled, initialImages = [], imagesToDelete = () => {}})
         <ContentContainer>
             <HeaderContainer>
                 <TitlesContainer>
-                    <Title>Images</Title>
-                    <SubTitle>Upload images for your product.</SubTitle>
+                    <Title>{title}</Title>
+                    {subTitle && <SubTitle>{subTitle}</SubTitle>}
                 </TitlesContainer>
                 <IconButton component="label" for={"images"} disabled={disabled}>
                     <AddAPhotoRounded style={{color: 'black'}}/>
@@ -148,11 +162,13 @@ const ImagesPicker = ({disabled, initialImages = [], imagesToDelete = () => {}})
                     files.length > 0 ? files.map((file, index) => (
                         <ImagePreview key={index} margin={1}>
                             <img src={file.url} alt={`Image ${index + 1}`} />
-                            <button type="button" onClick={() => handleRemoveFile(index)} disabled={disabled}>X</button>
+                            {multiple && <button type="button" onClick={() => handleRemoveFile(index)} disabled={disabled}>X</button>}
                         </ImagePreview>
                     )) : (
                         <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', width: '100%' , alignSelf: 'center'}}>
-                            No images selected.
+                            {
+                                multiple ? 'No images selected' : 'No image selected'
+                            }
                         </Typography>
                     )
                 }
@@ -169,7 +185,7 @@ const ImagesPicker = ({disabled, initialImages = [], imagesToDelete = () => {}})
                     type="file"
                     name="images"
                     accept="image/*"
-                    multiple
+                    multiple={multiple}
                     onChange={handleFileChange}
                     required={!files.length}
                 />
