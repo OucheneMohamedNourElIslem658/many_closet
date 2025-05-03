@@ -38,6 +38,8 @@ function App() {
             <Route path='/orders' element={<OrdersPage />} />
             <Route path='/orders/:id' element={<OrdersPage />} />
             <Route path="/" element={<LandingPage />} />
+            <Route path='/new' element={<LandingPage/>}/>
+            <Route path='/contact' element={<LandingPage/>}/>
             <Route path="*" element={<ErrorComponent
                 error={"The page you are looking for does not exist."}
             />} />

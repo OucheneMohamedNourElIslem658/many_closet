@@ -63,16 +63,13 @@ const AppBar = () => {
                     <StyledLink to="/">Home</StyledLink>
                 </li>
                 <li>
-                    <StyledLink to="/shop">Shop</StyledLink>
-                </li>
-                <li>
                     <StyledLink to="/new">New</StyledLink>
                 </li>
                 <li>
-                    <StyledLink to="/reviews">Reviews</StyledLink>
+                    <StyledLink to="/contact">Contact</StyledLink>
                 </li>
                 <li>
-                    <StyledLink to="/contact">Contact</StyledLink>
+                    <StyledLink to="/shop">Shop</StyledLink>
                 </li>
             </NavigationList>
             <PromiseBuilder
