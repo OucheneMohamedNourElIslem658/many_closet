@@ -104,7 +104,7 @@ const ProductRow = ({product, isLoading}) => {
         if (!isLoading) {
             setIsShown(product.is_shown)
         }
-    }, [product])
+    }, [isLoading, product?.is_shown])
 
     if (isLoading) {
         return (
@@ -170,8 +170,10 @@ const ProductRow = ({product, isLoading}) => {
                         height: 230,
                         width: 170,
                         minWidth: 170,
-                        backgroundSize: 'cover',
-                        backgroundRepeat: 'repeat',
+                        backgroundSize: 'contain',
+                        backgroundColor: theme.palette.action.hover,
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
                     }}>
                     </div>
                     <ProductInfo>
@@ -216,7 +218,7 @@ const ProductRow = ({product, isLoading}) => {
                     triggerButton={
                         <IconButton sx={{color: theme.palette.primary.main}}>
                             {
-                                isShown 
+                                !isShown 
                                     ? <VisibilityOffRounded/> 
                                     : <VisibilityRounded/>
                             }

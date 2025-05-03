@@ -5,7 +5,7 @@ import CustomizedSnackbar from "../../../commun/components/snackbar";
 const ActionConfirmationDialog = ({title, description, triggerButton, onConfirm}) => {
     const [disabled, setDisabled] = useState(false)
     const [open, setOpen] = useState(false)
-    let [errorMessage, setMessage] = useState('')
+    const [errorMessage, setMessage] = useState('')
 
     async function addItemToMyCard() {
         setDisabled(true)

@@ -1,4 +1,4 @@
-import { ArrowForwardRounded, CloseRounded, DeleteRounded, LinkRounded, PreviewOutlined } from "@mui/icons-material";
+import { CloseRounded, DeleteRounded, LinkRounded } from "@mui/icons-material";
 import { Box, Drawer, IconButton, Skeleton, styled } from "@mui/material";
 import OrderForm from "./order_form";
 import { PromiseBuilder } from "../../../commun/components/promise_builder";
@@ -39,12 +39,14 @@ const OrderItem = styled('li')(({ theme }) => ({
     listStyleType: 'none',
 }))
 
-const ItemImage = styled('div')({
+const ItemImage = styled('div')(({theme}) => ({
     width: 150,
     height: 200,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-})
+    backgroundRepeat: 'no-repeat',
+    backgroundColor: theme.palette.action.hover,
+}))
 
 const ItemName = styled('h2')(({ theme }) => ({
     fontSize: 20,

@@ -1,4 +1,4 @@
-import { AddRounded, RemoveRounded, ShoppingBagOutlined } from "@mui/icons-material";
+import { AddRounded, RemoveRounded, ShoppingBagOutlined, ShoppingCartOutlined } from "@mui/icons-material";
 import { Box, Button, IconButton, Skeleton, styled } from "@mui/material";
 import Selector from "../../commun/components/option_selector";
 import { useState } from "react";
@@ -19,6 +19,8 @@ const Picture = styled('div')(({ theme }) => ({
     backgroundClip: 'content-box',
     padding: '10px',
     border: `1px solid transparent`,
+    backgroundColor: theme.palette.action.hover,
+    backgroundRepeat: 'no-repeat',
     '&.selected': {
         border: `1px solid ${theme.palette.primary.main}`,
     },
@@ -30,6 +32,8 @@ const MainPicture = styled('div')(({ theme }) => ({
     overflow: 'hidden',
     backgroundSize: 'contain',
     backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundColor: theme.palette.action.hover,
     [theme.breakpoints.down('md')]: {
         height: 430,
         width: 350,
@@ -200,8 +204,6 @@ const QuantityContainer = styled('div')(({ theme }) => ({
 }))
 
 const ProductPage = () => {
-    const [open, setOpen] = useState(false);
-
     const { id } = useParams();
 
     return ( 
@@ -275,30 +277,51 @@ const ProductPage = () => {
                         <QuantityCounter 
                             onChanged={(value) => quantity = (value || 1)}
                         />
-                        <AddItemToCardDialog
-                            title={"Add to cart"}
-                            description={`Are you sure you want to add ${product.name} to your cart?`}
-                            triggerButton={
-                                <AddToCartButton variant="outlined">
-                                    Add to cart
-                                </AddToCartButton>
-                            }
-                            onConfirm={async () => await addItemToCard({
-                                productID: product.$id, 
-                                sizeID: size.id, 
-                                colorID: color.id, 
-                                quantity
-                            })}
-                        />
+                        <div style={{display: 'flex', gap: '10px', width: '100%'}}>
+                            <AddItemToCardDialog
+                                title={"Add to cart"}
+                                description={`Are you sure you want to add ${product.name} to your cart?`}
+                                triggerButton={
+                                    <AddToCartButton variant="outlined" style={{flexGrow: 1}}>
+                                        Add to cart
+                                    </AddToCartButton>
+                                }
+                                onConfirm={async () => await addItemToCard({
+                                    productID: product.$id, 
+                                    sizeID: size.id, 
+                                    colorID: color.id, 
+                                    quantity
+                                })}
+                            />
+                            <MyCardDrawer/>
+                        </div>
                     </QuantityContainer>}
                 </InfoContainer>
-                <OrdersDrawer
-                    open={open} 
-                    onClose={() => setOpen(false)} 
-                />
             </ProductPageContainer>
             }}
         />
+    );
+}
+
+const MyCardDrawer = () => {
+    const [open, setOpen] = useState(false);
+
+    return (
+        <div>
+            <IconButton 
+                onClick={() => setOpen(true)}
+                style={{
+                    border: '1px solid',
+                    borderRadius: '4px',
+                }}
+            >
+                <ShoppingCartOutlined style={{color: 'black'}}/>
+            </IconButton>
+            <OrdersDrawer
+                open={open} 
+                onClose={() => setOpen(false)} 
+            />
+        </div>
     );
 }
 
@@ -313,7 +336,7 @@ const QuantityCounter = ({initialValue, onChanged = () => {}}) => {
     }
 
     function decCounter() {
-        if (counter > 0) {
+        if (counter > 1) {
             setCounter(counter - 1);
             onChanged(counter - 1);
         }

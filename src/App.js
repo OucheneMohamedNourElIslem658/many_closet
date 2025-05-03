@@ -15,6 +15,7 @@ import ProductsBoardPage from './features/product/products_board';
 import OrdersBoardPage from './features/orders/orders_board';
 import CreateProductPage from './features/product/create_product';
 import UpdateProductPage from './features/product/edit_product';
+import ErrorComponent from './commun/components/error';
 
 function App() {
   return (
@@ -37,6 +38,9 @@ function App() {
             <Route path='/orders' element={<OrdersPage />} />
             <Route path='/orders/:id' element={<OrdersPage />} />
             <Route path="/" element={<LandingPage />} />
+            <Route path="*" element={<ErrorComponent
+                error={"The page you are looking for does not exist."}
+            />} />
           </Routes>
         </div>
         <BottomNav/>

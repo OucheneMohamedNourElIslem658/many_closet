@@ -7,7 +7,9 @@ const StatusDrodown = ({disabled, initialValue, statuses, borderType = 'underlin
     const [value, setValue] = useState('All');
 
     useEffect(() => {
-      setValue(initialValue);
+      if (initialValue && statuses.includes(initialValue)) {
+        setValue(initialValue);
+      }
     }, [initialValue]);
   
     return (

@@ -37,9 +37,10 @@ const Product = styled('li')(({ theme }) => ({
 const ProductImage = styled('div')(({ theme }) => ({
     width: '100%', 
     height: '400px' ,
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: theme.palette.action.hover,
     backgroundSize: 'contain', 
     backgroundPosition: 'center', 
+    backgroundRepeat: 'no-repeat',
     marginBottom: 10,
 }))
 
@@ -89,7 +90,6 @@ const DrawerButton = styled(IconButton)(({ theme }) => ({
 
 const ProductsList = ({onDrawerOpen, filters, onSearchQueryChanged = () => {}, onPageChanged = () => {}}) => {
     const [refreshKey, setRefreshKey] = useState(0);
-    const [currentPage, setCurrentPage] = useState(1);
 
     const pageSize = 3;
 

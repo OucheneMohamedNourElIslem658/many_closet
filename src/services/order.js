@@ -223,7 +223,7 @@ async function deleteOrder(id) {
     if (order.status !== 'pending') {
         throw new Error('You can only delete pending orders')
     }
-
+    
     await databases.deleteDocument(
         databaseID,
         'orders',

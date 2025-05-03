@@ -77,6 +77,16 @@ const ControlContainer = styled('div')({
     marginBottom: 20,
 })
 
+const AddProductButton = styled(Link)(({ theme }) => ({
+    position: 'sticky',
+    bottom: 20,
+    right: 20,
+    alignSelf: 'end',
+    [theme.breakpoints.down('sm')]: {
+        bottom: 80,
+    }
+}))
+
 const ProductsBoardPage = () => {
     const pageSize = 10
     const [refreshKey, setRefreshKey] = useState(0);
@@ -91,7 +101,7 @@ const ProductsBoardPage = () => {
     useEffect(() => {
         const query = searchParams.get("query") || '';
         const page = searchParams.get("page") || 1;
-        setFilters({ ...filters, query, page });
+        setFilters({ query, page });
     }, [searchParams]);
 
     const updateUrlFilters = (updatedFilters) => {
@@ -188,19 +198,14 @@ const ProductsBoardPage = () => {
                     />
                 </OrdersTable>
             </TableScroller>
-            <Link to={'/admin/products/create'} style={{
-                position: 'sticky',
-                bottom: 20,
-                right: 20,
-                alignSelf: 'end',
-            }}>
+            <AddProductButton to={'/admin/products/create'}>
                 <Fab 
                     color="primary" 
                     aria-label="add"
                 >
                     <AddRounded/>
                 </Fab>
-            </Link>
+            </AddProductButton>
         </ContentContainer>
     );
 }

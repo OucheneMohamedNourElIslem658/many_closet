@@ -184,19 +184,11 @@ async function updateProductVisibility({id, isShown}) {
     )
 }
 
-async function createProduct({ name, description, price, available, images, colors, sizes, categories, imagesUploadProgress}) {
+async function createProduct({ name, description, price, available, images, colors, sizes, categories}) {
     const colorsIDs = colors.map((color) => color.id)
     const catsIDs = categories.map((cat) => cat.id)
     const sizesIDs = sizes.map((size) => size.id)
 
-    let totalBytes = 0
-    for (let image of images) {
-        if (image.size) {
-            totalBytes += image.size;
-        }
-    }
-
-    let uploadedBytes = 0
     const upLoadedImagesIDs = []
 
     for (let image of images) {
@@ -205,10 +197,6 @@ async function createProduct({ name, description, price, available, images, colo
             ID.unique(),
             image,
             [],
-            (progress) => {
-                uploadedBytes += progress.bytesUploaded
-                const progressPercentage = Math.round(uploadedBytes / totalBytes * 100)
-            },
         )
 
         const imageURL = fileStorage.getFilePreview(

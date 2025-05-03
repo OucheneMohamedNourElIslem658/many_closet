@@ -3,12 +3,12 @@ import { IconButton, Pagination, Skeleton, styled, Table, TableCell, TableHead, 
 import theme from "../../commun/utils/theme";
 import OrdersDrawer from "./components/order_drawer";
 import { useState } from "react";
-import ConfirmationDialog from "../../commun/components/confirmation_dialog";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
-import {getOrders } from "../../services/order";
+import {deleteOrder, getOrders } from "../../services/order";
 import EmptyDataComponent from "../../commun/components/empty";
 import { useEffect } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
+import ActionConfirmationDialog from "../landing/components/action_confirmation_dialog";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -82,8 +82,8 @@ const OrdersPage = () => {
 
     useEffect(() => {
         const page = searchParams.get("page") || 1;
-        setFilters({ ...filters, page });
-    }, [searchParams]);
+        setFilters({ page });
+    }, [searchParams,]);
 
     const updateUrlFilters = (updatedFilters) => {
         const params = {};
@@ -154,7 +154,7 @@ const OrdersPage = () => {
                             const orders = data.orders;
                             
                             if (!orders || orders.length === 0) {
-                                return    <EmptyDataComponent style={{fontWeight: 100}} message={'you do not have any orders yet'}/>
+                                return <EmptyDataComponent style={{fontWeight: 100}} message={'you do not have any orders yet'}/>
                             }
 
                             return orders.map((order) => {
@@ -182,52 +182,64 @@ const OrdersPage = () => {
 const OrderRow = ({ order }) => {
     const [open, setOpen] = useState(false);
     const { id } = useParams();
+    const [showOrder, setShowOrder] = useState(true);
 
     useEffect(() => {
         if (id === order.id) {
             setOpen(true);
         }
-    }, [id]);
+    }, [id, order.id]);
+
+    const handleDrawerClose = () => {
+        setOpen(false);
+        window.history.pushState({}, '', '/orders');
+    };
 
     return (
-        <TableRow key={order.id}>
+        <TableRow key={order.id} style={{ display: showOrder ? 'table-row' : 'none' }}>
             <TableCell 
                 component={Link} 
                 to={`/orders/${order.id}`} 
                 sx={{ cursor: 'pointer' }} 
-                onClick={() => setOpen(true)}
+                onClick={(e) => {
+                    e.preventDefault();
+                    window.history.pushState({}, '', `/orders/${order.id}`);
+                    setOpen(true);
+                }}
             >
                 <p 
                     style={{ 
                         fontSize: '16px', 
                         fontWeight: 600, 
-                        textDecoration: 'none' 
+                        textDecoration: 'none',
                     }}>
                         {order.items.map((item) => item.name).join(', ')}
                 </p>
                 <p>N° {order.id}</p>
             </TableCell>
             <TableCell>{order.price}DA</TableCell>
-            <TableCell>{order.timeAgo}</TableCell>
+            <TableCell style={{whiteSpace: 'nowrap'}}>{order.timeAgo}</TableCell>
             <TableCell>{order.status}</TableCell>
             <TableCell>
-                <ConfirmationDialog
-                    title="Delete Order"
-                    description="Are you sure you want to delete this order?"
-                    button={
-                        <IconButton sx={{ color: theme.palette.error.main }}>
-                            <DeleteRounded />
-                        </IconButton>
-                    }
-                    onConfirm={() => {}}
-                />
+                {
+                    order.status === 'pending' && <ActionConfirmationDialog
+                        title="Delete Order"
+                        description="Are you sure you want to delete this order?"
+                        triggerButton={
+                            <IconButton sx={{ color: theme.palette.error.main }}>
+                                <DeleteRounded />
+                            </IconButton>
+                        }
+                        onConfirm={async () => {
+                            await deleteOrder(order.id)
+                            setShowOrder(false)
+                        }}
+                    />
+                }
             </TableCell>
             <OrdersDrawer
                 open={open}
-                onClose={() => {
-                    setOpen(false);
-                    window.history.pushState({}, '', '/orders');
-                }}
+                onClose={handleDrawerClose}
                 orderID={order.id}
             />
         </TableRow>

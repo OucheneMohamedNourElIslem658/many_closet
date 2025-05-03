@@ -1,5 +1,5 @@
 import { IconButton, TableCell, TableRow } from "@mui/material";
-import { Fragment, use, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { DeleteRounded, EditRounded } from "@mui/icons-material";
 import ActionConfirmationDialog from "../../landing/components/action_confirmation_dialog";
 import theme from "../../../commun/utils/theme";
@@ -10,23 +10,24 @@ import CustomizedSnackbar from "../../../commun/components/snackbar";
 import OrdersDrawer from "./order_drawer";
 import { Link, useParams } from "react-router-dom";
 
-const EditibleOrderRow = ({order, onOrderDeleted}) => {
+const EditibleOrderRow = ({order}) => {
     const [status, setStatus] = useState(order.status);
     const [currentOrder, setCurrentOrder] = useState(order);
     const [error, setError] = useState('');
     const {id} = useParams()
     const [open, setOpen] = useState(id === order.id);
+    const [showOrder, setShowOrder] = useState(true);
 
 
     useEffect(() => {
         setCurrentOrder(order);
-    }, []);
+    }, [order]);
 
     useEffect(() => {
         if (id) {
             setOpen(id === order.id);
         }
-    }, [id]);
+    }, [order?.id, id]);
 
     const handleStatusChange = async () => {
         await updateOrder({id: order.id, status})
@@ -35,25 +36,29 @@ const EditibleOrderRow = ({order, onOrderDeleted}) => {
     }
 
     return (
-        <TableRow key={order.id}>
+        <TableRow key={order.id} style={{ display: showOrder ? 'table-row' : 'none' }}>
             <TableCell 
                 component={Link} 
                 to={`/admin/orders/${order.id}`} 
                 sx={{ cursor: 'pointer' }} 
-                onClick={() => setOpen(true)}
+                onClick={(e) => {
+                    e.preventDefault();
+                    window.history.pushState({}, '', `/admin/orders/${order.id}`);
+                    setOpen(true);
+                }}
             >
                 <p 
                     style={{ 
                         fontSize: '16px', 
                         fontWeight: 600, 
-                        textDecoration: 'none' 
+                        textDecoration: 'none' ,
                     }}>
                         {order.items.map((item) => item.name).join(', ')}
                 </p>
                 <p>N° {order.id}</p>
             </TableCell>
             <TableCell>{order.price}DA</TableCell>
-            <TableCell>{order.timeAgo}</TableCell>
+            <TableCell style={{whiteSpace: 'nowrap'}}>{order.timeAgo}</TableCell>
             <TableCell>
                 <StatusDrodown
                     initialValue={order.status}
@@ -84,7 +89,7 @@ const EditibleOrderRow = ({order, onOrderDeleted}) => {
                         }
                         onConfirm={async () => {
                             await deleteOrder(order.id)
-                            onOrderDeleted()
+                            setShowOrder(false)
                         }}
                     />
                 </Fragment>

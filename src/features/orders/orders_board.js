@@ -85,7 +85,7 @@ const OrdersBoardPage = () => {
 
     const [refreshKey, setRefreshKey] = useState(0);
 
-        const [filters, setFilters] = useState({
+    const [filters, setFilters] = useState({
         query: '',
         page: 1,
     });
@@ -95,13 +95,15 @@ const OrdersBoardPage = () => {
     useEffect(() => {
         const query = searchParams.get("query") || '';
         const page = searchParams.get("page") || 1;
-        setFilters({ ...filters, query, page });
+        const status = searchParams.get("status") || 'All';
+        setFilters({query, page, status });
     }, [searchParams]);
 
     const updateUrlFilters = (updatedFilters) => {
         const params = {};
         if (updatedFilters.query) params.query = updatedFilters.query;
         if (updatedFilters.page) params.page = updatedFilters.page;
+        if (updatedFilters.status) params.status = updatedFilters.status;
         setSearchParams(params);
     };
 
@@ -113,6 +115,9 @@ const OrdersBoardPage = () => {
                 break;
             case "page":
                 selectedValues = value || 1;
+                break;
+            case "status":
+                selectedValues = value === 'All' ? '' : value;
                 break;
             default:
                 selectedValues = value;
@@ -200,7 +205,6 @@ const OrdersBoardPage = () => {
                                 return <EditibleOrderRow 
                                     key={order.id} 
                                     order={order} 
-                                    onOrderDeleted={() => setRefreshKey(refreshKey + 1)}
                                 />;
                             }).concat(
                                 <TableRow key="pagination">
