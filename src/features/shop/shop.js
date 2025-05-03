@@ -2,6 +2,8 @@ import { Box, Drawer, styled } from "@mui/material";
 import FiltersSideBar from "./components/filters_bar";
 import ProductsList from "./components/products_list";
 import { useState } from "react";
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const ContentAlignment = styled('div')(({ theme }) => ({
     display: 'grid',
@@ -63,6 +65,54 @@ const ShopPage = () => {
         price: {}
     });
 
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    useEffect(() => {
+        const tags = searchParams.get("tags")?.split(",") || [];
+        const colors = searchParams.get("colors")?.split(",") || [];
+        const sizes = searchParams.get("sizes")?.split(",") || [];
+        const price = searchParams.get("price") ? JSON.parse(searchParams.get("price")) : {};
+        const query = searchParams.get("query") || "";
+        const page = searchParams.get("page") || 1;
+        if (price.max === null) {
+            price.max = Infinity;
+        }
+        setFilters({ tags, colors, sizes, price, query, page });
+    }, [searchParams]);
+
+    const updateUrlFilters = (updatedFilters) => {
+        const params = {};
+        if (updatedFilters.tags.length) params.tags = updatedFilters.tags.join(",");
+        if (updatedFilters.colors.length) params.colors = updatedFilters.colors.join(",");
+        if (updatedFilters.sizes.length) params.sizes = updatedFilters.sizes.join(",");
+        if (Object.keys(updatedFilters.price).length) params.price = JSON.stringify(updatedFilters.price);
+        if (updatedFilters.query) params.query = updatedFilters.query;
+        if (updatedFilters.page) params.page = updatedFilters.page;
+        setSearchParams(params);
+    };
+
+    const handleFilterChange = (key, value) => {
+        let selectedValues;
+        switch (key) {
+            case "price":
+                selectedValues = value || {};
+                break;
+            case "query":
+                selectedValues = value || "";
+                break;
+            case "page":
+                selectedValues = value || 1;
+                break;
+            default:
+                selectedValues = value.map((item) => item.name);
+                break;
+        }
+
+        const updatedFilters = { ...filters, [key]: selectedValues };
+        setFilters(updatedFilters);
+        updateUrlFilters(updatedFilters);
+    };
+
     return ( 
         <div>
             <ContentAlignment>
@@ -71,14 +121,20 @@ const ShopPage = () => {
                     <HeaderSubTitle>Welcome to our shop</HeaderSubTitle>
                 </Header>
                 <FiltersSizeBarContainer>
-                <FiltersSideBar
-                    onCategoryChanged={(data) => setFilters({...filters, tags: data})}
-                    onColorChanged={(data) => setFilters({...filters, colors: data})}
-                    onSizeChanged={(data) => setFilters({...filters, sizes: data})}
-                    onPriceChanged={(data) => setFilters({...filters, price: data})}
-                />
+                    <FiltersSideBar
+                        initialFilters={filters}
+                        onCategoryChanged={(data) => handleFilterChange("tags", data)}
+                        onColorChanged={(data) => handleFilterChange("colors", data)}
+                        onSizeChanged={(data) => handleFilterChange("sizes", data)}
+                        onPriceChanged={(data) => handleFilterChange("price", data)}
+                    />
                 </FiltersSizeBarContainer>
-                <ProductsList onDrawerOpen={() => setOpen(!open)} filters={filters}/>
+                <ProductsList 
+                    onDrawerOpen={() => setOpen(!open)} 
+                    filters={filters}
+                    onSearchQueryChanged={(query) => handleFilterChange("query", query)}
+                    onPageChanged={(page) => handleFilterChange("page", page)}
+                />
             </ContentAlignment>
             <CustomDrawer
                 anchor='left'
@@ -86,16 +142,17 @@ const ShopPage = () => {
                 onClose={() => setOpen(false)}
             >
                 <Box sx={{width: 250}} padding={'20px'} role="presentation">
-                <FiltersSideBar
-                    onCategoryChanged={(data) => setFilters({...filters, categories: data})}
-                    onColorChanged={(data) => setFilters({...filters, colors: data})}
-                    onSizeChanged={(data) => setFilters({...filters, sizes: data})}
-                    onPriceChanged={(data) => setFilters({...filters, price: data})}
-                />
+                    <FiltersSideBar
+                        initalFilters={filters}
+                        onCategoryChanged={(data) => handleFilterChange("tags", data)}
+                        onColorChanged={(data) => handleFilterChange("colors", data)}
+                        onSizeChanged={(data) => handleFilterChange("sizes", data)}
+                        onPriceChanged={(data) => handleFilterChange("price", data)}
+                    />
                 </Box>
             </CustomDrawer>
         </div>
     );
-}
+};
  
 export default ShopPage;

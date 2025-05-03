@@ -3,6 +3,7 @@ import Selector from "../../../commun/components/option_selector";
 import { PromiseBuilder } from "../../../commun/components/promise_builder";
 import { getFilters } from "../../../services/product";
 import PriceSelector from "./price_selector";
+import { useEffect, useState } from "react";
 
 const FiltersList = styled('ul')(({ theme }) => ({
     display: 'flex',
@@ -22,7 +23,13 @@ const FiltersTitle = styled('h2')({
     fontSize: 28
 })
 
-const FiltersSideBar = ({ onSizeChanged, onColorChanged, onCategoryChanged, onPriceChanged }) => {
+const FiltersSideBar = ({
+    onSizeChanged = () => {}, 
+    onColorChanged = () => {}, 
+    onCategoryChanged = () => {}, 
+    onPriceChanged = () => {}, 
+    initialFilters
+}) => {
     return ( 
         <div>
             <FiltersTitle>Filters</FiltersTitle>
@@ -31,25 +38,34 @@ const FiltersSideBar = ({ onSizeChanged, onColorChanged, onCategoryChanged, onPr
                 loading={
                         <FiltersList>
                             <li>
-                                <Selector title="Sizes" isLoading={true} />
-                                <Selector title="Colors" isLoading={true} />
+                                <Selector title="Sizes" isLoading={true}/>
+                                <Selector title="Colors" isLoading={true}/>
                                 <PriceSelector isLoading={true} />
-                                <Selector title="Tags" isLoading={true} />
+                                <Selector title="Tags" isLoading={true}/>
                             </li>
                         </FiltersList>
                 }
-                builder={(data) => (
-                    <div>
+                builder={(data) => {
+                    const initialSelectedSizes = data.sizes.filter(size => initialFilters.sizes?.includes(size.name)) || [];
+                    const initialSelectedColors = data.colors.filter(color => initialFilters.colors?.includes(color.name)) || [];
+                    const initialSelectedCategories = data.categories.filter(category => initialFilters.tags?.includes(category.name)) || [];
+                    const initialPrice = initialFilters.price || {};
+
+                    return <div>
                         <FiltersList>
                             <li>
-                                <Selector title="Sizes" options={data.sizes} onOptionSelected={onSizeChanged}/>
-                                <Selector title="Colors" options={data.colors} isColor={true} onOptionSelected={onColorChanged} />
-                                <PriceSelector options={data.prices} onPriceChanged={onPriceChanged}/>
-                                <Selector title="Tags" options={data.categories} onOptionSelected={onCategoryChanged} />
+                                <Selector title="Sizes" options={data.sizes} onOptionSelected={onSizeChanged} initialOptions={initialSelectedSizes}/>
+                                <Selector title="Colors" options={data.colors} isColor={true} onOptionSelected={onColorChanged} initialOptions={initialSelectedColors}/>
+                                <PriceSelector options={data.prices} onPriceChanged={(price) => {
+                                    console.log(price);
+                                    
+                                    onPriceChanged(price);
+                                }} initialPrice={initialPrice}/>
+                                <Selector title="Tags" options={data.categories} onOptionSelected={onCategoryChanged} initialOptions={initialSelectedCategories}/>
                             </li>
                         </FiltersList>
                     </div>
-                )}
+                }}
             />
         </div>
     );

@@ -16,12 +16,12 @@ export const PromiseBuilder = ({ promise, builder, loading, error }) => {
           setLoadingState(false);
         }
       })
-      // .catch((err) => {
-      //   if (isMounted) {
-      //     setErrorState(err);
-      //     setLoadingState(false);
-      //   }
-      // });
+      .catch((err) => {
+        if (isMounted) {
+          setErrorState(err);
+          setLoadingState(false);
+        }
+      });
 
     return () => {
       isMounted = false;

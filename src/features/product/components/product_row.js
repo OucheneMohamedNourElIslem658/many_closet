@@ -1,10 +1,10 @@
 import { IconButton, Skeleton, styled, TableCell, TableRow } from "@mui/material";
-import { DeleteRounded, EditRounded, VisibilityOffRounded, VisibilityRounded } from "@mui/icons-material";
+import { EditRounded, VisibilityOffRounded, VisibilityRounded } from "@mui/icons-material";
 import theme from "../../../commun/utils/theme";
-import { deleteOrder, updateProduct, updateProductVisibility } from "../../../services/product";
+import { updateProductVisibility } from "../../../services/product";
 import ActionConfirmationDialog from "../../landing/components/action_confirmation_dialog";
-import { use, useEffect, useState } from "react";
-import { Link } from "react-router-dom/cjs/react-router-dom.min";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const ProductInfo = styled('div')(({ theme }) => ({
     display: 'flex',

@@ -51,7 +51,7 @@ const ColorButton = styled(IconButton)(({ theme }) => ({
     transition: 'padding 0.1s ease-in-out',
 }))
 
-const Selector = ({ title, options, initialOption, isColor, type = 'multi', isLoading = false, onOptionSelected = () => {} }) => {
+const Selector = ({ title, options, initialOptions = [], isColor, type = 'multi', isLoading = false, onOptionSelected = ([]) => {} }) => {
     const [filterOptions, setFilterOptions] = useState([]);
     
     function handleOptionSelection(option) {
@@ -67,15 +67,14 @@ const Selector = ({ title, options, initialOption, isColor, type = 'multi', isLo
     }
 
     useEffect(() => {
-        if (initialOption) {
-            setFilterOptions([initialOption]);
+        if (initialOptions && initialOptions.length > 0) {
+            setFilterOptions([...initialOptions]);
         }
     }
-    , [initialOption]);
+    , []);
 
     useEffect(() => {
-        const selectedOptionsIds = filterOptions.map((option) => option.id);
-        onOptionSelected(selectedOptionsIds);
+        onOptionSelected(filterOptions);
     }, [filterOptions])
 
     return (

@@ -6,6 +6,7 @@ import { FilterListRounded, RefreshRounded } from "@mui/icons-material";
 import { useState } from "react";
 import EmptyDataComponent from "../../../commun/components/empty";
 import { Link } from "react-router-dom";
+import theme from "../../../commun/utils/theme";
 
 const ContentAlignment = styled('ul')(({ theme }) => ({
     display: 'grid',
@@ -86,10 +87,9 @@ const DrawerButton = styled(IconButton)(({ theme }) => ({
     }
 }))
 
-const ProductsList = ({onDrawerOpen, filters}) => {
+const ProductsList = ({onDrawerOpen, filters, onSearchQueryChanged = () => {}, onPageChanged = () => {}}) => {
     const [refreshKey, setRefreshKey] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
-    const [query, setQuery] = useState('');
 
     const pageSize = 3;
 
@@ -99,7 +99,8 @@ const ProductsList = ({onDrawerOpen, filters}) => {
                 <div style={{display: 'flex', gap: 10}}>
                     <SearchField 
                         style={{justifySelf: 'flex-end'}}
-                        onValueChanged={(value) => setQuery(value)}
+                        onValueChanged={(value) => onSearchQueryChanged(value)}
+                        defaultValue={filters.query}
                     />
                     <DrawerButton 
                         variant="outlined"
@@ -117,9 +118,9 @@ const ProductsList = ({onDrawerOpen, filters}) => {
             <PromiseBuilder
                 key={refreshKey}
                 promise={() => getProducts({
-                    currentPage, 
+                    currentPage: filters.page || 1, 
                     pageSize, 
-                    name: query,
+                    name: filters.query,
                     tags: filters.tags,
                     colors: filters.colors,
                     sizes: filters.sizes,
@@ -130,12 +131,12 @@ const ProductsList = ({onDrawerOpen, filters}) => {
                         {Array.from(new Array(pageSize)).map((_, index) => (
                             <Product key={index}>
                                 <Skeleton variant="rectangular" width="100%" height={400} />
-                                <Skeleton variant="text" width="70%" height={'40px'} />
-                                <Skeleton variant="text" width="40%" height={'30px'}/>
+                                <Skeleton variant="text" width="70%" height={'34px'} />
+                                <Skeleton variant="text" width="30%" height={'30px'}/>
                                 <div style={{display: "flex", gap: 5, marginTop: 10}}>
                                     {
                                         Array.from(new Array(3)).map((_, index) => (
-                                            <Skeleton key={index} variant="circular" width={40} height={40} />
+                                            <Skeleton key={index} variant="circular" width={30} height={30} />
                                         ))
                                     }
                                 </div>
@@ -154,7 +155,7 @@ const ProductsList = ({onDrawerOpen, filters}) => {
                     return <div>
                         <ContentAlignment>
                             {products.map((product, index) => (
-                                <Link key={index} to={`/product/${product.$id}`} style={{textDecoration: 'none'}}>
+                                <Link key={index} to={`/products/${product.$id}`} style={{textDecoration: 'none'}}>
                                     <Product>
                                         <ProductImage
                                             style={{
@@ -167,7 +168,7 @@ const ProductsList = ({onDrawerOpen, filters}) => {
                                             {product.colors.map((color, index) => (
                                                 <li
                                                     key={index}
-                                                    style={{ backgroundColor: `#${color.code}` }}
+                                                    style={{ backgroundColor: `#${color.code}`, border: `1px solid ${theme.palette.secondary.main}`, }}
                                                 ></li>
                                             ))}
                                         </ProductColors>
@@ -178,10 +179,8 @@ const ProductsList = ({onDrawerOpen, filters}) => {
                         <PaginationController
                             count={maxPages} 
                             size="small" 
-                            page={currentPage}
-                            onChange={(_, value) => {
-                                setCurrentPage(value)
-                            }}
+                            page={filters.page || 1}
+                            onChange={(_, value) => onPageChanged(value)}
                         />
                     </div>
                 }}

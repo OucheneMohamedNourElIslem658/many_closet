@@ -1,14 +1,11 @@
-import { Button, CircularProgress, FormControlLabel, Skeleton, styled, Switch, TextField } from "@mui/material";
+import { Button, CircularProgress, FormControlLabel, styled, Switch, TextField } from "@mui/material";
 import CollectionItemsPicker from "./components/collection_items_picker";
 import ImagesPicker from "../../commun/components/images_picker";
-import { Fragment, useEffect, useState } from "react";
-import { PromiseBuilder } from "../../commun/components/promise_builder";
-import { createProduct, getFilters, getUpdateProductInfo, updateProduct } from "../../services/product";
+import { useEffect, useState } from "react";
+import { getUpdateProductInfo, updateProduct } from "../../services/product";
 import ErrorComponent from "../../commun/components/error";
-import ActionConfirmationDialog from "../landing/components/action_confirmation_dialog";
 import CustomizedSnackbar from "../../commun/components/snackbar";
-import { useParams } from "react-router-dom/cjs/react-router-dom.min";
-import images from "../../commun/utils/images";
+import { useParams } from "react-router-dom";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -265,7 +262,7 @@ const UpdateProductPage = () => {
                         loading={state.disabled}
                         loadingPosition="end"
                     >
-                        Create Product
+                        Edit Product
                     </Button>
                     <CustomizedSnackbar
                         open={Boolean(state.error)}

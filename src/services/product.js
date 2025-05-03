@@ -70,8 +70,8 @@ async function getFilters() {
 async function getProducts({currentPage, pageSize, name, tags, colors, sizes, priceRange, isAdminBoard = false}) {
     if (isAdminBoard) {
         const user = await getUser()
-        
         const isUserAdmin = user?.labels?.includes('admin')
+
         if (!isUserAdmin) {
             throw new Error("Unauthorized access");
         }
@@ -289,8 +289,6 @@ async function updateProduct({ id, name, description, price, available, images, 
 
     if (imagesToDelete) {
         for (let image of imagesToDelete) {
-            console.log(image);
-            
             await databases.deleteDocument(
                 databaseID,
                 'images',

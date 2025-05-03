@@ -1,6 +1,6 @@
 import { RefreshRounded } from "@mui/icons-material";
 import { IconButton, Pagination, Skeleton, styled, Table, TableCell, TableHead, TableRow } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
 import {getOrders } from "../../services/order";
 import EmptyDataComponent from "../../commun/components/empty";
@@ -8,6 +8,7 @@ import SearchField from "../../commun/components/search_field";
 import StatusDrodown from "./components/status_drop_down";
 import EditibleOrderRow from "./components/editible_order_row";
 import { orderStatuses } from "../../commun/utils/constents";
+import { useSearchParams } from "react-router-dom";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -80,12 +81,47 @@ const TableScroller = styled('div')({
 })
 
 const OrdersBoardPage = () => {
-    const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10
 
     const [refreshKey, setRefreshKey] = useState(0);
-    const [filteredStatus, setFilteredStatus] = useState('All');
-    const [id, setID] = useState('');
+
+        const [filters, setFilters] = useState({
+        query: '',
+        page: 1,
+    });
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    useEffect(() => {
+        const query = searchParams.get("query") || '';
+        const page = searchParams.get("page") || 1;
+        setFilters({ ...filters, query, page });
+    }, [searchParams]);
+
+    const updateUrlFilters = (updatedFilters) => {
+        const params = {};
+        if (updatedFilters.query) params.query = updatedFilters.query;
+        if (updatedFilters.page) params.page = updatedFilters.page;
+        setSearchParams(params);
+    };
+
+    const handleFilterChange = (key, value) => {
+        let selectedValues;
+        switch (key) {
+            case "query":
+                selectedValues = value || '';
+                break;
+            case "page":
+                selectedValues = value || 1;
+                break;
+            default:
+                selectedValues = value;
+        }
+
+        const updatedFilters = { ...filters, [key]: selectedValues };
+        setFilters(updatedFilters);
+        updateUrlFilters(updatedFilters);
+    };
 
     return (
         <ContentContainer>
@@ -96,16 +132,17 @@ const OrdersBoardPage = () => {
             <ControllContainer>
                 <SearchField
                     placeholder="Enter order ID..."
+                    defaultValue={filters.id}
                     onValueChanged={(value) => {
-                        setCurrentPage(1);
-                        setID(value);
+                        handleFilterChange('page', 1);
+                        handleFilterChange('id', value);
                     }}
                 />
                 <StatusDrodown
-                    initialValue={'All'}
+                    initialValue={filters.status}
                     borderType="box"
                     statuses={['All', ...orderStatuses.filter((status) => status !== 'in_card')]}
-                    onChange={(status) => setFilteredStatus(status)}
+                    onChange={(status) => handleFilterChange('status', status)}
                 />
                 <RefreshButton onClick={async () => setRefreshKey(refreshKey + 1)}>
                     <RefreshRounded/>
@@ -123,7 +160,13 @@ const OrdersBoardPage = () => {
                         </TableRow>
                     </TableHeader>
                     <PromiseBuilder
-                        promise={() => getOrders({pageSize, currentPage, status: filteredStatus, id, isAdmin: true})}
+                        promise={() => getOrders({
+                            pageSize, 
+                            currentPage: filters.page, 
+                            status: filters.status, 
+                            id: filters.id, 
+                            isAdmin: true
+                        })}
                         loading={
                             Array.from({ length: 5 }).map((_, index) => (
                                 <TableRow key={`skeleton-${index}`}>
@@ -165,8 +208,8 @@ const OrdersBoardPage = () => {
                                         <PaginationController 
                                             style={{justifySelf: 'center'}} 
                                             count={data.maxPages} 
-                                            page={currentPage}
-                                            onChange={(_, page) => setCurrentPage(page)} 
+                                            page={filters.page}
+                                            onChange={(_, page) => handleFilterChange('page', page)} 
                                         />
                                     </TableCell>
                                 </TableRow>

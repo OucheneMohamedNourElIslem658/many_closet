@@ -82,14 +82,18 @@ export default function OrderForm({orderID, onOrderCreated}) {
           },
         }}
       >
-        <DialogTitle fontFamily={theme.typography.secondaryFontFamily} fontSize={'30px'}>Order</DialogTitle>
+        <DialogTitle fontFamily={theme.typography.secondaryFontFamily} fontSize={'30px'} style={{paddingBottom: 0}}>Make Order</DialogTitle>
+        <DialogContentText style={{padding: '0 25px'}}>
+          Fill in the form below to make an order.
+        </DialogContentText>
         <PromiseBuilder
           promise={getOrderFormData}
           loading={
-            <DialogContent>
-              <CircularProgress style={{margin: '50px 100px'}}/>
+            <DialogContent style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' , margin: '20px 0'}}>
+              <CircularProgress />
             </DialogContent>
           }
+
           builder={(data) => {
             const prices = data.deliveryPrices;
 
@@ -101,9 +105,6 @@ export default function OrderForm({orderID, onOrderCreated}) {
 
             return (
               <DialogContent>
-                <DialogContentText>
-                  Fill in the form below to make an order.
-                </DialogContentText>
                   <TextField
                     margin="dense"
                     id="name"
@@ -115,6 +116,11 @@ export default function OrderForm({orderID, onOrderCreated}) {
                     required
                     defaultValue={currentUserName}
                     disabled={!dataReady}
+                    slotProps={{
+                      htmlInput: {
+                        maxLength: 50,
+                      },
+                  }}
                   />
                   <TextField
                     margin="dense"
@@ -145,6 +151,11 @@ export default function OrderForm({orderID, onOrderCreated}) {
                     variant="standard"
                     disabled={!dataReady}
                     required
+                    slotProps={{
+                      htmlInput: {
+                        maxLength: 100
+                      }
+                    }}
                   />
                   <ImagesPicker 
                     disabled={!dataReady} 

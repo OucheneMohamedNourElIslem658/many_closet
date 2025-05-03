@@ -1,5 +1,6 @@
 import { RefreshRounded } from "@mui/icons-material";
 import { Skeleton, styled } from "@mui/material";
+import { useEffect } from "react";
 
 const PriceItem = styled('label')(({ theme }) => ({
     display: 'flex',
@@ -60,7 +61,7 @@ function formatePriceFilter(price) {
     }
 }
 
-const PriceSelector = ({onPriceChanged, options, isLoading}) => {
+const PriceSelector = ({onPriceChanged = () => {}, options, isLoading, initialPrice}) => {
     const handlePriceChange = (price, isChecked) => {
         if (isChecked) {
             onPriceChanged(price);
@@ -77,6 +78,21 @@ const PriceSelector = ({onPriceChanged, options, isLoading}) => {
         const radios = document.getElementsByName('price');
         return Array.from(radios).some(radio => radio.checked);
     };
+
+    useEffect(() => {
+        if (initialPrice) {
+            const radios = document.getElementsByName('price');
+            radios.forEach(radio => {
+                if (radio.value == initialPrice.min) {
+                    radio.checked = true;
+                    handlePriceChange(initialPrice);
+                } else {
+                    radio.checked = false;
+                }
+            });
+        }
+    }
+    , [initialPrice]);
 
     return (
         <div>
@@ -113,6 +129,7 @@ const PriceSelector = ({onPriceChanged, options, isLoading}) => {
                                     <CustomCheckBox 
                                         type="radio" 
                                         name="price"
+                                        value={price.min}
                                         onChange={(e) => handlePriceChange(price, e.target.checked)} 
                                     />
                                     {formatePriceFilter(price)}

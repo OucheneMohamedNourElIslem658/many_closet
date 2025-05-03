@@ -63,9 +63,6 @@ export const storeCurrentUser = async () => {
         name: user.name,
         email: user.email,
       },
-      [
-        Permission.write(Role.user(user.$id)),
-      ]
     )
     return
   }
@@ -80,6 +77,7 @@ export const storeCurrentUser = async () => {
     },
     [
       Permission.write(Role.user(user.$id)),
+      Permission.read(Role.user(user.$id)),
     ]
   )
 }

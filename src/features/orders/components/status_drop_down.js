@@ -1,11 +1,14 @@
 import { KeyboardArrowDownRounded } from "@mui/icons-material";
 import { MenuItem, Select } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import theme from "../../../commun/utils/theme";
 
 const StatusDrodown = ({disabled, initialValue, statuses, borderType = 'underline', onChange = () => {}}) => {
+    const [value, setValue] = useState('All');
 
-    const [value, setValue] = useState(initialValue);
+    useEffect(() => {
+      setValue(initialValue);
+    }, [initialValue]);
   
     return (
       <Select

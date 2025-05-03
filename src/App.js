@@ -3,7 +3,7 @@ import './App.css';
 import AppBar from './commun/components/appbar';
 import LandingPage from './features/landing/landing';
 import theme from './commun/utils/theme';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ShopPage from './features/shop/shop';
 import ProductPage from './features/product/product';
 import OrdersPage from './features/orders/orders';
@@ -24,38 +24,20 @@ function App() {
         <header className="App-header"></header>
         <AppBar />
         <div className="content">
-          <Switch>
-            <Route exact path='/admin/products/:id/edit'>
-              <UpdateProductPage/>
-            </Route>
-            <Route path='/admin/products/create'>
-              <CreateProductPage/>
-            </Route>
-            <Route path='/admin/auth'>
-              <AdminAuthPage/>
-            </Route>
-            <Route path="/admin/products">
-              <ProductsBoardPage/>
-            </Route>
-            <Route path='/admin/orders'>
-              <OrdersBoardPage/>
-            </Route>
-            <Route path="/auth/success">
-              <AuthSuccess/>
-            </Route>
-            <Route path="/shop">
-              <ShopPage />
-            </Route>
-            <Route path='/product/:id' exact>
-              <ProductPage/>
-            </Route>
-            <Route path='/orders'>
-              <OrdersPage/>
-            </Route>
-            <Route path="/">
-              <LandingPage />
-            </Route>
-          </Switch>
+          <Routes>
+            <Route path='/admin/products/:id/edit' element={<UpdateProductPage />} />
+            <Route path='/admin/products/create' element={<CreateProductPage />} />
+            <Route path='/admin/auth' element={<AdminAuthPage />} />
+            <Route path="/admin/products" element={<ProductsBoardPage />} />
+            <Route path='/admin/orders' element={<OrdersBoardPage />} />
+            <Route path='/admin/orders/:id' element={<OrdersBoardPage />} />
+            <Route path="/auth/success" element={<AuthSuccess />} />
+            <Route path="/shop" element={<ShopPage />} />
+            <Route path='/products/:id' element={<ProductPage />} />
+            <Route path='/orders' element={<OrdersPage />} />
+            <Route path='/orders/:id' element={<OrdersPage />} />
+            <Route path="/" element={<LandingPage />} />
+          </Routes>
         </div>
         <BottomNav/>
         <Footer/>

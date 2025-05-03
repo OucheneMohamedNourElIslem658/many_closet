@@ -31,9 +31,6 @@ async function getOrders({currentPage, pageSize, status, id, isAdmin}) {
         queries.push(Query.equal('status', status))
     }
 
-    console.log(queries);
-    
-
     const data = await databases.listDocuments(
         databaseID,
         'orders',
@@ -87,8 +84,7 @@ async function getOrder({id}) {
         )
     } else {
         const currentUser = await getUser()
-        console.log(currentUser.$id);
-        
+
         const orders = await databases.listDocuments(
             databaseID,
             'orders',
@@ -338,20 +334,18 @@ async function removeItemFromCard(id) {
 }
 
 async function updateOrder({id, status}) {
-    const currentUser = await getUser()
-
     if (status && status !== 'in_card') {
         const docs = await databases.listDocuments(
             databaseID,
             'orders',
             [
                 Query.equal('$id', id),
-                Query.equal('client', currentUser.$id),
                 Query.limit(1),
             ],
         )
 
         if (docs.documents.length > 0) {
+            
             await databases.updateDocument(
                 databaseID,
                 'orders',

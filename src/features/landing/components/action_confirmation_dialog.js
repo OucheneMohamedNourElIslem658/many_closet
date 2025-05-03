@@ -14,7 +14,6 @@ const ActionConfirmationDialog = ({title, description, triggerButton, onConfirm}
         } catch (error) {
             setMessage(error.message)
             setOpen(true)
-            throw error
         }
         setDisabled(false)
     }

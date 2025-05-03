@@ -7,6 +7,8 @@ import ConfirmationDialog from "../../commun/components/confirmation_dialog";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
 import {getOrders } from "../../services/order";
 import EmptyDataComponent from "../../commun/components/empty";
+import { useEffect } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -69,10 +71,40 @@ const TableScroller = styled('div')({
 })
 
 const OrdersPage = () => {
-    const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10
-
     const [refreshKey, setRefreshKey] = useState(0);
+
+    const [filters, setFilters] = useState({
+        page: 1,
+    });
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    useEffect(() => {
+        const page = searchParams.get("page") || 1;
+        setFilters({ ...filters, page });
+    }, [searchParams]);
+
+    const updateUrlFilters = (updatedFilters) => {
+        const params = {};
+        if (updatedFilters.page) params.page = updatedFilters.page;
+        setSearchParams(params);
+    };
+
+    const handleFilterChange = (key, value) => {
+        let selectedValues;
+        switch (key) {
+            case "page":
+                selectedValues = value || 1;
+                break;
+            default:
+                selectedValues = value;
+        }
+
+        const updatedFilters = { ...filters, [key]: selectedValues };
+        setFilters(updatedFilters);
+        updateUrlFilters(updatedFilters);
+    };
 
     return (
         <ContentContainer>
@@ -95,7 +127,7 @@ const OrdersPage = () => {
                         </TableRow>
                     </TableHeader>
                     <PromiseBuilder
-                        promise={() => getOrders({pageSize, currentPage})}
+                        promise={() => getOrders({pageSize, currentPage: filters.page})}
                         loading={
                             Array.from({ length: 5 }).map((_, index) => (
                                 <TableRow key={`skeleton-${index}`}>
@@ -133,8 +165,8 @@ const OrdersPage = () => {
                                         <PaginationController 
                                             style={{justifySelf: 'center'}} 
                                             count={data.maxPages} 
-                                            page={currentPage}
-                                            onChange={(_, page) => setCurrentPage(page)} 
+                                            page={filters.page}
+                                            onChange={(_, page) => handleFilterChange('page', page)} 
                                         />
                                     </TableCell>
                                 </TableRow>
@@ -147,38 +179,59 @@ const OrdersPage = () => {
     );
 }
 
-const OrderRow = ({order}) => {
+const OrderRow = ({ order }) => {
     const [open, setOpen] = useState(false);
+    const { id } = useParams();
+
+    useEffect(() => {
+        if (id === order.id) {
+            setOpen(true);
+        }
+    }, [id]);
 
     return (
         <TableRow key={order.id}>
-            <TableCell onClick={() => setOpen(true)} sx={{cursor: 'pointer'}}>
-                <p style={{fontSize: '16px', fontWeight: 600, textDecoration: 'none'}}>{order.items.map((item) => item.name).join(', ')}</p>
+            <TableCell 
+                component={Link} 
+                to={`/orders/${order.id}`} 
+                sx={{ cursor: 'pointer' }} 
+                onClick={() => setOpen(true)}
+            >
+                <p 
+                    style={{ 
+                        fontSize: '16px', 
+                        fontWeight: 600, 
+                        textDecoration: 'none' 
+                    }}>
+                        {order.items.map((item) => item.name).join(', ')}
+                </p>
                 <p>N° {order.id}</p>
             </TableCell>
             <TableCell>{order.price}DA</TableCell>
             <TableCell>{order.timeAgo}</TableCell>
             <TableCell>{order.status}</TableCell>
             <TableCell>
-                <ConfirmationDialog  
+                <ConfirmationDialog
                     title="Delete Order"
                     description="Are you sure you want to delete this order?"
                     button={
-                        <IconButton onClick={() => setOpen(true)} sx={{color: theme.palette.error.main}}>
-                            <DeleteRounded/>
+                        <IconButton sx={{ color: theme.palette.error.main }}>
+                            <DeleteRounded />
                         </IconButton>
                     }
                     onConfirm={() => {}}
                 />
             </TableCell>
-            <OrdersDrawer 
+            <OrdersDrawer
                 open={open}
-                onClose={() => setOpen(false)}
+                onClose={() => {
+                    setOpen(false);
+                    window.history.pushState({}, '', '/orders');
+                }}
                 orderID={order.id}
             />
         </TableRow>
-
     );
-}
+};
  
 export default OrdersPage;

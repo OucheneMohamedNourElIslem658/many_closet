@@ -3,7 +3,7 @@ import NewArrivalItem from './new_arrivale_item';
 import { Button } from '@mui/material';
 import { PromiseBuilder } from '../../../commun/components/promise_builder';
 import { getProducts } from '../../../services/product';
-import { Link } from 'react-router-dom/cjs/react-router-dom';
+import { Link } from 'react-router-dom';
 import EmptyDataComponent from '../../../commun/components/empty';
 
 const Content = styled('div')({

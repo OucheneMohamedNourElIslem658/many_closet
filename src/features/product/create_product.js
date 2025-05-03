@@ -192,11 +192,11 @@ const CreateProductPage = () => {
             {state.loadingState ? (
                 <FiltersContainer>
                     <FieldsTitles>Colors</FieldsTitles>
-                    {/* <CollectionItemsPicker isLoading={true} />
+                    <CollectionItemsPicker isLoading={true} />
                     <FieldsTitles>Sizes</FieldsTitles>
                     <CollectionItemsPicker isLoading={true} />
                     <FieldsTitles>Categories</FieldsTitles>
-                    <CollectionItemsPicker isLoading={true} /> */}
+                    <CollectionItemsPicker isLoading={true} />
                 </FiltersContainer>
             ) : null}
             {state.errorState ? (

@@ -3,7 +3,7 @@ import { Box, Button, IconButton, Skeleton, styled } from "@mui/material";
 import Selector from "../../commun/components/option_selector";
 import { useState } from "react";
 import OrdersDrawer from "../orders/components/order_drawer";
-import { useParams } from "react-router-dom/cjs/react-router-dom.min";
+import { useParams } from "react-router-dom";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
 import { getProduct } from "../../services/product";
 import { addItemToCard } from "../../services/order";
@@ -209,7 +209,7 @@ const ProductPage = () => {
             promise={() => getProduct(id)}
             loading={<ProductPageLoader/>}
             builder={(product) => {
-                if (!product) return <EmptyDataComponent message={'this document does not exist'}/>
+                if (!product) return <EmptyDataComponent message={'this product does not exist'}/>
 
                 const colors = product.colors.map((color) => ({
                     id: color.$id,
@@ -222,8 +222,8 @@ const ProductPage = () => {
                     name: size.name,
                 }))
 
-                let sizeID = sizes[0].id
-                let colorID = colors[0].id
+                let size = sizes[0]
+                let color = colors[0]
                 let quantity = 1
 
                 return <ProductPageContainer>
@@ -248,16 +248,16 @@ const ProductPage = () => {
                         title="Size" 
                         options={sizes}
                         type="single"
-                        initialOption={sizes[0]}
-                        onOptionSelected={(selected) => sizeID = selected[0]}
+                        initialOptions={[sizes[0]]}
+                        onOptionSelected={(selected) => size = selected[0]}
                     />
                     <Selector 
                         title="Colors" 
                         options={colors} 
                         isColor={true}
                         type="single"
-                        initialOption={colors[0]}
-                        onOptionSelected={(selected) => colorID = selected[0]}
+                        initialOptions={[colors[0]]}
+                        onOptionSelected={(selected) => color = selected[0]}
                     />
                     <div>
                         <p>Tags</p>
@@ -283,7 +283,12 @@ const ProductPage = () => {
                                     Add to cart
                                 </AddToCartButton>
                             }
-                            onConfirm={async () => await addItemToCard({productID: product.$id, sizeID, colorID, quantity})}
+                            onConfirm={async () => await addItemToCard({
+                                productID: product.$id, 
+                                sizeID: size.id, 
+                                colorID: color.id, 
+                                quantity
+                            })}
                         />
                     </QuantityContainer>}
                 </InfoContainer>

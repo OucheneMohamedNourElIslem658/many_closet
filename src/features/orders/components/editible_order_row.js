@@ -7,15 +7,26 @@ import StatusDrodown from "./status_drop_down";
 import { orderStatuses } from "../../../commun/utils/constents";
 import { deleteOrder, updateOrder } from "../../../services/order";
 import CustomizedSnackbar from "../../../commun/components/snackbar";
+import OrdersDrawer from "./order_drawer";
+import { Link, useParams } from "react-router-dom";
 
 const EditibleOrderRow = ({order, onOrderDeleted}) => {
     const [status, setStatus] = useState(order.status);
     const [currentOrder, setCurrentOrder] = useState(order);
     const [error, setError] = useState('');
+    const {id} = useParams()
+    const [open, setOpen] = useState(id === order.id);
+
 
     useEffect(() => {
         setCurrentOrder(order);
     }, []);
+
+    useEffect(() => {
+        if (id) {
+            setOpen(id === order.id);
+        }
+    }, [id]);
 
     const handleStatusChange = async () => {
         await updateOrder({id: order.id, status})
@@ -25,8 +36,20 @@ const EditibleOrderRow = ({order, onOrderDeleted}) => {
 
     return (
         <TableRow key={order.id}>
-            <TableCell sx={{cursor: 'pointer'}}>
-                <p style={{fontSize: '16px', fontWeight: 600, textDecoration: 'none'}}>{order.items.map((item) => item.name).join(', ')}</p>
+            <TableCell 
+                component={Link} 
+                to={`/admin/orders/${order.id}`} 
+                sx={{ cursor: 'pointer' }} 
+                onClick={() => setOpen(true)}
+            >
+                <p 
+                    style={{ 
+                        fontSize: '16px', 
+                        fontWeight: 600, 
+                        textDecoration: 'none' 
+                    }}>
+                        {order.items.map((item) => item.name).join(', ')}
+                </p>
                 <p>N° {order.id}</p>
             </TableCell>
             <TableCell>{order.price}DA</TableCell>
@@ -71,6 +94,14 @@ const EditibleOrderRow = ({order, onOrderDeleted}) => {
                 message={error}
                 handleClose={() => setError('')}
                 type={'error'}
+            />
+            <OrdersDrawer
+                open={open}
+                onClose={() => {
+                    setOpen(false);
+                    window.history.pushState({}, '', '/admin/orders');
+                }}
+                orderID={order.id}
             />
         </TableRow>
     );

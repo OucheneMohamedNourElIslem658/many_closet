@@ -78,13 +78,12 @@ const ItemsList = styled('ul')(({ theme }) => ({
 const PaymentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
-    position: 'fixed',
+    position: 'sticky',
     right: 0,
     bottom: 0,
-    width: '80vw',
     gap: 10,
     backgroundColor: theme.palette.background.paper,
-    padding: '20px 20px',
+    padding: '15px',
     maxWidth: 550,
     borderTop: `1px solid ${theme.palette.grey[300]}`,
     [theme.breakpoints.down('sm')]: {

@@ -1,12 +1,12 @@
 import { AddRounded, RefreshRounded } from "@mui/icons-material";
 import { Fab, IconButton, Pagination, styled, Table, TableCell, TableHead, TableRow } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PromiseBuilder } from "../../commun/components/promise_builder";
 import EmptyDataComponent from "../../commun/components/empty";
 import { getProducts } from "../../services/product";
 import ProductRow from "./components/product_row";
 import SearchField from "../../commun/components/search_field";
-import { Link } from "react-router-dom/cjs/react-router-dom.min";
+import { Link, useSearchParams } from "react-router-dom";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -78,12 +78,47 @@ const ControlContainer = styled('div')({
 })
 
 const ProductsBoardPage = () => {
-    const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10
-
-    const [search, setSearch] = useState('');
-
     const [refreshKey, setRefreshKey] = useState(0);
+
+    const [filters, setFilters] = useState({
+        query: '',
+        page: 1,
+    });
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    useEffect(() => {
+        const query = searchParams.get("query") || '';
+        const page = searchParams.get("page") || 1;
+        setFilters({ ...filters, query, page });
+    }, [searchParams]);
+
+    const updateUrlFilters = (updatedFilters) => {
+        const params = {};
+        if (updatedFilters.query) params.query = updatedFilters.query;
+        if (updatedFilters.page) params.page = updatedFilters.page;
+        setSearchParams(params);
+    };
+
+    const handleFilterChange = (key, value) => {
+        let selectedValues;
+        switch (key) {
+            case "query":
+                selectedValues = value || '';
+                break;
+            case "page":
+                selectedValues = value || 1;
+                break;
+            default:
+                selectedValues = value;
+        }
+
+        const updatedFilters = { ...filters, [key]: selectedValues };
+        setFilters(updatedFilters);
+        updateUrlFilters(updatedFilters);
+    };
+
 
     return (
         <ContentContainer>
@@ -93,9 +128,10 @@ const ProductsBoardPage = () => {
             </div>
             <ControlContainer>
                 <SearchField
+                    defaultValue={filters.query}
                     onValueChanged={(value) => {
-                        setCurrentPage(1);
-                        setSearch(value);
+                        handleFilterChange('page', 1);
+                        handleFilterChange('query', value);
                     }}
                 />
                 <RefreshButton onClick={async () => setRefreshKey(refreshKey + 1)}>
@@ -114,7 +150,12 @@ const ProductsBoardPage = () => {
                         </TableRow>
                     </TableHeader>
                     <PromiseBuilder
-                        promise={() => getProducts({pageSize, currentPage, isAdminBoard: true, name: search})}
+                        promise={() => getProducts({
+                            pageSize, 
+                            currentPage: filters.page, 
+                            isAdminBoard: true, 
+                            name: filters.query
+                        })}
                         loading={
                             Array.from({ length: pageSize }).map((_, index) => (
                                 <ProductRow isLoading={true} key={index}/>
@@ -137,8 +178,8 @@ const ProductsBoardPage = () => {
                                         <PaginationController 
                                             style={{justifySelf: 'center'}} 
                                             count={data.maxPages} 
-                                            page={currentPage}
-                                            onChange={(_, page) => setCurrentPage(page)} 
+                                            page={filters.page}
+                                            onChange={(_, page) => handleFilterChange('page', page)} 
                                         />
                                     </TableCell>
                                 </TableRow>
