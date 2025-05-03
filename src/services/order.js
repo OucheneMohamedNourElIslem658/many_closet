@@ -104,18 +104,17 @@ async function getOrder({id}) {
         return null
     }
 
-    const orderItems = await Promise.all(
-        order.orderItems.map(async (item) => {
-            const orderItem = await databases.getDocument(
-                databaseID,
-                'order_items',
-                item.$id,
-            );
-            return orderItem;
-        })
-    );
+    const orderItemsIDs = order.orderItems.map((item) => item.$id)
 
-    order.items = orderItems
+    const orderItems = (await databases.listDocuments(
+        databaseID,
+        'order_items',
+        [
+            Query.equal('$id', orderItemsIDs),
+            Query.limit(100),
+            Query.orderDesc('$updatedAt'),
+        ],
+    )).documents
 
     const orderItemsPrices = order.orderItems.map((item) => {
         return item.product.price
