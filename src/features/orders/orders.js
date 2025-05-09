@@ -9,6 +9,7 @@ import EmptyDataComponent from "../../commun/components/empty";
 import { useEffect } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import ActionConfirmationDialog from "../landing/components/action_confirmation_dialog";
+import { Helmet } from "react-helmet";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -108,6 +109,12 @@ const OrdersPage = () => {
 
     return (
         <ContentContainer>
+            <Helmet>
+                <title>My Orders</title>
+                <meta name="description" content="View and manage your past orders. Check order details, status, and more." />
+                <meta name="keywords" content="orders, order history, manage orders, view orders" />
+                <meta name="author" content="Your Company Name" />
+            </Helmet>
             <div>
                 <Title>Orders</Title>
                 <SubTitle>Here you can view your past orders.</SubTitle>
@@ -232,6 +239,7 @@ const OrderRow = ({ order }) => {
                         }
                         onConfirm={async () => {
                             await deleteOrder(order.id)
+                      
                             setShowOrder(false)
                         }}
                     />

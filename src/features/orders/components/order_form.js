@@ -15,7 +15,7 @@ import { useState } from 'react';
 import ImagesPicker from '../../../commun/components/images_picker';
 import theme from '../../../commun/utils/theme';
 
-export default function OrderForm({orderID, onOrderCreated}) {
+export default function OrderForm({orderID, onOrderCreated = () => {}}) {
   const [open, setOpen] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);

@@ -1,10 +1,13 @@
 // src/appwrite.js
 import { Account, Client, Databases, Storage } from 'appwrite'
 
+const appwriteEndpoint = process.env.REACT_APP_APPWRITE_ENDPOINT
+const appwriteProject = process.env.REACT_APP_APPWRITE_PROJECT
+
 const client = new Client()
 client
-  .setEndpoint('https://cloud.appwrite.io/v1')
-  .setProject('67fc030f003b267f06de')
+  .setEndpoint(appwriteEndpoint)
+  .setProject(appwriteProject)
 
 const account = new Account(client)
 

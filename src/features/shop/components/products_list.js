@@ -144,6 +144,7 @@ const ProductsList = ({onDrawerOpen, filters, onSearchQueryChanged = () => {}, o
                         ))}
                     </ContentAlignment>
                 }
+                
                 builder={(data) => {
                     const products = data.products
                     const maxPages = data.maxPages

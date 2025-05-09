@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import ForumSection from "./components/forum_section";
 import LandingSection from "./components/landing_section";
 import NewArrivalSection from "./components/new_arrival_section";
+import { Helmet } from "react-helmet";
 
 const LandingPage = () => {
   const location = useLocation();
@@ -33,6 +34,11 @@ const LandingPage = () => {
 
   return (
     <div>
+      <Helmet>
+        <title>Many Closet</title>
+        <meta name="description" content="Welcome to our online store!" />
+        <meta name="keywords" content="store, online, shopping, many closet" />
+      </Helmet>
       <div id="landing">
         <LandingSection />
       </div>

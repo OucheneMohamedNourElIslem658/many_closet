@@ -9,6 +9,7 @@ import { getProduct } from "../../services/product";
 import { addItemToCard } from "../../services/order";
 import AddItemToCardDialog from "../landing/components/action_confirmation_dialog";
 import EmptyDataComponent from "../../commun/components/empty";
+import { Helmet } from "react-helmet";
 
 const Picture = styled('div')(({ theme }) => ({
     backgroundSize: 'cover',
@@ -207,99 +208,107 @@ const ProductPage = () => {
     const { id } = useParams();
 
     return ( 
-        <PromiseBuilder
-            promise={() => getProduct(id)}
-            loading={<ProductPageLoader/>}
-            builder={(product) => {
-                if (!product) return <EmptyDataComponent message={'this product does not exist'}/>
+        <>
+            <Helmet>
+                <title>Product Details</title>
+                <meta name="description" content="View detailed information about the product, including price, availability, and options for size and color." />
+                <meta name="keywords" content="product details, shopping, e-commerce, product page" />
+                <meta name="author" content="Many Closet" />
+            </Helmet>
+            <PromiseBuilder
+                promise={() => getProduct(id)}
+                loading={<ProductPageLoader/>}
+                builder={(product) => {
+                    if (!product) return <EmptyDataComponent message={'this product does not exist'}/>
 
-                const colors = product.colors.map((color) => ({
-                    id: color.$id,
-                    name: color.name,
-                    hex: color.code,
-                }))
+                    const colors = product.colors.map((color) => ({
+                        id: color.$id,
+                        name: color.name,
+                        hex: color.code,
+                    }))
 
-                const sizes = product.sizes.map((size) => ({
-                    id: size.$id,
-                    name: size.name,
-                }))
+                    const sizes = product.sizes.map((size) => ({
+                        id: size.$id,
+                        name: size.name,
+                    }))
 
-                let size = sizes[0]
-                let color = colors[0]
-                let quantity = 1
+                    let size = sizes[0]
+                    let color = colors[0]
+                    let quantity = 1
 
-                return <ProductPageContainer>
-                <ProductPicture images={product.images}/>
-                <InfoContainer>
-                    <TitleContainer>
-                        <Name>{product.name}</Name>
-                        <AvailablityTag
-                            className={product.is_available ? 'available' : 'not-available'}
-                        >
-                            {product.is_available ? 'AVAILABLE' : 'NOT AVAILABLE'}
-                        </AvailablityTag>
-                        <Spacer/>
-                        <Price>{product.price}DA</Price>
-                    </TitleContainer>
-                    <Description>{product.desc}</Description>
-                    <OrdersContainer>
-                        <ShoppingBagOutlined style={{color: 'black', position: 'relative', bottom: 2}}/>
-                        <p>{product.totalOrders} people ordered this product</p>
-                    </OrdersContainer>
-                    <Selector 
-                        title="Size" 
-                        options={sizes}
-                        type="single"
-                        initialOptions={[sizes[0]]}
-                        onOptionSelected={(selected) => size = selected[0]}
-                    />
-                    <Selector 
-                        title="Colors" 
-                        options={colors} 
-                        isColor={true}
-                        type="single"
-                        initialOptions={[colors[0]]}
-                        onOptionSelected={(selected) => color = selected[0]}
-                    />
-                    <div>
-                        <p>Tags</p>
-                        <TagsList>
-                            {
-                                product.categories.map((tag, index) => (
-                                    <li key={index}>
-                                        <p>{tag.name}</p>
-                                    </li>
-                                ))
-                            }
-                        </TagsList>
-                    </div>
-                    {product.isAuthenticated && <QuantityContainer>
-                        <QuantityCounter 
-                            onChanged={(value) => quantity = (value || 1)}
+                    return <ProductPageContainer>
+                    <ProductPicture images={product.images}/>
+                    <InfoContainer>
+                        <TitleContainer>
+                            <Name>{product.name}</Name>
+                            <AvailablityTag
+                                className={product.is_available ? 'available' : 'not-available'}
+                            >
+                                {product.is_available ? 'AVAILABLE' : 'NOT AVAILABLE'}
+                            </AvailablityTag>
+                            <Spacer/>
+                            <Price>{product.price}DA</Price>
+                        </TitleContainer>
+                        <Description>{product.desc}</Description>
+                        <OrdersContainer>
+                            <ShoppingBagOutlined style={{color: 'black', position: 'relative', bottom: 2}}/>
+                            <p>{product.totalOrders} people ordered this product</p>
+                        </OrdersContainer>
+                        <Selector 
+                            title="Size" 
+                            options={sizes}
+                            type="single"
+                            initialOptions={[sizes[0]]}
+                            onOptionSelected={(selected) => size = selected[0]}
                         />
-                        <div style={{display: 'flex', gap: '10px', width: '100%'}}>
-                            <AddItemToCardDialog
-                                title={"Add to cart"}
-                                description={`Are you sure you want to add ${product.name} to your cart?`}
-                                triggerButton={
-                                    <AddToCartButton variant="outlined" style={{flexGrow: 1}}>
-                                        Add to cart
-                                    </AddToCartButton>
+                        <Selector 
+                            title="Colors" 
+                            options={colors} 
+                            isColor={true}
+                            type="single"
+                            initialOptions={[colors[0]]}
+                            onOptionSelected={(selected) => color = selected[0]}
+                        />
+                        <div>
+                            <p>Tags</p>
+                            <TagsList>
+                                {
+                                    product.categories.map((tag, index) => (
+                                        <li key={index}>
+                                            <p>{tag.name}</p>
+                                        </li>
+                                    ))
                                 }
-                                onConfirm={async () => await addItemToCard({
-                                    productID: product.$id, 
-                                    sizeID: size.id, 
-                                    colorID: color.id, 
-                                    quantity
-                                })}
-                            />
-                            <MyCardDrawer/>
+                            </TagsList>
                         </div>
-                    </QuantityContainer>}
-                </InfoContainer>
-            </ProductPageContainer>
-            }}
-        />
+                        {product.isAuthenticated && <QuantityContainer>
+                            <QuantityCounter 
+                                onChanged={(value) => quantity = (value || 1)}
+                            />
+                            <div style={{display: 'flex', gap: '10px', width: '100%'}}>
+                                <AddItemToCardDialog
+                                    title={"Add to cart"}
+                                    description={`Are you sure you want to add ${product.name} to your cart?`}
+                                    triggerButton={
+                                        <AddToCartButton variant="outlined" style={{flexGrow: 1}}>
+                                            Add to cart
+                                        </AddToCartButton>
+                                    }
+                                    onConfirm={async () => await addItemToCard({
+                                        productID: product.$id, 
+                                        sizeID: size.id, 
+                                        colorID: color.id, 
+                                        quantity
+                                    })}
+                                />
+                                <MyCardDrawer/>
+                            </div>
+                        </QuantityContainer>}
+                    </InfoContainer>
+                </ProductPageContainer>
+                }}
+            />
+        </>
     );
 }
 

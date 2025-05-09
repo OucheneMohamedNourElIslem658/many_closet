@@ -7,6 +7,7 @@ import { getProducts } from "../../services/product";
 import ProductRow from "./components/product_row";
 import SearchField from "../../commun/components/search_field";
 import { Link, useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -132,6 +133,12 @@ const ProductsBoardPage = () => {
 
     return (
         <ContentContainer>
+            <Helmet>
+                <title>My Products</title>
+                <meta name="description" content="Manage and adjust your products on the Products Board." />
+                <meta name="keywords" content="products, management, admin, board" />
+                <meta name="author" content="Your Company Name" />
+            </Helmet>
             <div>
                 <Title>Products Board</Title>
                 <SubTitle>Here you can adjust your products</SubTitle>

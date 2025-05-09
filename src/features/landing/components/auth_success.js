@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { logoutUser, storeCurrentUser } from "../../../services/auth";
 import { CircularProgress, styled } from "@mui/material";
+import { Helmet } from "react-helmet";
 
 const Description = styled('div')(({ theme }) => ({
     textAlign: 'center',
@@ -32,6 +33,11 @@ const AuthSuccess = () => {
 
     return (
         <Description>
+            <Helmet>
+                <title>Auth success</title>
+                <meta name="description" content="Authentication successful. Redirecting to the shop page." />
+                <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
             <h1>Authentication Successful</h1>
             <p>You will be redirected to the shop page shortly.</p>
             <CircularProgress size={'40px'}/>

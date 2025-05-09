@@ -1,13 +1,15 @@
-import { ID, OAuthProvider, Permission, Query, Role } from "appwrite"
+import { OAuthProvider, Permission, Query, Role } from "appwrite"
 import { account, databaseID, databases } from "./config"
+
+const appURL = process.env.REACT_APP_APP_URL
 
 
 export const loginWithGoogle = async () => {
   try {
     account.createOAuth2Session(
         OAuthProvider.Google,
-        'http://localhost:3000/auth/success',
-        'http://localhost:3000/',
+        appURL + '/auth/success',
+        appURL,
         ['email', 'profile']
     )
 
@@ -20,8 +22,8 @@ export const loginWithFacebook = async () => {
   try {
     account.createOAuth2Session(
         OAuthProvider.Facebook,
-        'http://localhost:3000/auth/success',
-        'http://localhost:3000/',
+        appURL + '/auth/success',
+        appURL,
         ['email', 'public_profile']
     )
   } catch (error) {

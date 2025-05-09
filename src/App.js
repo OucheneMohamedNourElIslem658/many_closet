@@ -16,6 +16,7 @@ import OrdersBoardPage from './features/orders/orders_board';
 import CreateProductPage from './features/product/create_product';
 import UpdateProductPage from './features/product/edit_product';
 import ErrorComponent from './commun/components/error';
+import { Helmet } from 'react-helmet';
 
 function App() {
   return (
@@ -23,6 +24,14 @@ function App() {
       <Router>
       <div className="App">
         <header className="App-header"></header>
+        <Helmet>
+            <meta charSet="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <meta name="description" content="Welcome to Many Closet, your one-stop shop for all your fashion needs." />
+            <meta name="keywords" content="fashion, shop, clothing, accessories" />
+            <meta name="author" content="Many Closet Team" />
+            <title>Many Closet</title>
+        </Helmet>
         <AppBar />
         <div className="content">
           <Routes>

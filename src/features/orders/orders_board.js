@@ -9,6 +9,7 @@ import StatusDrodown from "./components/status_drop_down";
 import EditibleOrderRow from "./components/editible_order_row";
 import { orderStatuses } from "../../commun/utils/constents";
 import { useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 const ContentContainer = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -130,6 +131,12 @@ const OrdersBoardPage = () => {
 
     return (
         <ContentContainer>
+            <Helmet>
+                <title>Client's Orders</title>
+                <meta name="description" content="Manage and adjust your client's orders efficiently on the Orders Board." />
+                <meta name="keywords" content="orders, management, client orders, admin panel" />
+                <meta name="author" content="Your Company Name" />
+            </Helmet>
             <div>
                 <Title>Orders Board</Title>
                 <SubTitle>Here you can adjust you client's orders</SubTitle>

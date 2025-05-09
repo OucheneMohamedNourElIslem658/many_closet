@@ -2,6 +2,7 @@ import { Button, styled, TextField } from "@mui/material";
 import { loginWithEmailAndPassword } from "../../services/auth";
 import CustomizedSnackbar from "../../commun/components/snackbar";
 import { useState } from "react";
+import { Helmet } from "react-helmet";
 
 const SubTitle = styled('p')(({ theme }) => ({
     fontFamily: theme.typography.fontFamily,
@@ -56,6 +57,11 @@ const AdminAuthPage = () => {
 
     return (
         <ContentContainer>
+            <Helmet>
+                <title>Auth</title>
+                <meta name="description" content="Admin authentication page for signing in with email and password." />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            </Helmet>
             <div>
                 <h1>Authentification</h1>
                 <SubTitle>Sign In with admin email and password</SubTitle>

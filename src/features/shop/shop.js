@@ -4,6 +4,7 @@ import ProductsList from "./components/products_list";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 const ContentAlignment = styled('div')(({ theme }) => ({
     display: 'grid',
@@ -115,6 +116,11 @@ const ShopPage = () => {
 
     return ( 
         <div>
+            <Helmet>
+                <title>Shop</title>
+                <meta name="description" content="Welcome to our online store!" />
+                <meta name="keywords" content="store, online, shopping, many closet" />
+            </Helmet>
             <ContentAlignment>
                 <Header>
                     <Title>Fashion</Title>
