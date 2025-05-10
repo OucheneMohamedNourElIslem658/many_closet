@@ -168,6 +168,7 @@ const OrdersBoardPage = () => {
                             <TableHeaderTitles>Price</TableHeaderTitles>
                             <TableHeaderTitles>Time</TableHeaderTitles>
                             <TableHeaderTitles>Status</TableHeaderTitles>
+                            <TableHeaderTitles>State</TableHeaderTitles>
                             <TableCell/>
                         </TableRow>
                     </TableHeader>
@@ -194,6 +195,9 @@ const OrdersBoardPage = () => {
                                     </TableCell>
                                     <TableCell>
                                         <Skeleton variant="text" width="40%" height={20} />
+                                    </TableCell>
+                                    <TableCell>
+                                        <Skeleton variant="text" width="30%" height={20} />
                                     </TableCell>
                                     <TableCell>
                                         <Skeleton variant="text" width="30%" height={20} />

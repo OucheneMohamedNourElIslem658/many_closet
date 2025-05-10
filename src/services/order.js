@@ -56,6 +56,7 @@ async function getOrders({currentPage, pageSize, status, id, isAdmin}) {
             timeAgo: date2TimeAgo(order.$createdAt),
             status: order.status,
             price: price,
+            state: order.delivery_price.state,
             items: order.orderItems.map((item) => {
             return {
                 name: item.product.name,
@@ -70,6 +71,41 @@ async function getOrders({currentPage, pageSize, status, id, isAdmin}) {
 
     return {
         orders: orders.filter((order) => order !== null),
+        maxPages: maxPages
+    }
+}
+
+async function getOrdersPrices({currentPage, pageSize}) {
+    const currentUser = await getUser()
+    const isCurrentUserAdmin = currentUser?.labels?.some((role) => role === 'admin')
+    if (!isCurrentUserAdmin) {
+        throw new Error('You are not authorized to view this page')
+    }
+
+    const offset = (currentPage - 1) * pageSize
+
+    const data = await databases.listDocuments(
+        databaseID,
+        'delivery_prices',
+        [
+            Query.limit(pageSize),
+            Query.offset(offset),
+            Query.orderDesc('$createdAt'),
+        ]
+    )
+
+    const prices = data.documents.map((price) => {
+        return {
+            id: price.$id,
+            state: price.state,
+            price: price.price,
+        }
+    })
+
+    const maxPages = Math.ceil(data.total / pageSize)
+
+    return {
+        prices: prices,
         maxPages: maxPages
     }
 }
@@ -358,4 +394,40 @@ async function updateOrder({id, status}) {
     }
 }
 
-export { getOrders, getOrder, makeOrder, deleteOrder, addItemToCard, removeItemFromCard, getOrderFormData, updateOrder };
+const editDeliveryPrice = async ({ id, newState, newPrice }) => {
+    const newDeliveryPrice = {};
+
+    if (newState) {
+        newDeliveryPrice.state = newState;
+    }
+
+    if (newPrice) {
+        newDeliveryPrice.price = newPrice;
+    }
+
+    await databases.updateDocument(
+        databaseID,
+        'delivery_prices',
+        id,
+        {
+            state: newState,
+            price: newPrice
+        }
+    )
+};
+
+const createDeliveryPrice = async ({ state, price }) => {
+    const newDeliveryPrice = {
+        state: state,
+        price: price
+    };
+
+    await databases.createDocument(
+        databaseID,
+        'delivery_prices',
+        ID.unique(),
+        newDeliveryPrice,
+    )
+};
+
+export { getOrders, getOrder, makeOrder, deleteOrder, addItemToCard, removeItemFromCard, getOrderFormData, updateOrder, getOrdersPrices, editDeliveryPrice, createDeliveryPrice };

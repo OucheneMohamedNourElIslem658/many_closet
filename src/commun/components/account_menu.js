@@ -1,4 +1,4 @@
-import { ArchiveRounded, ListAltRounded, LocalShipping, Logout, Padding, ShoppingBagOutlined, ShoppingBasketRounded, Storefront } from "@mui/icons-material";
+import { ArchiveRounded, ListAltRounded, LocalShipping, LocalShippingOutlined, Logout, Padding, ShoppingBagOutlined, ShoppingBasketRounded, Storefront } from "@mui/icons-material";
 import { Avatar, Box, Divider, IconButton, ListItem, ListItemAvatar, ListItemIcon, ListItemText, Menu, MenuItem, styled } from "@mui/material";
 import { Fragment, useState } from "react";
 import { logoutUser } from "../../services/auth";
@@ -114,6 +114,12 @@ export default function AccountMenu({currentUser}) {
                   <ListAltRounded fontSize="small" />
                 </ListItemIcon>
                 Client's Orders
+              </MenuItem>,
+              <MenuItem key="admin-delivery-prices" onClick={handleClose} component={Link} to="/admin/orders/prices">
+                <ListItemIcon>
+                  <LocalShippingOutlined fontSize="small" />
+                </ListItemIcon>
+                Delivery Prices
               </MenuItem>,
               <Divider key="admin-divider-2" />
             ]

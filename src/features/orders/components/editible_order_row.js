@@ -68,6 +68,9 @@ const EditibleOrderRow = ({order}) => {
                 </StatusDrodown>
             </TableCell>
             <TableCell>
+                {order.state}
+            </TableCell>
+            <TableCell>
                 <Fragment>
                     <ActionConfirmationDialog
                         title="Update Order Status"

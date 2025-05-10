@@ -17,6 +17,8 @@ import CreateProductPage from './features/product/create_product';
 import UpdateProductPage from './features/product/edit_product';
 import ErrorComponent from './commun/components/error';
 import { Helmet } from 'react-helmet';
+import OrdersPrices from './features/orders/orders_prices';
+import CreateOrderPrice from './features/orders/create_order_price';
 
 function App() {
   return (
@@ -40,7 +42,9 @@ function App() {
             <Route path='/admin/auth' element={<AdminAuthPage />} />
             <Route path="/admin/products" element={<ProductsBoardPage />} />
             <Route path='/admin/orders' element={<OrdersBoardPage />} />
+            <Route path='/admin/orders/prices/create' element={<CreateOrderPrice />} />
             <Route path='/admin/orders/:id' element={<OrdersBoardPage />} />
+            <Route path='/admin/orders/prices' element={<OrdersPrices />} />
             <Route path="/auth/success" element={<AuthSuccess />} />
             <Route path="/shop" element={<ShopPage />} />
             <Route path='/products/:id' element={<ProductPage />} />
@@ -51,7 +55,8 @@ function App() {
             <Route path='/contact' element={<LandingPage/>}/>
             <Route path="*" element={<ErrorComponent
                 error={"The page you are looking for does not exist."}
-            />} />
+            />} 
+          />
           </Routes>
         </div>
         <BottomNav/>

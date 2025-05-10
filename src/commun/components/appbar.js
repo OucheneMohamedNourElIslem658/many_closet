@@ -54,10 +54,21 @@ const StyledLink = styled(Link)(({ theme }) => ({
     },
 }));
 
+const ExperimentalTag = styled('span')(({ theme }) => ({
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.common.white,
+    padding: '4px 8px',
+    borderRadius: '20px',
+    fontSize: '12px',
+    marginLeft: '15px',
+    fontFamily: theme.typography.fontFamily,
+}));
+
 const AppBar = () => {
     return (
         <CustomAppBar>
             <Logo>Many Closet</Logo>
+            <ExperimentalTag> Experimental </ExperimentalTag>
             <NavigationList>
                 <li>
                     <StyledLink to="/">Home</StyledLink>

@@ -2,10 +2,8 @@ import { Button, FormControlLabel, styled, Switch, TextField } from "@mui/materi
 import CollectionItemsPicker from "./components/collection_items_picker";
 import ImagesPicker from "../../commun/components/images_picker";
 import { useEffect, useState } from "react";
-import { PromiseBuilder } from "../../commun/components/promise_builder";
 import { createProduct, getFilters } from "../../services/product";
 import ErrorComponent from "../../commun/components/error";
-import ActionConfirmationDialog from "../landing/components/action_confirmation_dialog";
 import CustomizedSnackbar from "../../commun/components/snackbar";
 
 const ContentContainer = styled('div')(({ theme }) => ({
