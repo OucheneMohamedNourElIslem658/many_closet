@@ -183,7 +183,7 @@ const OrdersPrices = () => {
                     />
                 </OrdersTable>
             </TableScroller>
-            <AddProductButton to="/admin/orders/create">
+            <AddProductButton to="/admin/orders/prices/create">
                 <Fab 
                     color="primary" 
                     aria-label="add"
