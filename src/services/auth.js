@@ -1,8 +1,7 @@
 import { OAuthProvider, Permission, Query, Role } from "appwrite"
 import { account, databaseID, databases } from "./config"
 
-const appURL = process.env.REACT_APP_APP_URL
-
+const appURL = `${window.location.protocol}//${window.location.host}`
 
 export const loginWithGoogle = async () => {
   try {
