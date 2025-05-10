@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import IconButton from '@mui/material/IconButton';
@@ -6,9 +5,9 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Instagram } from '@mui/icons-material';
-import { Facebook } from '@mui/icons-material';
 import { Mail } from '@mui/icons-material';
 import { styled } from '@mui/material';
+import { contactMail } from '../utils/constents';
 
 const ContentContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -60,7 +59,7 @@ export default function Footer() {
           <IconButton
             color="inherit"
             size="small"
-            href="https://Instagram.com/mui"
+            href="https://www.instagram.com/many_closet"
             aria-label="Instagram"
             sx={{ alignSelf: 'center' }}
           >
@@ -69,16 +68,7 @@ export default function Footer() {
           <IconButton
             color="inherit"
             size="small"
-            href="https://facebook.com/MaterialUI"
-            aria-label="X"
-            sx={{ alignSelf: 'center' }}
-          >
-            <Facebook />
-          </IconButton>
-          <IconButton
-            color="inherit"
-            size="small"
-            href="https://www.linkedin.com/company/mui/"
+            href={`mailto:${contactMail}`}
             aria-label="Mail"
             sx={{ alignSelf: 'center' }}
           >
@@ -94,8 +84,8 @@ function Copyright() {
   return (
     <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1 }}>
       {'Copyright © '}
-      <Link color="text.secondary" href="https://mui.com/">
-        Sitemark
+      <Link color="text.secondary" href="mailto:m_ouchene@estin.dz">
+        Monei
       </Link>
       &nbsp;
       {new Date().getFullYear()}

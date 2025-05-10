@@ -1,5 +1,6 @@
 import { Button, styled, TextField } from "@mui/material";
 import images from "../../../commun/utils/images";
+import { contactMail } from "../../../commun/utils/constents";
 
 const Content = styled('div')({
     display: 'flex',
@@ -64,8 +65,6 @@ const RightPic = styled('img')(({theme}) => ({
 }))
 
 const ForumSection = () => {
-    const contactMail  = 'amaniouchene123@gmail.com'
-
     return (
         <Content id="contact">
             <img src={images.ForumLeftPic} alt="Forum Left" />

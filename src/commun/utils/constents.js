@@ -6,4 +6,6 @@ const orderStatuses = [
     'packed',
 ]
 
-export {orderStatuses}
+const contactMail  = 'amaniouchene123@gmail.com'
+
+export {orderStatuses, contactMail}

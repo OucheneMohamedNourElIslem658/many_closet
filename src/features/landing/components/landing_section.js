@@ -84,10 +84,10 @@ const LandingSection = () => {
             </ImgBg>
             
             <Content className="content">
-                <Heading>Welcome To our Shop!</Heading>
+                <Heading>Welcome To our Many Closet!</Heading>
 
                 <Paragraph>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit
+                    Shop and Buy the best quality products at the best price.
                 </Paragraph>
 
                 <ShopButton variant="contained" color="primary" component={Link} to='/shop'>
