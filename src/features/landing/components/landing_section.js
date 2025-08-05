@@ -2,6 +2,7 @@ import { Box, Button, styled } from '@mui/material';
 import Images from '../../../commun/utils/images'
 import { Link } from 'react-router-dom';
 
+// Add this style to set maxHeight to 100vh for the section container
 const LandingSectionContentAlignment = styled('div')(({theme}) => ({
     display: 'grid',
     gridTemplateColumns: '1fr 1fr 1fr',
@@ -13,7 +14,7 @@ const LandingSectionContentAlignment = styled('div')(({theme}) => ({
     [theme.breakpoints.down('md')]: {
         maxWidth: '600px',
     },
-}))
+}));
 
 const ShopButton = styled(Button)({
     paddingLeft: '50px',
@@ -23,7 +24,6 @@ const ShopButton = styled(Button)({
 const ImgBg = styled(Box) (({theme}) => ({
     backgroundColor: '#E0E0E0',
     gridRow: 'span 5',
-    paddingTop: 100,
     borderRadius: 10,
     display: 'flex',
     flexDirection: 'column',
@@ -31,6 +31,11 @@ const ImgBg = styled(Box) (({theme}) => ({
     alignItems: 'center',
     overflow: 'hidden',
     width: '100%',
+    '& img': {
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+    },
     '&.side-img': {
         [theme.breakpoints.down('md')]: {
             display: 'none',
@@ -38,19 +43,19 @@ const ImgBg = styled(Box) (({theme}) => ({
     },
     '&.top-bottom-pic': {
         gridRow: 'span 1', 
-        paddingTop: 10,
         [theme.breakpoints.down('md')]: {
             gridColumn: 'span 3',
         }
     },
     '&.bottom-pic': {
-        backgroundColor: '#F39D90'
+        backgroundColor: '#F39D90',
     },
 }));
 
 const Heading = styled('h1')({
     fontSize: 50,
     marginBottom: 20,
+    fontFamily: 'Dancing Script, cursive',
 });
 
 const Paragraph = styled('p')(({theme}) => ({
@@ -72,15 +77,15 @@ const LandingSection = () => {
     return ( 
         <LandingSectionContentAlignment>
             <ImgBg className='side-img'>
-                <img src={Images.LandingSectionLeftPic} alt=""/>
+                <img src={Images.Amani1} alt=""/>
             </ImgBg>
 
             <ImgBg className='top-bottom-pic'>
-                <img src={Images.LandingSectionTopPic} alt="" />
+                <img src={Images.Amani4} alt="" />
             </ImgBg>
 
             <ImgBg className='side-img'>
-                <img src={Images.LandingSectionRightPic} alt="" />
+                <img src={Images.Amani2} alt="" />
             </ImgBg>
             
             <Content className="content">
@@ -96,7 +101,7 @@ const LandingSection = () => {
             </Content>
 
             <ImgBg className='top-bottom-pic bottom-pic'>
-                <img src={Images.LandingSectionTopPic} alt="" />
+                <img src={Images.Amani3} alt="" />
             </ImgBg>
         </LandingSectionContentAlignment>
     );

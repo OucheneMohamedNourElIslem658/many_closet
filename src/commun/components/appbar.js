@@ -4,12 +4,13 @@ import SignInDialog from '../../features/landing/components/sign_in_dialog';
 import { getUser } from '../../services/auth';
 import AccountMenu from './account_menu';
 import { PromiseBuilder } from './promise_builder';
+import Logo from './logo';
 
 const CustomAppBar = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     maxWidth: 1200,
-    margin: '40px auto',
+    margin: '0 auto',
     padding: '0 20px',
     [theme.breakpoints.down('md')]: {
         justifyContent: 'space-between',
@@ -29,10 +30,6 @@ const NavigationList = styled('ul')(({ theme }) => ({
         display: 'none',
     },
 }));
-
-const Logo = styled('h1')({
-    whiteSpace: 'nowrap',
-});
 
 const StyledLink = styled(Link)(({ theme }) => ({
     position: 'relative',
@@ -54,21 +51,23 @@ const StyledLink = styled(Link)(({ theme }) => ({
     },
 }));
 
-const ExperimentalTag = styled('span')(({ theme }) => ({
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.common.white,
-    padding: '4px 8px',
-    borderRadius: '20px',
-    fontSize: '12px',
-    marginLeft: '15px',
-    fontFamily: theme.typography.fontFamily,
-}));
+// const ExperimentalTag = styled('span')(({ theme }) => ({
+//     backgroundColor: theme.palette.primary.main,
+//     color: theme.palette.common.white,
+//     padding: '4px 8px',
+//     borderRadius: '20px',
+//     fontSize: '10px',
+//     marginLeft: '15px',
+//     fontFamily: theme.typography.fontFamily,
+//     position: 'absolute',
+//     left: '10px',
+//     bottom: '20px',
+// }));
 
 const AppBar = () => {
     return (
         <CustomAppBar>
-            <Logo>Many Closet</Logo>
-            <ExperimentalTag> Experimental </ExperimentalTag>
+            <Logo />
             <NavigationList>
                 <li>
                     <StyledLink to="/">Home</StyledLink>
